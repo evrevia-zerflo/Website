@@ -1,38 +1,83 @@
-import React, { useState, useRef } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import api from '../api/client';
 import Dashboard from './Dashboard';
 import { Upload, ArrowLeft, Save, X, Image as ImageIcon } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-export default function AddProduct() {
+export default function EditProduct() {
+  const { id } = useParams();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
   
   const [form, setForm] = useState({
     name: '', category: 'Clothing', subcategory: '', description: '', 
-    price: '', originalPrice: '', stock: '25', supplierUrl: '', 
-    sizes: 'XS,S,M,L,XL', colors: '', material: '', careInstructions: '', 
-    tags: '', status: 'publish', isNew: true, isBestSeller: false
+    price: '', originalPrice: '', stock: '', supplierUrl: '', 
+    sizes: '', colors: '', material: '', careInstructions: '', 
+    tags: '', status: 'publish'
   });
   
-  const [images, setImages] = useState([]);
+  // Existing string URLs
+  const [existingImages, setExistingImages] = useState([]);
+  // New File objects
+  const [newImages, setNewImages] = useState([]);
 
-  const handleImageChange = (e) => {
-    if (e.target.files) {
-      const newImages = Array.from(e.target.files).map(file => ({
-        file,
-        preview: URL.createObjectURL(file)
-      }));
-      setImages([...images, ...newImages]);
+  useEffect(() => {
+    fetchProduct();
+  }, [id]);
+
+  const fetchProduct = async () => {
+    try {
+      const res = await api.get(`/products/${id}`);
+      const data = res.data;
+      setForm({
+        name: data.name || '',
+        category: data.category || 'Clothing',
+        subcategory: data.subcategory || '',
+        description: data.description || '',
+        price: data.price || '',
+        originalPrice: data.originalPrice || '',
+        stock: data.stock || '',
+        supplierUrl: data.supplierUrl || '',
+        sizes: (data.sizes || []).join(', '),
+        colors: (data.colors || []).join(', '),
+        material: data.material || '',
+        careInstructions: data.careInstructions || '',
+        tags: (data.tags || []).join(', '),
+        status: data.status || 'publish'
+      });
+      setExistingImages(data.images || []);
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to load product');
+      navigate('/products');
+    } finally {
+      setFetching(false);
     }
   };
 
-  const removeImage = (index) => {
-    const newImages = [...images];
-    newImages.splice(index, 1);
-    setImages(newImages);
+  const handleImageChange = (e) => {
+    if (e.target.files) {
+      const addedImages = Array.from(e.target.files).map(file => ({
+        file,
+        preview: URL.createObjectURL(file)
+      }));
+      setNewImages([...newImages, ...addedImages]);
+    }
+  };
+
+  const removeExistingImage = (index) => {
+    const updated = [...existingImages];
+    updated.splice(index, 1);
+    setExistingImages(updated);
+  };
+
+  const removeNewImage = (index) => {
+    const updated = [...newImages];
+    updated.splice(index, 1);
+    setNewImages(updated);
   };
 
   const handleSubmit = async (e) => {
@@ -42,8 +87,8 @@ export default function AddProduct() {
     try {
       const uploadedImageUrls = [];
       
-      // Upload all images sequentially
-      for (const img of images) {
+      // Upload new images sequentially
+      for (const img of newImages) {
         const formData = new FormData();
         formData.append('file', img.file);
         const uploadRes = await api.post('/admin/upload', formData, {
@@ -51,6 +96,9 @@ export default function AddProduct() {
         });
         uploadedImageUrls.push(uploadRes.data.url);
       }
+
+      // Combine existing images and newly uploaded images
+      const finalImages = [...existingImages, ...uploadedImageUrls];
 
       // Format payload
       const payload = {
@@ -61,20 +109,24 @@ export default function AddProduct() {
         sizes: form.sizes.split(',').map(s => s.trim()).filter(Boolean),
         colors: form.colors.split(',').map(c => c.trim()).filter(Boolean),
         tags: form.tags.split(',').map(t => t.trim()).filter(Boolean),
-        images: uploadedImageUrls
+        images: finalImages
       };
 
-      await api.post('/admin/products', payload);
-      toast.success('Product added successfully!');
+      await api.put(`/admin/products/${id}`, payload);
+      toast.success('Product updated successfully!');
       navigate('/products');
       
     } catch (err) {
       console.error(err);
-      toast.error("Failed to create product.");
+      toast.error("Failed to update product.");
     } finally {
       setLoading(false);
     }
   };
+
+  if (fetching) {
+    return <Dashboard><div style={{ padding: '5rem', textAlign: 'center', color: '#64748b' }}>Loading product details...</div></Dashboard>;
+  }
 
   const inputStyle = { width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.9rem', outline: 'none', transition: 'border 0.2s', background: '#f8fafc' };
   const labelStyle = { display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '8px', color: '#475569' };
@@ -88,12 +140,12 @@ export default function AddProduct() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <Link to="/products" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px', borderRadius: '50%', border: '1px solid #e2e8f0', color: '#64748b', background: 'white', transition: '0.2s' }} className="hover-bg-slate-50"><ArrowLeft size={20} /></Link>
             <div>
-              <h2 style={{ fontSize: '1.875rem', margin: 0, fontWeight: 700, color: '#0f172a' }}>Add Product</h2>
-              <p style={{ margin: '4px 0 0', color: '#64748b' }}>Create a new item in your catalog</p>
+              <h2 style={{ fontSize: '1.875rem', margin: 0, fontWeight: 700, color: '#0f172a' }}>Edit Product</h2>
+              <p style={{ margin: '4px 0 0', color: '#64748b' }}>Make changes to your catalog item</p>
             </div>
           </div>
           <button onClick={handleSubmit} disabled={loading} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px', background: '#0f172a', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}>
-            <Save size={18} /> {loading ? 'Saving...' : 'Save Product'}
+            <Save size={18} /> {loading ? 'Saving...' : 'Update Product'}
           </button>
         </div>
 
@@ -106,12 +158,12 @@ export default function AddProduct() {
               
               <div style={{ marginBottom: '1.5rem' }}>
                 <label style={labelStyle}>Product Title</label>
-                <input type="text" value={form.name} onChange={e => setForm({...form, name: e.target.value})} style={inputStyle} placeholder="E.g. Classic White T-Shirt" required />
+                <input type="text" value={form.name} onChange={e => setForm({...form, name: e.target.value})} style={inputStyle} required />
               </div>
               
               <div>
                 <label style={labelStyle}>Description</label>
-                <textarea rows={6} value={form.description} onChange={e => setForm({...form, description: e.target.value})} style={{...inputStyle, resize: 'vertical', lineHeight: '1.5'}} placeholder="Write a compelling description..."></textarea>
+                <textarea rows={6} value={form.description} onChange={e => setForm({...form, description: e.target.value})} style={{...inputStyle, resize: 'vertical', lineHeight: '1.5'}}></textarea>
               </div>
             </div>
 
@@ -179,12 +231,23 @@ export default function AddProduct() {
                 <input type="file" ref={fileInputRef} onChange={handleImageChange} accept="image/*" multiple style={{ display: 'none' }} />
               </div>
 
-              {images.length > 0 && (
+              {(existingImages.length > 0 || newImages.length > 0) && (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginTop: '1.5rem' }}>
-                  {images.map((img, index) => (
-                    <div key={index} style={{ position: 'relative', paddingTop: '100%', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
+                  {/* Render existing images from DB */}
+                  {existingImages.map((url, index) => (
+                    <div key={`exist-${index}`} style={{ position: 'relative', paddingTop: '100%', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
+                      <img src={url} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <button type="button" onClick={() => removeExistingImage(index)} style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(255,255,255,0.9)', border: 'none', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#ef4444', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
+                  
+                  {/* Render new images to be uploaded */}
+                  {newImages.map((img, index) => (
+                    <div key={`new-${index}`} style={{ position: 'relative', paddingTop: '100%', borderRadius: '8px', overflow: 'hidden', border: '1px solid #3b82f6' }}>
                       <img src={img.preview} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
-                      <button type="button" onClick={() => removeImage(index)} style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(255,255,255,0.9)', border: 'none', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#ef4444', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+                      <button type="button" onClick={() => removeNewImage(index)} style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(255,255,255,0.9)', border: 'none', borderRadius: '50%', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#ef4444', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
                         <X size={14} />
                       </button>
                     </div>
@@ -222,7 +285,6 @@ export default function AddProduct() {
               <h3 style={sectionTitleStyle}>Sourcing <span style={{ fontSize: '0.75rem', fontWeight: 400, color: '#94a3b8', background: '#f1f5f9', padding: '2px 8px', borderRadius: '12px', marginLeft: '8px' }}>Hidden</span></h3>
               <label style={labelStyle}>Supplier URL</label>
               <input type="url" value={form.supplierUrl} onChange={e => setForm({...form, supplierUrl: e.target.value})} placeholder="https://meesho.com/..." style={inputStyle} />
-              <p style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '8px', margin: '8px 0 0 0' }}>Keep track of where you source this product. Customers will never see this.</p>
             </div>
 
           </div>

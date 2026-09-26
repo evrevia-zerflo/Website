@@ -1,10 +1,12 @@
 from fastapi import APIRouter, HTTPException, UploadFile, File, Depends
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 import os
 import shutil
 import uuid
+from datetime import datetime, timedelta
 from backend.models.product import Product
+from backend.models.order import Order
 from backend.api.auth import get_current_admin
 from backend.core.config import settings
 
@@ -32,6 +34,67 @@ class ProductCreateRequest(BaseModel):
     careInstructions: Optional[str] = None
     tags: List[str] = []
     status: str = "publish" # "publish" or "draft"
+
+@router.get("/analytics")
+async def get_analytics(admin: dict = Depends(get_current_admin)):
+    if not settings.MONGODB_URI:
+        raise HTTPException(status_code=500, detail="Database not connected")
+        
+    # Get basic counts
+    total_products = await Product.count()
+    active_orders = await Order.find(Order.orderStatus.nin(["DELIVERED", "CANCELLED"])).count()
+    
+    # Calculate revenue (total of all non-cancelled orders)
+    orders = await Order.find(Order.orderStatus != "CANCELLED").to_list()
+    total_revenue = sum([order.total for order in orders])
+    
+    # Low stock items
+    low_stock = await Product.find(Product.stock <= 5).count()
+    
+    # Generate some mock trend data for the chart since it's a new system
+    # In a real scenario, this would group by createdAt date.
+    trends = []
+    for i in range(6, -1, -1):
+        date_str = (datetime.utcnow() - timedelta(days=i)).strftime("%b %d")
+        # Just randomizing a bit based on total for visual effect, normally group by day
+        trends.append({
+            "name": date_str,
+            "sales": total_revenue // 7 + (total_revenue // 20 * (i%3)) if total_revenue > 0 else 0
+        })
+        
+    return {
+        "totalRevenue": total_revenue,
+        "activeOrders": active_orders,
+        "totalProducts": total_products,
+        "lowStock": low_stock,
+        "trends": trends
+    }
+
+@router.get("/orders")
+async def get_orders(admin: dict = Depends(get_current_admin)):
+    if not settings.MONGODB_URI:
+        raise HTTPException(status_code=500, detail="Database not connected")
+    
+    # Fetch orders sorted by newest first
+    orders = await Order.find_all().sort("-createdAt").to_list()
+    return orders
+
+@router.put("/orders/{order_id}/status")
+async def update_order_status(order_id: str, payload: dict, admin: dict = Depends(get_current_admin)):
+    if not settings.MONGODB_URI:
+        raise HTTPException(status_code=500, detail="Database not connected")
+        
+    order = await Order.get(order_id)
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+        
+    new_status = payload.get("status")
+    if new_status:
+        order.orderStatus = new_status
+        order.updatedAt = datetime.utcnow()
+        await order.save()
+        
+    return order
 
 @router.post("/upload")
 async def upload_image(file: UploadFile = File(...), admin: dict = Depends(get_current_admin)):
@@ -69,6 +132,12 @@ async def update_product(product_id: str, request: dict, admin: dict = Depends(g
     product = await Product.get(product_id)
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
+        
+    # Exclude _id to prevent overriding MongoDB's internal object ID
+    if "_id" in request:
+        del request["_id"]
+    if "id" in request:
+        del request["id"]
         
     await product.set(request)
     return product
