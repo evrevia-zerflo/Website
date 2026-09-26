@@ -37,9 +37,9 @@ async def scrape_meesho():
         )
         page = await context.new_page()
 
-        for category, subcategories in URLS.items():
-            for subcategory, url_list in subcategories.items():
-                for url in url_list:
+        for subcategory, url_list in URLS.items():
+            category = "Clothing"
+            for url in url_list:
                     print(f"Scraping {url}...")
                     try:
                         await page.goto(url, timeout=30000)
