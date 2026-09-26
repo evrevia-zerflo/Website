@@ -1,0 +1,144 @@
+suppliers:
+  - id: snazzyway
+    name: Snazzyway Dropshipping
+    base_url: https://www.snazzywaydropshipping.com/
+    enabled: false
+    adapter: generic
+    category_map:
+      bags: ["https://www.snazzywaydropshipping.com/product-category/handbags/"]
+      clothing: ["https://www.snazzywaydropshipping.com/"]
+      footwear: ["https://www.snazzywaydropshipping.com/"]
+      jewelry: ["https://www.snazzywaydropshipping.com/"]
+      watches: ["https://www.snazzywaydropshipping.com/"]
+      lifestyle: ["https://www.snazzywaydropshipping.com/"]
+      fashion-accessories: ["https://www.snazzywaydropshipping.com/"]
+      beauty-accessories: ["https://www.snazzywaydropshipping.com/"]
+      hair: ["https://www.snazzywaydropshipping.com/"]
+    capabilities:
+      price_public: true
+      price_requires_login: false
+      images_public: true
+      stock_public: true
+      reviews_public: true
+      
+  - id: onlinekurtis
+    name: OnlineKurtis
+    base_url: https://www.onlinekurtis.com/
+    enabled: false
+    adapter: onlinekurtis
+    category_map:
+      clothing: ["https://www.onlinekurtis.com/women-kurtis", "https://www.onlinekurtis.com/"]
+      bags: ["https://www.onlinekurtis.com/"]
+      footwear: ["https://www.onlinekurtis.com/"]
+      jewelry: ["https://www.onlinekurtis.com/"]
+      watches: ["https://www.onlinekurtis.com/"]
+      lifestyle: ["https://www.onlinekurtis.com/"]
+      fashion-accessories: ["https://www.onlinekurtis.com/"]
+      beauty-accessories: ["https://www.onlinekurtis.com/"]
+      hair: ["https://www.onlinekurtis.com/"]
+    capabilities:
+      price_public: false
+      price_requires_login: true
+      images_public: true
+      stock_public: true
+      reviews_public: false
+      
+  - id: suratsuit
+    name: Surat Suit
+    base_url: https://www.suratsuit.in/
+    enabled: false
+    adapter: generic
+    category_map:
+      clothing: ["https://www.suratsuit.in/"]
+      footwear: ["https://www.suratsuit.in/"]
+      jewelry: ["https://www.suratsuit.in/"]
+      watches: ["https://www.suratsuit.in/"]
+      lifestyle: ["https://www.suratsuit.in/"]
+      fashion-accessories: ["https://www.suratsuit.in/"]
+      beauty-accessories: ["https://www.suratsuit.in/"]
+      hair: ["https://www.suratsuit.in/"]
+    capabilities:
+      price_public: true
+      price_requires_login: false
+      images_public: true
+      stock_public: true
+      reviews_public: false
+      
+  - id: awadhkarigiri
+    name: Awadh Karigiri
+    base_url: https://www.awadhkarigiri.com/
+    enabled: false
+    adapter: generic
+    category_map:
+      clothing: ["https://www.awadhkarigiri.com/"]
+      footwear: ["https://www.awadhkarigiri.com/"]
+      jewelry: ["https://www.awadhkarigiri.com/"]
+      watches: ["https://www.awadhkarigiri.com/"]
+      lifestyle: ["https://www.awadhkarigiri.com/"]
+      fashion-accessories: ["https://www.awadhkarigiri.com/"]
+      beauty-accessories: ["https://www.awadhkarigiri.com/"]
+      hair: ["https://www.awadhkarigiri.com/"]
+    capabilities:
+      price_public: true
+      price_requires_login: false
+      images_public: true
+      stock_public: true
+      reviews_public: false
+      
+  - id: amrahwholesale
+    name: Amrah Wholesale
+    base_url: https://www.amrahwholesale.com/
+    enabled: false
+    adapter: generic
+    category_map:
+      clothing: ["https://www.amrahwholesale.com/"]
+      footwear: ["https://www.amrahwholesale.com/"]
+      jewelry: ["https://www.amrahwholesale.com/"]
+      watches: ["https://www.amrahwholesale.com/"]
+      lifestyle: ["https://www.amrahwholesale.com/"]
+      fashion-accessories: ["https://www.amrahwholesale.com/"]
+      beauty-accessories: ["https://www.amrahwholesale.com/"]
+      hair: ["https://www.amrahwholesale.com/"]
+    capabilities:
+      price_public: true
+      price_requires_login: false
+      images_public: true
+      stock_public: true
+      reviews_public: false
+      
+  - id: womeniyas
+    name: Womeniyas Style House
+    base_url: https://womeniyasstylehouse.com/
+    enabled: false
+    adapter: generic
+    category_map:
+      bags: ["https://womeniyasstylehouse.com/"]
+      fashion-accessories: ["https://womeniyasstylehouse.com/"]
+    capabilities:
+      price_public: true
+      price_requires_login: false
+      images_public: true
+      stock_public: true
+      reviews_public: true
+
+  - id: meesho
+    name: Meesho
+    base_url: https://www.meesho.com/
+    enabled: true
+    adapter: meesho
+    category_map:
+      bags: ["https://www.meesho.com/search?q=bags"]
+      clothing: ["https://www.meesho.com/search?q=clothing"]
+      footwear: ["https://www.meesho.com/search?q=footwear"]
+      jewelry: ["https://www.meesho.com/search?q=jewelry"]
+      watches: ["https://www.meesho.com/search?q=watches"]
+      lifestyle: ["https://www.meesho.com/search?q=lifestyle"]
+      fashion-accessories: ["https://www.meesho.com/search?q=fashion%20accessories"]
+      beauty-accessories: ["https://www.meesho.com/search?q=beauty%20accessories"]
+      hair: ["https://www.meesho.com/search?q=hair"]
+    capabilities:
+      price_public: true
+      price_requires_login: false
+      images_public: true
+      stock_public: true
+      reviews_public: true

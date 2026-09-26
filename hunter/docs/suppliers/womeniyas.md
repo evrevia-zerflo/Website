@@ -1,0 +1,9 @@
+# Womeniyas Style House Recon
+
+- **Collection URLs**: 
+- **Pagination style**: 
+- **JSON-LD Product data**: 
+- **Price display**: 
+- **Stock & Variants**: 
+- **Shopify**: 
+- **Login required for pricing**: 

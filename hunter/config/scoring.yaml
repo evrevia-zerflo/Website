@@ -1,0 +1,37 @@
+weights:
+  price_and_margin: 25
+  demand_and_interest: 20
+  pinterest_potential: 20
+  trend_potential: 10
+  competition_level: 10
+  uniqueness: 10
+  availability: 5
+
+penalties:
+  LOW_REVIEW_COUNT: 5
+  LOW_RATING: 15
+  QUALITY_COMPLAINTS: 20
+  SIZING_COMPLAINTS: 15
+  LIMITED_SIZES: 5
+  LOW_STOCK: 5
+  HIGH_SATURATION: 10
+  PRICE_ABOVE_MARKET: 15
+  THIN_MARGIN: 15
+  NO_MARKET_DATA: 5
+  BRAND_OR_REPLICA_SUSPECTED: 30
+  WATERMARKED_PHOTOS: 15
+  FEW_PHOTOS: 5
+  PRICE_VOLATILE: 5
+  SINGLE_SOURCE: 0
+  VISUAL_NOT_ANALYZED: 5
+  REVIEWS_NOT_EXTRACTABLE: 5
+  SUPPLIER_DEGRADED: 5
+
+confidence_thresholds:
+  high: 80
+  medium: 55
+  low: 0
+
+diversity:
+  max_per_supplier_in_top_5: 2
+  prevent_visual_duplicates_in_top_5: true

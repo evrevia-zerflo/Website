@@ -160,25 +160,25 @@ export default function Shop() {
             background: 'linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-surface) 100%)',
             border: '1px solid var(--border-color)',
             borderRadius: 'var(--radius-md)',
-            padding: '0.75rem 1.25rem',
-            marginBottom: '1rem',
+            padding: '0.5rem 1rem',
+            marginBottom: '0.75rem',
             display: 'flex',
             flexWrap: 'wrap',
             alignItems: 'center',
             justifyContent: 'space-between',
-            gap: '0.75rem'
+            gap: '0.5rem'
           }}>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--accent-gold)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ fontSize: '0.6rem', fontWeight: 700, color: 'var(--accent-gold)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
                   CURATED COLLECTION
                 </span>
-                <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>•</span>
-                <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-main)' }}>
-                  {displayProducts.length} Items Available
+                <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>•</span>
+                <span style={{ fontSize: '0.65rem', fontWeight: 600, color: 'var(--text-main)' }}>
+                  {displayProducts.length} Items
                 </span>
               </div>
-              <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.35rem', fontWeight: 600, margin: '2px 0 0 0', lineHeight: 1.25, color: 'var(--text-main)' }}>
+              <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: '1rem', fontWeight: 600, margin: '2px 0 0 0', lineHeight: 1.2, color: 'var(--text-main)' }}>
                 {selectedSubcategory !== 'All' ? `${selectedSubcategory}` : `${selectedCategory} Collection`}
               </h1>
             </div>
@@ -207,45 +207,45 @@ export default function Shop() {
           </div>
 
           {/* COMPACT CONTROL & FILTER TOOLBAR */}
-          <div className="shop-control-panel" style={{ padding: '0.6rem 1rem', marginBottom: '1.25rem' }}>
-            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '0.65rem' }}>
+          <div className="shop-control-panel" style={{ padding: '0.4rem 0.8rem', marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
               
               {/* Left: Refine Drawer & Search Input */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, minWidth: '240px' }}>
-                <button className="btn-secondary" onClick={() => setIsFilterDrawerOpen(true)} style={{ padding: '5px 12px', fontSize: '0.78rem', flexShrink: 0, height: '34px', borderRadius: 'var(--radius-full)' }}>
-                  <SlidersHorizontal size={14} />
-                  <span>Refine & Filter</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flex: 1, minWidth: '200px' }}>
+                <button className="btn-secondary" onClick={() => setIsFilterDrawerOpen(true)} style={{ padding: '3px 8px', fontSize: '0.7rem', flexShrink: 0, height: '28px', borderRadius: 'var(--radius-full)' }}>
+                  <SlidersHorizontal size={12} />
+                  <span>Filters</span>
                   {activeFiltersCount > 0 && (
-                    <span style={{ background: 'var(--accent-gold)', color: '#FFF', width: '16px', height: '16px', borderRadius: '50%', fontSize: '0.65rem', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <span style={{ background: 'var(--accent-gold)', color: '#FFF', width: '14px', height: '14px', borderRadius: '50%', fontSize: '0.6rem', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
                       {activeFiltersCount}
                     </span>
                   )}
                 </button>
 
-                <div style={{ position: 'relative', flex: 1, maxWidth: '280px' }}>
-                  <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                <div style={{ position: 'relative', flex: 1, maxWidth: '220px' }}>
+                  <Search size={12} style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                   <input 
                     type="text"
-                    placeholder={`Search within ${selectedSubcategory !== 'All' ? selectedSubcategory : selectedCategory}...`}
+                    placeholder={`Search ${selectedSubcategory !== 'All' ? selectedSubcategory : selectedCategory}...`}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    style={{ width: '100%', height: '34px', padding: '5px 28px 5px 30px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-full)', background: 'var(--bg-primary)', fontSize: '0.78rem', outline: 'none' }}
+                    style={{ width: '100%', height: '28px', padding: '3px 24px 3px 26px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-full)', background: 'var(--bg-primary)', fontSize: '0.7rem', outline: 'none' }}
                   />
                   {searchQuery && (
-                    <button onClick={() => setSearchQuery('')} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
-                      <X size={13} />
+                    <button onClick={() => setSearchQuery('')} style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
+                      <X size={12} />
                     </button>
                   )}
                 </div>
               </div>
 
               {/* Right: Sort Select */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>Sort:</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>Sort:</span>
                 <select 
                   value={sortBy} 
                   onChange={(e) => setSortBy(e.target.value)}
-                  style={{ height: '34px', padding: '4px 10px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', background: 'var(--bg-primary)', fontSize: '0.78rem', outline: 'none' }}
+                  style={{ height: '28px', padding: '2px 6px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', background: 'var(--bg-primary)', fontSize: '0.7rem', outline: 'none' }}
                 >
                   <option value="featured">Featured</option>
                   <option value="newest">New Arrivals</option>
@@ -373,43 +373,43 @@ export default function Shop() {
           </div>
 
           {/* COMPACT CONTROL & FILTER TOOLBAR */}
-          <div className="shop-control-panel" style={{ padding: '0.6rem 1rem', marginBottom: '1.25rem' }}>
-            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '0.65rem' }}>
+          <div className="shop-control-panel" style={{ padding: '0.4rem 0.8rem', marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
               
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, minWidth: '240px' }}>
-                <button className="btn-secondary" onClick={() => setIsFilterDrawerOpen(true)} style={{ padding: '5px 12px', fontSize: '0.78rem', flexShrink: 0, height: '34px', borderRadius: 'var(--radius-full)' }}>
-                  <SlidersHorizontal size={14} />
-                  <span>Refine & Filter</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flex: 1, minWidth: '200px' }}>
+                <button className="btn-secondary" onClick={() => setIsFilterDrawerOpen(true)} style={{ padding: '3px 8px', fontSize: '0.7rem', flexShrink: 0, height: '28px', borderRadius: 'var(--radius-full)' }}>
+                  <SlidersHorizontal size={12} />
+                  <span>Filters</span>
                   {activeFiltersCount > 0 && (
-                    <span style={{ background: 'var(--accent-gold)', color: '#FFF', width: '16px', height: '16px', borderRadius: '50%', fontSize: '0.65rem', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <span style={{ background: 'var(--accent-gold)', color: '#FFF', width: '14px', height: '14px', borderRadius: '50%', fontSize: '0.6rem', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
                       {activeFiltersCount}
                     </span>
                   )}
                 </button>
 
-                <div style={{ position: 'relative', flex: 1, maxWidth: '280px' }}>
-                  <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                <div style={{ position: 'relative', flex: 1, maxWidth: '220px' }}>
+                  <Search size={12} style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                   <input 
                     type="text"
-                    placeholder="Search items in catalog..."
+                    placeholder="Search catalog..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    style={{ width: '100%', height: '34px', padding: '5px 28px 5px 30px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-full)', background: 'var(--bg-primary)', fontSize: '0.78rem', outline: 'none' }}
+                    style={{ width: '100%', height: '28px', padding: '3px 24px 3px 26px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-full)', background: 'var(--bg-primary)', fontSize: '0.7rem', outline: 'none' }}
                   />
                   {searchQuery && (
-                    <button onClick={() => setSearchQuery('')} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
-                      <X size={13} />
+                    <button onClick={() => setSearchQuery('')} style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
+                      <X size={12} />
                     </button>
                   )}
                 </div>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>Sort:</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>Sort:</span>
                 <select 
                   value={sortBy} 
                   onChange={(e) => setSortBy(e.target.value)}
-                  style={{ height: '34px', padding: '4px 10px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', background: 'var(--bg-primary)', fontSize: '0.78rem', outline: 'none' }}
+                  style={{ height: '28px', padding: '2px 6px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', background: 'var(--bg-primary)', fontSize: '0.7rem', outline: 'none' }}
                 >
                   <option value="featured">Featured</option>
                   <option value="newest">New Arrivals</option>

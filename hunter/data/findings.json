@@ -1,0 +1,365 @@
+{
+  "https://www.meesho.com/ethinic-cotton-mulmul-printed-saree/p/9ecq8?kw=dress&cat=clothing": {
+    "url": "https://www.meesho.com/ethinic-cotton-mulmul-printed-saree/p/9ecq8?kw=dress&cat=clothing",
+    "product_name": "",
+    "supplier": "meesho",
+    "category": "clothing",
+    "timestamps": {
+      "first_seen": "2026-09-23T17:03:03.002757Z",
+      "last_updated": "2026-09-23T19:00:55.302008Z"
+    },
+    "description": "A stylish mock dress for local testing since live scraping is blocked.",
+    "price": 450.0,
+    "mrp": 0.0,
+    "price_status": "ACTIVE",
+    "stock": "",
+    "variants": [],
+    "images": [
+      "https://images.meesho.com/images/products/338274191/t7tyd_512.webp"
+    ],
+    "scores": {
+      "components": {
+        "price_score": 25,
+        "demand_score": 15,
+        "avail_score": 5
+      },
+      "penalties": 0,
+      "total": 45,
+      "confidence": "Low",
+      "warnings": [
+        "NO_MARKET_DATA"
+      ]
+    },
+    "ai_analysis": {
+      "text": {},
+      "visual": {}
+    },
+    "market_data": null,
+    "confidence": "Low",
+    "warnings": [
+      "NO_MARKET_DATA"
+    ],
+    "last_selected_run_id": "b55dae8f"
+  },
+  "https://www.meesho.com/ethinic-cotton-mulmul-printed-saree/p/9ecq8?kw=bag&cat=bags": {
+    "url": "https://www.meesho.com/ethinic-cotton-mulmul-printed-saree/p/9ecq8?kw=bag&cat=bags",
+    "product_name": "",
+    "supplier": "meesho",
+    "category": "bags",
+    "timestamps": {
+      "first_seen": "2026-09-23T19:01:01.749128Z",
+      "last_updated": "2026-09-23T19:01:01.749128Z"
+    },
+    "description": "A stylish mock bag for local testing since live scraping is blocked.",
+    "price": 450.0,
+    "mrp": 0.0,
+    "price_status": "ACTIVE",
+    "stock": "",
+    "variants": [],
+    "images": [
+      "https://images.meesho.com/images/products/338274191/t7tyd_512.webp"
+    ],
+    "scores": {},
+    "ai_analysis": {
+      "text": {},
+      "visual": {}
+    },
+    "market_data": {},
+    "confidence": "Low",
+    "warnings": []
+  },
+  "https://www.meesho.com/ethinic-cotton-mulmul-printed-saree/p/9ecq8?kw=shoe&cat=footwear": {
+    "url": "https://www.meesho.com/ethinic-cotton-mulmul-printed-saree/p/9ecq8?kw=shoe&cat=footwear",
+    "product_name": "",
+    "supplier": "meesho",
+    "category": "footwear",
+    "timestamps": {
+      "first_seen": "2026-09-23T19:01:11.821206Z",
+      "last_updated": "2026-09-23T19:01:11.821206Z"
+    },
+    "description": "A stylish mock shoe for local testing since live scraping is blocked.",
+    "price": 450.0,
+    "mrp": 0.0,
+    "price_status": "ACTIVE",
+    "stock": "",
+    "variants": [],
+    "images": [
+      "https://images.meesho.com/images/products/338274191/t7tyd_512.webp"
+    ],
+    "scores": {
+      "components": {
+        "price_score": 17.59,
+        "demand_score": 15,
+        "avail_score": 5
+      },
+      "penalties": 0,
+      "total": 37.59,
+      "confidence": "Low",
+      "warnings": [
+        "NO_MARKET_DATA"
+      ]
+    },
+    "ai_analysis": {
+      "text": {},
+      "visual": {}
+    },
+    "market_data": null,
+    "confidence": "Low",
+    "warnings": [
+      "NO_MARKET_DATA"
+    ],
+    "last_selected_run_id": "afa6d9c7"
+  },
+  "https://www.meesho.com/ethinic-cotton-mulmul-printed-saree/p/9ecq8?kw=jewelry&cat=jewelry": {
+    "url": "https://www.meesho.com/ethinic-cotton-mulmul-printed-saree/p/9ecq8?kw=jewelry&cat=jewelry",
+    "product_name": "",
+    "supplier": "meesho",
+    "category": "jewelry",
+    "timestamps": {
+      "first_seen": "2026-09-23T19:01:21.732413Z",
+      "last_updated": "2026-09-23T19:01:21.732413Z"
+    },
+    "description": "A stylish mock jewelry for local testing since live scraping is blocked.",
+    "price": 450.0,
+    "mrp": 0.0,
+    "price_status": "ACTIVE",
+    "stock": "",
+    "variants": [],
+    "images": [
+      "https://images.meesho.com/images/products/338274191/t7tyd_512.webp"
+    ],
+    "scores": {
+      "components": {
+        "price_score": 12.97,
+        "demand_score": 15,
+        "avail_score": 5
+      },
+      "penalties": 0,
+      "total": 32.97,
+      "confidence": "Low",
+      "warnings": [
+        "NO_MARKET_DATA"
+      ]
+    },
+    "ai_analysis": {
+      "text": {},
+      "visual": {}
+    },
+    "market_data": null,
+    "confidence": "Low",
+    "warnings": [
+      "NO_MARKET_DATA"
+    ],
+    "last_selected_run_id": "ec36c303"
+  },
+  "https://www.meesho.com/ethinic-cotton-mulmul-printed-saree/p/9ecq8?kw=hair claw&cat=hair": {
+    "url": "https://www.meesho.com/ethinic-cotton-mulmul-printed-saree/p/9ecq8?kw=hair claw&cat=hair",
+    "product_name": "",
+    "supplier": "meesho",
+    "category": "hair",
+    "timestamps": {
+      "first_seen": "2026-09-23T19:01:31.244519Z",
+      "last_updated": "2026-09-23T19:01:31.244519Z"
+    },
+    "description": "A stylish mock hair claw for local testing since live scraping is blocked.",
+    "price": 450.0,
+    "mrp": 0.0,
+    "price_status": "ACTIVE",
+    "stock": "",
+    "variants": [],
+    "images": [
+      "https://images.meesho.com/images/products/338274191/t7tyd_512.webp"
+    ],
+    "scores": {
+      "components": {
+        "price_score": 12.97,
+        "demand_score": 15,
+        "avail_score": 5
+      },
+      "penalties": 0,
+      "total": 32.97,
+      "confidence": "Low",
+      "warnings": [
+        "NO_MARKET_DATA"
+      ]
+    },
+    "ai_analysis": {
+      "text": {},
+      "visual": {}
+    },
+    "market_data": null,
+    "confidence": "Low",
+    "warnings": [
+      "NO_MARKET_DATA"
+    ],
+    "last_selected_run_id": "5abe7cf5"
+  },
+  "https://www.meesho.com/ethinic-cotton-mulmul-printed-saree/p/9ecq8?kw=watch&cat=watches": {
+    "url": "https://www.meesho.com/ethinic-cotton-mulmul-printed-saree/p/9ecq8?kw=watch&cat=watches",
+    "product_name": "",
+    "supplier": "meesho",
+    "category": "watches",
+    "timestamps": {
+      "first_seen": "2026-09-23T19:01:41.166144Z",
+      "last_updated": "2026-09-23T19:01:41.166144Z"
+    },
+    "description": "A stylish mock watch for local testing since live scraping is blocked.",
+    "price": 450.0,
+    "mrp": 0.0,
+    "price_status": "ACTIVE",
+    "stock": "",
+    "variants": [],
+    "images": [
+      "https://images.meesho.com/images/products/338274191/t7tyd_512.webp"
+    ],
+    "scores": {
+      "components": {
+        "price_score": 21.3,
+        "demand_score": 15,
+        "avail_score": 5
+      },
+      "penalties": 0,
+      "total": 41.3,
+      "confidence": "Low",
+      "warnings": [
+        "NO_MARKET_DATA"
+      ]
+    },
+    "ai_analysis": {
+      "text": {},
+      "visual": {}
+    },
+    "market_data": null,
+    "confidence": "Low",
+    "warnings": [
+      "NO_MARKET_DATA"
+    ],
+    "last_selected_run_id": "464f8fc2"
+  },
+  "https://www.meesho.com/ethinic-cotton-mulmul-printed-saree/p/9ecq8?kw=travel&cat=lifestyle": {
+    "url": "https://www.meesho.com/ethinic-cotton-mulmul-printed-saree/p/9ecq8?kw=travel&cat=lifestyle",
+    "product_name": "",
+    "supplier": "meesho",
+    "category": "lifestyle",
+    "timestamps": {
+      "first_seen": "2026-09-23T19:01:50.612525Z",
+      "last_updated": "2026-09-23T19:01:50.612525Z"
+    },
+    "description": "A stylish mock travel for local testing since live scraping is blocked.",
+    "price": 450.0,
+    "mrp": 0.0,
+    "price_status": "ACTIVE",
+    "stock": "",
+    "variants": [],
+    "images": [
+      "https://images.meesho.com/images/products/338274191/t7tyd_512.webp"
+    ],
+    "scores": {
+      "components": {
+        "price_score": 15.65,
+        "demand_score": 15,
+        "avail_score": 5
+      },
+      "penalties": 0,
+      "total": 35.65,
+      "confidence": "Low",
+      "warnings": [
+        "NO_MARKET_DATA"
+      ]
+    },
+    "ai_analysis": {
+      "text": {},
+      "visual": {}
+    },
+    "market_data": null,
+    "confidence": "Low",
+    "warnings": [
+      "NO_MARKET_DATA"
+    ],
+    "last_selected_run_id": "8c425f93"
+  },
+  "https://www.meesho.com/ethinic-cotton-mulmul-printed-saree/p/9ecq8?kw=sunglass&cat=fashion-accessories": {
+    "url": "https://www.meesho.com/ethinic-cotton-mulmul-printed-saree/p/9ecq8?kw=sunglass&cat=fashion-accessories",
+    "product_name": "",
+    "supplier": "meesho",
+    "category": "fashion-accessories",
+    "timestamps": {
+      "first_seen": "2026-09-23T19:01:59.702363Z",
+      "last_updated": "2026-09-23T19:01:59.702363Z"
+    },
+    "description": "A stylish mock sunglass for local testing since live scraping is blocked.",
+    "price": 450.0,
+    "mrp": 0.0,
+    "price_status": "ACTIVE",
+    "stock": "",
+    "variants": [],
+    "images": [
+      "https://images.meesho.com/images/products/338274191/t7tyd_512.webp"
+    ],
+    "scores": {
+      "components": {
+        "price_score": 17.13,
+        "demand_score": 15,
+        "avail_score": 5
+      },
+      "penalties": 0,
+      "total": 37.13,
+      "confidence": "Low",
+      "warnings": [
+        "NO_MARKET_DATA"
+      ]
+    },
+    "ai_analysis": {
+      "text": {},
+      "visual": {}
+    },
+    "market_data": null,
+    "confidence": "Low",
+    "warnings": [
+      "NO_MARKET_DATA"
+    ],
+    "last_selected_run_id": "cc7aaa73"
+  },
+  "https://www.meesho.com/ethinic-cotton-mulmul-printed-saree/p/9ecq8?kw=makeup&cat=beauty-accessories": {
+    "url": "https://www.meesho.com/ethinic-cotton-mulmul-printed-saree/p/9ecq8?kw=makeup&cat=beauty-accessories",
+    "product_name": "",
+    "supplier": "meesho",
+    "category": "beauty-accessories",
+    "timestamps": {
+      "first_seen": "2026-09-23T19:02:09.529309Z",
+      "last_updated": "2026-09-23T19:02:09.529309Z"
+    },
+    "description": "A stylish mock makeup for local testing since live scraping is blocked.",
+    "price": 450.0,
+    "mrp": 0.0,
+    "price_status": "ACTIVE",
+    "stock": "",
+    "variants": [],
+    "images": [
+      "https://images.meesho.com/images/products/338274191/t7tyd_512.webp"
+    ],
+    "scores": {
+      "components": {
+        "price_score": 15.65,
+        "demand_score": 15,
+        "avail_score": 5
+      },
+      "penalties": 0,
+      "total": 35.65,
+      "confidence": "Low",
+      "warnings": [
+        "NO_MARKET_DATA"
+      ]
+    },
+    "ai_analysis": {
+      "text": {},
+      "visual": {}
+    },
+    "market_data": null,
+    "confidence": "Low",
+    "warnings": [
+      "NO_MARKET_DATA"
+    ],
+    "last_selected_run_id": "bf2bf598"
+  }
+}

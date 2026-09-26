@@ -1533,25 +1533,32 @@ a {
 /* RESPONSIVE SUBCATEGORY GRID FOR MOBILE & DESKTOP */
 .subcat-grid-responsive {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(1, 1fr);
   gap: 0.65rem;
 }
 
 @media (min-width: 480px) {
   .subcat-grid-responsive {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 0.85rem;
   }
 }
 
 @media (min-width: 768px) {
   .subcat-grid-responsive {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 1.1rem;
   }
 }
 
-@media (min-width: 1100px) {
+@media (min-width: 1024px) {
+  .subcat-grid-responsive {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+  }
+}
+
+@media (min-width: 1280px) {
   .subcat-grid-responsive {
     grid-template-columns: repeat(5, 1fr);
     gap: 1.25rem;
