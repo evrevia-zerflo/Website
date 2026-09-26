@@ -3,6 +3,10 @@ import { Package, ShoppingBag, Plus, Link, Upload, Trash2, CheckCircle2 } from '
 import api from '../api/client';
 
 export default function AdminDashboard() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
   const [activeTab, setActiveTab] = useState('products');
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -89,6 +93,37 @@ export default function AdminDashboard() {
       console.error(err);
       alert("Failed to delete product.");
     }
+  }
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (email === 'evrevia.zerflo@gmail.com' && password === 'zerflo@123') {
+      setIsAuthenticated(true);
+    } else {
+      alert("Invalid admin credentials");
+    }
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
+        <form onSubmit={handleLogin} style={{ background: 'var(--bg-surface)', padding: '2rem', borderRadius: '12px', width: '100%', maxWidth: '400px', border: '1px solid var(--border-subtle)' }}>
+          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', marginBottom: '1.5rem', textAlign: 'center' }}>Admin Access</h2>
+          
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '6px' }}>Admin Email</label>
+            <input type="email" value={email} onChange={e => setEmail(e.target.value)} style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border-subtle)', background: 'transparent' }} required />
+          </div>
+          
+          <div style={{ marginBottom: '1.5rem' }}>
+            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, marginBottom: '6px' }}>Password</label>
+            <input type="password" value={password} onChange={e => setPassword(e.target.value)} style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border-subtle)', background: 'transparent' }} required />
+          </div>
+
+          <button type="submit" className="btn-primary" style={{ width: '100%', padding: '12px' }}>Login to Dashboard</button>
+        </form>
+      </div>
+    );
   }
 
   return (
