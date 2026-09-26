@@ -11,6 +11,10 @@ from backend.models.user import User
 from backend.api.auth import get_current_admin
 from backend.core.config import settings
 
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
 router = APIRouter()
 
 UPLOAD_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'frontend', 'public', 'images', 'products'))
@@ -131,6 +135,28 @@ async def upload_image(file: UploadFile = File(...), admin: dict = Depends(get_c
     if not file:
         raise HTTPException(status_code=400, detail="No file sent")
         
+    # If Cloudinary is configured, use it for production-grade structural storage
+    if settings.CLOUDINARY_CLOUD_NAME and settings.CLOUDINARY_API_KEY and settings.CLOUDINARY_API_SECRET:
+        try:
+            cloudinary.config(
+                cloud_name=settings.CLOUDINARY_CLOUD_NAME,
+                api_key=settings.CLOUDINARY_API_KEY,
+                api_secret=settings.CLOUDINARY_API_SECRET,
+                secure=True
+            )
+            
+            # Upload structurally into the Evrevia folder
+            result = cloudinary.uploader.upload(
+                file.file,
+                folder="evrevia/products",
+                resource_type="image"
+            )
+            return {"url": result.get("secure_url")}
+        except Exception as e:
+            print(f"Cloudinary Error: {e}")
+            raise HTTPException(status_code=500, detail="Failed to upload image to cloud")
+            
+    # Fallback to local storage (only for development when keys are missing)
     ext = file.filename.split('.')[-1] if '.' in file.filename else 'png'
     new_filename = f"prod_{uuid.uuid4().hex[:8]}.{ext}"
     file_path = os.path.join(UPLOAD_DIR, new_filename)
