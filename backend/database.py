@@ -16,7 +16,7 @@ async def init_db():
         print("Warning: MONGODB_URI not set. Running without real database connection.")
         return False
         
-    client = AsyncIOMotorClient(settings.MONGODB_URI)
+    client = AsyncIOMotorClient(settings.MONGODB_URI, tls=True, tlsInsecure=True)
     await init_beanie(database=client.evrevia, document_models=[Product, Category, User, Cart, Order, EmailOTP])
     print("Database initialized.")
     return True
