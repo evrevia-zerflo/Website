@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/client';
 import Dashboard from './Dashboard';
-import { Package, Search, ChevronDown, CheckCircle, Clock, XCircle, Truck } from 'lucide-react';
+import { Package, Search, ChevronDown, CheckCircle, Clock, XCircle, Truck, X, User, MapPin, CreditCard, ChevronRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function Orders() {
@@ -10,6 +10,9 @@ export default function Orders() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [updating, setUpdating] = useState(null);
+  
+  // Slide-out state
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   useEffect(() => {
     fetchOrders();
@@ -32,7 +35,14 @@ export default function Orders() {
     try {
       setUpdating(orderId);
       await api.put(`/admin/orders/${orderId}/status`, { status: newStatus });
-      setOrders(orders.map(o => (o._id === orderId || o.id === orderId) ? { ...o, orderStatus: newStatus } : o));
+      
+      const updatedOrders = orders.map(o => (o._id === orderId || o.id === orderId) ? { ...o, orderStatus: newStatus } : o);
+      setOrders(updatedOrders);
+      
+      if (selectedOrder && (selectedOrder._id === orderId || selectedOrder.id === orderId)) {
+        setSelectedOrder({ ...selectedOrder, orderStatus: newStatus });
+      }
+      
       toast.success(`Order marked as ${newStatus}`);
     } catch (err) {
       console.error(err);
@@ -41,6 +51,15 @@ export default function Orders() {
       setUpdating(null);
     }
   };
+
+  const fetchOrderDetails = async (orderId) => {
+    try {
+      const res = await api.get(`/admin/orders/${orderId}`);
+      setSelectedOrder(res.data);
+    } catch(err) {
+      toast.error("Failed to fetch full order details");
+    }
+  }
 
   const getStatusColor = (status) => {
     switch(status) {
@@ -62,11 +81,11 @@ export default function Orders() {
 
   return (
     <Dashboard>
-      <div style={{ padding: '2.5rem' }}>
+      <div style={{ padding: '2.5rem', maxWidth: '1400px', margin: '0 auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
           <div>
             <h2 style={{ fontSize: '1.875rem', margin: 0, fontWeight: 700, color: '#0f172a' }}>Orders</h2>
-            <p style={{ color: '#64748b', margin: '4px 0 0' }}>Manage customer orders and fulfillment</p>
+            <p style={{ color: '#64748b', margin: '4px 0 0' }}>Manage customer orders, track fulfillments, and update statuses</p>
           </div>
         </div>
 
@@ -119,16 +138,24 @@ export default function Orders() {
                     <th style={{ padding: '16px 24px', fontWeight: 600, color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Order</th>
                     <th style={{ padding: '16px 24px', fontWeight: 600, color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Date</th>
                     <th style={{ padding: '16px 24px', fontWeight: 600, color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Customer</th>
+                    <th style={{ padding: '16px 24px', fontWeight: 600, color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Items</th>
                     <th style={{ padding: '16px 24px', fontWeight: 600, color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total</th>
                     <th style={{ padding: '16px 24px', fontWeight: 600, color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Status</th>
-                    <th style={{ padding: '16px 24px', fontWeight: 600, color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'right' }}>Update</th>
+                    <th style={{ padding: '16px 24px' }}></th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredOrders.map((order) => {
                     const statusStyle = getStatusColor(order.orderStatus);
                     return (
-                      <tr key={order._id || order.id} style={{ borderBottom: '1px solid #e2e8f0', transition: '0.2s' }}>
+                      <tr 
+                        key={order._id || order.id} 
+                        style={{ borderBottom: '1px solid #e2e8f0', transition: '0.2s', cursor: 'pointer' }}
+                        className="hover-bg-slate-50"
+                        onClick={(e) => {
+                          if (e.target.tagName !== 'SELECT') fetchOrderDetails(order._id || order.id);
+                        }}
+                      >
                         <td style={{ padding: '16px 24px', fontSize: '0.9rem', fontWeight: 600, color: '#0f172a' }}>
                           #{ (order._id || order.id).slice(-8).toUpperCase() }
                         </td>
@@ -139,25 +166,17 @@ export default function Orders() {
                           <div style={{ fontSize: '0.9rem', fontWeight: 500, color: '#0f172a' }}>{order.address?.name || 'Unknown'}</div>
                           <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{order.address?.city || 'No City'}, {order.address?.state || 'No State'}</div>
                         </td>
-                        <td style={{ padding: '16px 24px', fontSize: '0.9rem', color: '#0f172a', fontWeight: 600 }}>₹{order.total}</td>
+                        <td style={{ padding: '16px 24px', fontSize: '0.9rem', color: '#475569' }}>
+                          {order.items?.length || 0} items
+                        </td>
+                        <td style={{ padding: '16px 24px', fontSize: '0.9rem', color: '#0f172a', fontWeight: 600 }}>₹{order.total?.toLocaleString()}</td>
                         <td style={{ padding: '16px 24px' }}>
                           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: statusStyle.bg, color: statusStyle.text, padding: '4px 10px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 600 }}>
                             {statusStyle.icon} {order.orderStatus}
                           </span>
                         </td>
                         <td style={{ padding: '16px 24px', textAlign: 'right' }}>
-                          <select 
-                            value={order.orderStatus} 
-                            onChange={(e) => handleStatusChange(order._id || order.id, e.target.value)}
-                            disabled={updating === (order._id || order.id)}
-                            style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.85rem', outline: 'none', background: 'white', cursor: 'pointer' }}
-                          >
-                            <option value="NEW">New</option>
-                            <option value="PROCESSING">Processing</option>
-                            <option value="SHIPPED">Shipped</option>
-                            <option value="DELIVERED">Delivered</option>
-                            <option value="CANCELLED">Cancelled</option>
-                          </select>
+                          <ChevronRight size={18} color="#94a3b8" />
                         </td>
                       </tr>
                     );
@@ -168,6 +187,133 @@ export default function Orders() {
           )}
         </div>
       </div>
+
+      {/* Slide-out Order Details Pane */}
+      {selectedOrder && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 100, display: 'flex', justifyContent: 'flex-end', background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(4px)'
+        }}>
+          {/* Overlay to close */}
+          <div style={{ position: 'absolute', inset: 0 }} onClick={() => setSelectedOrder(null)}></div>
+          
+          <div style={{
+            position: 'relative', width: '100%', maxWidth: '500px', background: 'white', height: '100vh', display: 'flex', flexDirection: 'column', boxShadow: '-10px 0 25px rgba(0,0,0,0.1)', animation: 'slideInRight 0.3s ease-out'
+          }}>
+            {/* Header */}
+            <div style={{ padding: '1.5rem', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 700, color: '#0f172a' }}>Order Details</h3>
+                <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: '#64748b' }}>#{ (selectedOrder._id || selectedOrder.id).slice(-8).toUpperCase() }</p>
+              </div>
+              <button onClick={() => setSelectedOrder(null)} style={{ background: '#f1f5f9', border: 'none', width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748b' }}>
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Scrollable Content */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem' }}>
+              
+              {/* Status Update Block */}
+              <div style={{ background: '#f8fafc', padding: '1.25rem', borderRadius: '12px', marginBottom: '1.5rem', border: '1px solid #e2e8f0' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#475569', marginBottom: '8px' }}>UPDATE ORDER STATUS</label>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <select 
+                    value={selectedOrder.orderStatus} 
+                    onChange={(e) => handleStatusChange(selectedOrder._id || selectedOrder.id, e.target.value)}
+                    disabled={updating === (selectedOrder._id || selectedOrder.id)}
+                    style={{ flex: 1, padding: '10px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.9rem', outline: 'none', background: 'white', cursor: 'pointer', fontWeight: 500 }}
+                  >
+                    <option value="NEW">New</option>
+                    <option value="PROCESSING">Processing</option>
+                    <option value="SHIPPED">Shipped</option>
+                    <option value="DELIVERED">Delivered</option>
+                    <option value="CANCELLED">Cancelled</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Customer Info */}
+              <div style={{ marginBottom: '2rem' }}>
+                <h4 style={{ fontSize: '0.9rem', fontWeight: 600, color: '#0f172a', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <User size={16} color="#64748b" /> Customer Details
+                </h4>
+                <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1rem' }}>
+                  <p style={{ margin: '0 0 6px 0', fontSize: '0.9rem', fontWeight: 600 }}>{selectedOrder.address?.name}</p>
+                  <p style={{ margin: '0 0 4px 0', fontSize: '0.85rem', color: '#475569' }}>{selectedOrder.address?.email}</p>
+                  <p style={{ margin: '0', fontSize: '0.85rem', color: '#475569' }}>{selectedOrder.address?.phone}</p>
+                </div>
+              </div>
+
+              {/* Shipping Address */}
+              <div style={{ marginBottom: '2rem' }}>
+                <h4 style={{ fontSize: '0.9rem', fontWeight: 600, color: '#0f172a', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <MapPin size={16} color="#64748b" /> Shipping Address
+                </h4>
+                <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1rem' }}>
+                  <p style={{ margin: '0 0 4px 0', fontSize: '0.85rem', color: '#475569' }}>{selectedOrder.address?.street}</p>
+                  <p style={{ margin: '0 0 4px 0', fontSize: '0.85rem', color: '#475569' }}>{selectedOrder.address?.city}, {selectedOrder.address?.state} {selectedOrder.address?.pinCode}</p>
+                  <p style={{ margin: '0', fontSize: '0.85rem', color: '#475569' }}>{selectedOrder.address?.country}</p>
+                </div>
+              </div>
+
+              {/* Line Items */}
+              <div style={{ marginBottom: '2rem' }}>
+                <h4 style={{ fontSize: '0.9rem', fontWeight: 600, color: '#0f172a', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Package size={16} color="#64748b" /> Line Items ({selectedOrder.items?.length || 0})
+                </h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {selectedOrder.items && selectedOrder.items.map((item, idx) => (
+                    <div key={idx} style={{ display: 'flex', gap: '12px', padding: '12px', border: '1px solid #e2e8f0', borderRadius: '12px', background: 'white' }}>
+                      <div style={{ width: '60px', height: '80px', borderRadius: '8px', overflow: 'hidden', background: '#f1f5f9' }}>
+                        <img src={item.image} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <p style={{ margin: '0 0 4px 0', fontSize: '0.85rem', fontWeight: 600, color: '#0f172a' }}>{item.name}</p>
+                        <p style={{ margin: '0 0 4px 0', fontSize: '0.75rem', color: '#64748b' }}>
+                          Size: {item.selectedSize} {item.selectedColor ? `| Color: ${item.selectedColor}` : ''}
+                        </p>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
+                          <span style={{ fontSize: '0.8rem', color: '#475569' }}>Qty: {item.quantity}</span>
+                          <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#0f172a' }}>₹{(item.price * item.quantity).toLocaleString()}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Summary */}
+              <div>
+                <h4 style={{ fontSize: '0.9rem', fontWeight: 600, color: '#0f172a', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <CreditCard size={16} color="#64748b" /> Payment Summary
+                </h4>
+                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.25rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                    <span style={{ fontSize: '0.85rem', color: '#475569' }}>Subtotal</span>
+                    <span style={{ fontSize: '0.85rem', color: '#0f172a', fontWeight: 500 }}>₹{selectedOrder.total?.toLocaleString()}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', paddingBottom: '12px', borderBottom: '1px solid #e2e8f0' }}>
+                    <span style={{ fontSize: '0.85rem', color: '#475569' }}>Shipping</span>
+                    <span style={{ fontSize: '0.85rem', color: '#059669', fontWeight: 500 }}>Free</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: '0.95rem', color: '#0f172a', fontWeight: 700 }}>Total Paid</span>
+                    <span style={{ fontSize: '1.1rem', color: '#0f172a', fontWeight: 700 }}>₹{selectedOrder.total?.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
+      
+      <style>{`
+        @keyframes slideInRight {
+          from { transform: translateX(100%); }
+          to { transform: translateX(0); }
+        }
+      `}</style>
     </Dashboard>
   );
 }

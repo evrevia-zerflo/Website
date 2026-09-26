@@ -6,6 +6,7 @@ import Products from './pages/Products';
 import AddProduct from './pages/AddProduct';
 import EditProduct from './pages/EditProduct';
 import Orders from './pages/Orders';
+import Customers from './pages/Customers';
 
 // Simple auth check component
 const PrivateRoute = ({ children }) => {
@@ -30,6 +31,7 @@ export default function App() {
         <Route path="/products/new" element={<PrivateRoute><AddProduct /></PrivateRoute>} />
         <Route path="/products/edit/:id" element={<PrivateRoute><EditProduct /></PrivateRoute>} />
         <Route path="/orders" element={<PrivateRoute><Orders /></PrivateRoute>} />
+        <Route path="/customers" element={<PrivateRoute><Customers /></PrivateRoute>} />
         
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" />} />

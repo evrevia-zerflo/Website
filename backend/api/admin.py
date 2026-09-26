@@ -7,6 +7,7 @@ import uuid
 from datetime import datetime, timedelta
 from backend.models.product import Product
 from backend.models.order import Order
+from backend.models.user import User
 from backend.api.auth import get_current_admin
 from backend.core.config import settings
 
@@ -68,12 +69,16 @@ async def get_analytics(admin: dict = Depends(get_current_admin)):
             "sales": total_revenue // 7 + (total_revenue // 20 * (i%3)) if total_revenue > 0 else 0
         })
         
+    # Get recent orders
+    recent_orders = await Order.find_all().sort("-createdAt").limit(5).to_list()
+        
     return {
         "totalRevenue": total_revenue,
         "activeOrders": active_orders,
         "totalProducts": total_products,
         "lowStock": low_stock,
-        "trends": trends
+        "trends": trends,
+        "recentOrders": recent_orders
     }
 
 @router.get("/orders")
@@ -84,6 +89,25 @@ async def get_orders(admin: dict = Depends(get_current_admin)):
     # Fetch orders sorted by newest first
     orders = await Order.find_all().sort("-createdAt").to_list()
     return orders
+
+@router.get("/orders/{order_id}")
+async def get_order(order_id: str, admin: dict = Depends(get_current_admin)):
+    if not settings.MONGODB_URI:
+        raise HTTPException(status_code=500, detail="Database not connected")
+        
+    order = await Order.get(order_id)
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+        
+    return order
+
+@router.get("/users")
+async def get_users(admin: dict = Depends(get_current_admin)):
+    if not settings.MONGODB_URI:
+        raise HTTPException(status_code=500, detail="Database not connected")
+        
+    users = await User.find_all().sort("-createdAt").to_list()
+    return users
 
 @router.put("/orders/{order_id}/status")
 async def update_order_status(order_id: str, payload: dict, admin: dict = Depends(get_current_admin)):
