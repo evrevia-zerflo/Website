@@ -16,7 +16,7 @@ export default function Login() {
     
     setLoading(true);
     try {
-      await api.post('/send-otp', { email });
+      await api.post('/auth/send-otp', { email });
       setStep(2);
     } catch (err) {
       alert("Failed to send OTP. Make sure you are using the admin email.");
@@ -31,7 +31,7 @@ export default function Login() {
     
     setLoading(true);
     try {
-      const res = await api.post('/verify-otp', { email, otp });
+      const res = await api.post('/auth/verify-otp', { email, otp });
       const { access_token, user } = res.data;
       
       if (user.role !== 'admin') {
