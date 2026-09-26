@@ -5,7 +5,8 @@ import smtplib
 import random
 import string
 from email.mime.text import MIMEText
-from fastapi import APIRouter, HTTPException, BackgroundTasks
+from fastapi import APIRouter, HTTPException, BackgroundTasks, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, EmailStr
 from datetime import datetime, timedelta
 from backend.models.user import User
@@ -13,6 +14,16 @@ from backend.models.otp import EmailOTP
 from backend.core.config import settings
 
 router = APIRouter()
+security = HTTPBearer()
+
+async def get_current_admin(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    try:
+        payload = jwt.decode(credentials.credentials, settings.JWT_SECRET, algorithms=["HS256"])
+        if payload.get("role") != "admin":
+            raise HTTPException(status_code=403, detail="Not authorized as admin")
+        return payload
+    except jwt.PyJWTError:
+        raise HTTPException(status_code=401, detail="Invalid authentication credentials")
 
 # In production, set this in your environment variables
 GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID_HERE"

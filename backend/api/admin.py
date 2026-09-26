@@ -1,34 +1,17 @@
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form
+from fastapi import APIRouter, HTTPException, UploadFile, File, Depends
 from pydantic import BaseModel
 from typing import List, Optional
-import json
 import os
 import shutil
 import uuid
-from datetime import datetime
+from backend.models.product import Product
+from backend.api.auth import get_current_admin
+from backend.core.config import settings
 
 router = APIRouter()
 
-DB_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data', 'products.json'))
 UPLOAD_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'frontend', 'public', 'images', 'products'))
-
 os.makedirs(UPLOAD_DIR, exist_ok=True)
-os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
-
-if not os.path.exists(DB_PATH):
-    with open(DB_PATH, 'w') as f:
-        json.dump([], f)
-
-def read_db():
-    try:
-        with open(DB_PATH, 'r') as f:
-            return json.load(f)
-    except:
-        return []
-
-def write_db(data):
-    with open(DB_PATH, 'w') as f:
-        json.dump(data, f, indent=2)
 
 class ProductCreateRequest(BaseModel):
     name: str
@@ -45,11 +28,13 @@ class ProductCreateRequest(BaseModel):
     isNew: bool = True
     isBestSeller: bool = False
     discount: int = 0
-    rating: float = 5.0
-    reviews: int = 1
+    material: Optional[str] = None
+    careInstructions: Optional[str] = None
+    tags: List[str] = []
+    status: str = "publish" # "publish" or "draft"
 
 @router.post("/upload")
-async def upload_image(file: UploadFile = File(...)):
+async def upload_image(file: UploadFile = File(...), admin: dict = Depends(get_current_admin)):
     if not file:
         raise HTTPException(status_code=400, detail="No file sent")
         
@@ -60,43 +45,42 @@ async def upload_image(file: UploadFile = File(...)):
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
         
-    # Return the relative path for the frontend
     return {"url": f"/images/products/{new_filename}"}
 
 @router.post("/products")
-async def create_product(request: ProductCreateRequest):
-    products = read_db()
-    
-    new_product = request.dict()
-    new_product["id"] = f"prod_{uuid.uuid4().hex[:8]}"
-    new_product["createdAt"] = datetime.utcnow().isoformat()
-    
-    if not new_product.get("originalPrice"):
-        new_product["originalPrice"] = int(new_product["price"] * 1.5)
+async def create_product(request: ProductCreateRequest, admin: dict = Depends(get_current_admin)):
+    if not settings.MONGODB_URI:
+        raise HTTPException(status_code=500, detail="Database not connected")
         
-    products.append(new_product)
-    write_db(products)
-    
-    return new_product
-
-@router.delete("/products/{product_id}")
-async def delete_product(product_id: str):
-    products = read_db()
-    filtered = [p for p in products if p.get("id") != product_id]
-    
-    if len(filtered) == len(products):
-        raise HTTPException(status_code=404, detail="Product not found")
+    new_product_dict = request.dict()
+    if not new_product_dict.get("originalPrice"):
+        new_product_dict["originalPrice"] = int(new_product_dict["price"] * 1.5)
         
-    write_db(filtered)
-    return {"message": "Product deleted successfully"}
+    product = Product(**new_product_dict)
+    await product.insert()
+    
+    return product
 
 @router.put("/products/{product_id}")
-async def update_product(product_id: str, request: dict):
-    products = read_db()
-    for p in products:
-        if p.get("id") == product_id:
-            p.update(request)
-            write_db(products)
-            return p
-            
-    raise HTTPException(status_code=404, detail="Product not found")
+async def update_product(product_id: str, request: dict, admin: dict = Depends(get_current_admin)):
+    if not settings.MONGODB_URI:
+        raise HTTPException(status_code=500, detail="Database not connected")
+        
+    product = await Product.get(product_id)
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+        
+    await product.set(request)
+    return product
+
+@router.delete("/products/{product_id}")
+async def delete_product(product_id: str, admin: dict = Depends(get_current_admin)):
+    if not settings.MONGODB_URI:
+        raise HTTPException(status_code=500, detail="Database not connected")
+        
+    product = await Product.get(product_id)
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+        
+    await product.delete()
+    return {"message": "Product deleted successfully"}

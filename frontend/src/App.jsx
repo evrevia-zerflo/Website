@@ -17,7 +17,6 @@ import OrderTracking from './pages/OrderTracking';
 import Account from './pages/Account';
 import Login from './pages/Login';
 import Legal from './pages/Legal';
-import AdminDashboard from './pages/AdminDashboard';
 
 function AppContent() {
   const location = useLocation();
@@ -43,7 +42,6 @@ function AppContent() {
         <Route path="/account" element={<Account />} />
         <Route path="/login" element={<Login />} />
         <Route path="/legal" element={<Legal />} />
-        <Route path="/admin" element={<AdminDashboard />} />
       </Routes>
 
       {/* Footer (hidden on Checkout page) */}
