@@ -42,7 +42,8 @@ async def get_analytics(admin: dict = Depends(get_current_admin)):
         
     # Get basic counts
     total_products = await Product.count()
-    active_orders = await Order.find(Order.orderStatus.nin(["DELIVERED", "CANCELLED"])).count()
+    from beanie.operators import NotIn
+    active_orders = await Order.find(NotIn(Order.orderStatus, ["DELIVERED", "CANCELLED"])).count()
     
     # Calculate revenue (total of all non-cancelled orders)
     orders = await Order.find(Order.orderStatus != "CANCELLED").to_list()
