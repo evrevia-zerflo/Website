@@ -57,14 +57,22 @@ async def scrape_meesho():
                             
                         # Image extraction
                         image_urls = []
-                        images = await page.locator('img').all()
-                        for img in images:
-                            src = await img.get_attribute('src')
-                            if src and 'images.meesho.com' in src and 'images' in src.split('/'):
-                                # Get high-res version if possible
-                                src = src.replace('150', '512').replace('64', '512')
-                                if src not in image_urls:
-                                    image_urls.append(src)
+                        
+                        try:
+                            og_image = await page.locator('meta[property="og:image"]').get_attribute('content')
+                            if og_image:
+                                image_urls.append(og_image)
+                        except:
+                            pass
+                        
+                        if not image_urls:
+                            images = await page.locator('img').all()
+                            for img in images:
+                                src = await img.get_attribute('src')
+                                if src and ('meesho' in src or 'image' in src) and not src.endswith('.svg') and 'icon' not in src.lower() and 'logo' not in src.lower():
+                                    src = src.replace('150', '512').replace('64', '512')
+                                    if src not in image_urls:
+                                        image_urls.append(src)
                         
                         # We only need the first 2-3 images
                         image_urls = image_urls[:3]
