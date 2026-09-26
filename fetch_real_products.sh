@@ -31,9 +31,9 @@ else
     source hunter/venv/bin/activate
 fi
 
-echo "Installing required packages (Playwright, bs4)..."
+echo "Installing required packages (Playwright, bs4, stealth)..."
 pip install --upgrade pip > /dev/null
-pip install playwright httpx beautifulsoup4 > /dev/null
+pip install playwright playwright-stealth httpx beautifulsoup4 > /dev/null
 
 echo "Installing Playwright system dependencies (Ubuntu/Debian)..."
 # In case sudo is needed but missing in a root proot, this will still run apt-get.
