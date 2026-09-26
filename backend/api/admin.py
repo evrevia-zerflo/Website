@@ -1,65 +1,102 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from pydantic import BaseModel
 from typing import List, Optional
-from backend.models.product import Product
-from backend.models.order import Order
-from backend.core.config import settings
-
-# In production, we'd use a dependency to verify the user is an admin via JWT.
-# For MVP, we'll assume the frontend only shows this to admins, but we'll add a mock token check.
+import json
+import os
+import shutil
+import uuid
+from datetime import datetime
 
 router = APIRouter()
 
+DB_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data', 'products.json'))
+UPLOAD_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'frontend', 'public', 'images', 'products'))
+
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+
+if not os.path.exists(DB_PATH):
+    with open(DB_PATH, 'w') as f:
+        json.dump([], f)
+
+def read_db():
+    try:
+        with open(DB_PATH, 'r') as f:
+            return json.load(f)
+    except:
+        return []
+
+def write_db(data):
+    with open(DB_PATH, 'w') as f:
+        json.dump(data, f, indent=2)
+
 class ProductCreateRequest(BaseModel):
     name: str
-    slug: str
     category: str
+    subcategory: Optional[str] = "All"
     description: str
     price: float
-    stock: int
-    images: List[dict] = []
+    originalPrice: Optional[float] = None
+    stock: int = 100
+    images: List[str] = []
+    supplierUrl: Optional[str] = None
+    sizes: List[str] = ["Free Size"]
+    colors: List[str] = []
+    isNew: bool = True
+    isBestSeller: bool = False
+    discount: int = 0
+    rating: float = 5.0
+    reviews: int = 1
+
+@router.post("/upload")
+async def upload_image(file: UploadFile = File(...)):
+    if not file:
+        raise HTTPException(status_code=400, detail="No file sent")
+        
+    ext = file.filename.split('.')[-1] if '.' in file.filename else 'png'
+    new_filename = f"prod_{uuid.uuid4().hex[:8]}.{ext}"
+    file_path = os.path.join(UPLOAD_DIR, new_filename)
+    
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+        
+    # Return the relative path for the frontend
+    return {"url": f"/images/products/{new_filename}"}
 
 @router.post("/products")
 async def create_product(request: ProductCreateRequest):
-    if not settings.MONGODB_URI:
-        return {"message": "Product created in mock mode", "product": request.dict()}
+    products = read_db()
+    
+    new_product = request.dict()
+    new_product["id"] = f"prod_{uuid.uuid4().hex[:8]}"
+    new_product["createdAt"] = datetime.utcnow().isoformat()
+    
+    if not new_product.get("originalPrice"):
+        new_product["originalPrice"] = int(new_product["price"] * 1.5)
         
-    product = Product(**request.dict())
-    await product.insert()
-    return product
+    products.append(new_product)
+    write_db(products)
+    
+    return new_product
+
+@router.delete("/products/{product_id}")
+async def delete_product(product_id: str):
+    products = read_db()
+    filtered = [p for p in products if p.get("id") != product_id]
+    
+    if len(filtered) == len(products):
+        raise HTTPException(status_code=404, detail="Product not found")
+        
+    write_db(filtered)
+    return {"message": "Product deleted successfully"}
 
 @router.put("/products/{product_id}")
 async def update_product(product_id: str, request: dict):
-    if not settings.MONGODB_URI:
-        return {"message": "Product updated in mock mode"}
-        
-    product = await Product.get(product_id)
-    if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
-        
-    for key, value in request.items():
-        setattr(product, key, value)
-        
-    await product.save()
-    return product
-
-@router.get("/orders")
-async def get_all_orders():
-    if not settings.MONGODB_URI:
-        return []
-        
-    orders = await Order.find_all().to_list()
-    return orders
-
-@router.put("/orders/{order_id}/status")
-async def update_order_status(order_id: str, status: str):
-    if not settings.MONGODB_URI:
-        return {"message": f"Order {order_id} status updated to {status} in mock mode"}
-        
-    order = await Order.get(order_id)
-    if not order:
-        raise HTTPException(status_code=404, detail="Order not found")
-        
-    order.orderStatus = status
-    await order.save()
-    return order
+    products = read_db()
+    for p in products:
+        if p.get("id") == product_id:
+            p.update(request)
+            write_db(products)
+            return p
+            
+    raise HTTPException(status_code=404, detail="Product not found")
