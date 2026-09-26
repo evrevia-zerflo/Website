@@ -1,4 +1,4 @@
-export const mockProducts = [
+export const MOCK_PRODUCTS = [
   {
     "id": "prod_d6403a27",
     "name": "EVR\u00c9VIA Luxurious Egyptian Cotton -shirt",
