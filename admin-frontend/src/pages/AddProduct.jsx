@@ -4,6 +4,8 @@ import api from '../api/client';
 import Dashboard from './Dashboard';
 import { Upload, ArrowLeft, Save, X, Image as ImageIcon } from 'lucide-react';
 import toast from 'react-hot-toast';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 export default function AddProduct() {
   const navigate = useNavigate();
@@ -14,7 +16,8 @@ export default function AddProduct() {
     name: '', category: 'Clothing', subcategory: '', description: '', 
     price: '', originalPrice: '', stock: '25', supplierUrl: '', 
     sizes: 'XS,S,M,L,XL', colors: '', material: '', careInstructions: '', 
-    tags: '', status: 'publish', isNew: true, isBestSeller: false
+    tags: '', status: 'publish', isNew: true, isBestSeller: false,
+    fabric: '', fit: '', care: '', styling: '', whatsIncluded: ''
   });
   
   const [images, setImages] = useState([]);
@@ -111,7 +114,9 @@ export default function AddProduct() {
               
               <div>
                 <label style={labelStyle}>Description</label>
-                <textarea rows={6} value={form.description} onChange={e => setForm({...form, description: e.target.value})} style={{...inputStyle, resize: 'vertical', lineHeight: '1.5'}} placeholder="Write a compelling description..."></textarea>
+                <div style={{ background: '#fff' }}>
+                  <ReactQuill theme="snow" value={form.description} onChange={val => setForm({...form, description: val})} style={{ height: '200px', marginBottom: '50px' }} />
+                </div>
               </div>
             </div>
 
@@ -159,6 +164,33 @@ export default function AddProduct() {
                 </div>
               </div>
             </div>
+
+            <div style={sectionStyle}>
+              <h3 style={sectionTitleStyle}>Garment Details (Store Tabs)</h3>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem' }}>
+                <div>
+                  <label style={labelStyle}>Fabric & Composition</label>
+                  <textarea rows={3} value={form.fabric} onChange={e => setForm({...form, fabric: e.target.value})} style={{...inputStyle, resize: 'vertical'}} placeholder="E.g. 100% Pure Mulberry Silk Satin"></textarea>
+                </div>
+                <div>
+                  <label style={labelStyle}>Fit & Sizing</label>
+                  <textarea rows={3} value={form.fit} onChange={e => setForm({...form, fit: e.target.value})} style={{...inputStyle, resize: 'vertical'}} placeholder="E.g. Fluid relaxed silhouette. Fits true to size."></textarea>
+                </div>
+                <div>
+                  <label style={labelStyle}>Care Instructions</label>
+                  <textarea rows={3} value={form.care} onChange={e => setForm({...form, care: e.target.value})} style={{...inputStyle, resize: 'vertical'}} placeholder="E.g. Dry clean recommended."></textarea>
+                </div>
+                <div>
+                  <label style={labelStyle}>Styling Notes</label>
+                  <textarea rows={3} value={form.styling} onChange={e => setForm({...form, styling: e.target.value})} style={{...inputStyle, resize: 'vertical'}} placeholder="E.g. Pair with gold drop earrings..."></textarea>
+                </div>
+                <div>
+                  <label style={labelStyle}>What's Included</label>
+                  <textarea rows={3} value={form.whatsIncluded} onChange={e => setForm({...form, whatsIncluded: e.target.value})} style={{...inputStyle, resize: 'vertical'}} placeholder="E.g. 1x Garment, 1x Storage Bag"></textarea>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Right Column */}
@@ -174,8 +206,8 @@ export default function AddProduct() {
                 <div style={{ background: '#e2e8f0', width: '48px', height: '48px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', color: '#64748b' }}>
                   <ImageIcon size={24} />
                 </div>
-                <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#0f172a' }}>Click to upload images</span>
-                <span style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '4px' }}>PNG, JPG up to 5MB</span>
+                <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#0f172a' }}>Click to upload multiple images</span>
+                <span style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '4px' }}>PNG, JPG up to 5MB. You can select as many as you want!</span>
                 <input type="file" ref={fileInputRef} onChange={handleImageChange} accept="image/*" multiple style={{ display: 'none' }} />
               </div>
 

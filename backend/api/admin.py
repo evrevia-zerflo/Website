@@ -34,6 +34,11 @@ class ProductCreateRequest(BaseModel):
     careInstructions: Optional[str] = None
     tags: List[str] = []
     status: str = "publish" # "publish" or "draft"
+    fabric: Optional[str] = None
+    fit: Optional[str] = None
+    care: Optional[str] = None
+    styling: Optional[str] = None
+    whatsIncluded: Optional[str] = None
 
 @router.get("/analytics")
 async def get_analytics(admin: dict = Depends(get_current_admin)):

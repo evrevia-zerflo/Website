@@ -165,9 +165,10 @@ export default function ProductDetail() {
             {discountPercent > 0 && <span className="badge badge-rose">{discountPercent}% OFF</span>}
           </div>
 
-          <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: '1.5rem' }}>
-            {product.description}
-          </p>
+          <div 
+            style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: '1.5rem', fontFamily: 'var(--font-sans)' }}
+            dangerouslySetInnerHTML={{ __html: product.description }} 
+          />
 
           {/* Size Selector */}
           {product.sizes && product.sizes.length > 0 && (

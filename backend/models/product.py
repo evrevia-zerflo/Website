@@ -14,7 +14,12 @@ class Product(Document):
     colors: List[str] = []
     stock: int = 0
     tags: List[str] = []
-    images: List[dict] = []  # dict with url, alt, type
+    images: List[str] = []
+    fabric: Optional[str] = None
+    fit: Optional[str] = None
+    care: Optional[str] = None
+    styling: Optional[str] = None
+    whatsIncluded: Optional[str] = None
     videos: List[dict] = []
     status: str = "published" # published or draft
     supplier: Optional[str] = None
