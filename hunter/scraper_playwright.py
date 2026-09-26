@@ -14,15 +14,24 @@ MOCK_FILE = os.path.join(FRONTEND_DIR, 'src', 'data', 'mockProducts.js')
 
 os.makedirs(IMAGES_DIR, exist_ok=True)
 
+import sys
+
 async def scrape_meesho():
-    print("Starting Playwright scraper. This will open a browser window on your laptop.")
-    print("If you see a Captcha, please solve it manually in the browser window!")
+    is_linux = sys.platform.startswith('linux')
+    has_display = os.environ.get('DISPLAY') is not None
+    is_headless = True if (is_linux and not has_display) else False
+    
+    if is_headless:
+        print("Starting Playwright scraper in HEADLESS mode (No GUI detected).")
+    else:
+        print("Starting Playwright scraper. This will open a browser window on your laptop.")
+        print("If you see a Captcha, please solve it manually in the browser window!")
     
     products = []
     
     async with async_playwright() as p:
-        # Launch headed browser so user can bypass captchas if needed
-        browser = await p.chromium.launch(headless=False)
+        # Launch browser. Uses headless=True automatically on terminal-only Linux
+        browser = await p.chromium.launch(headless=is_headless)
         context = await browser.new_context(
             user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         )
