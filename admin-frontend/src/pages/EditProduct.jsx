@@ -26,6 +26,15 @@ export default function EditProduct() {
   const [existingImages, setExistingImages] = useState([]);
   // New File objects
   const [newImages, setNewImages] = useState([]);
+  
+  const [draftLoaded, setDraftLoaded] = useState(false);
+
+  // Save draft to localStorage whenever form changes (after initial load)
+  useEffect(() => {
+    if (draftLoaded) {
+      localStorage.setItem(`editProductDraft_${id}`, JSON.stringify(form));
+    }
+  }, [form, draftLoaded, id]);
 
   useEffect(() => {
     fetchProduct();
@@ -57,6 +66,20 @@ export default function EditProduct() {
         whatsIncluded: data.whatsIncluded || ''
       });
       setExistingImages(data.images || []);
+      
+      // Check for local draft after fetching server data
+      const draft = localStorage.getItem(`editProductDraft_${id}`);
+      if (draft) {
+        try {
+          const parsed = JSON.parse(draft);
+          setForm(parsed);
+          toast.success("Draft restored automatically");
+        } catch (e) {
+          console.error("Failed to parse draft", e);
+        }
+      }
+      setDraftLoaded(true);
+      
     } catch (err) {
       console.error(err);
       toast.error('Failed to load product');
@@ -122,6 +145,7 @@ export default function EditProduct() {
 
       await api.put(`/admin/products/${id}`, payload);
       toast.success('Product updated successfully!');
+      localStorage.removeItem(`editProductDraft_${id}`); // Clear draft on success
       navigate('/products');
       
     } catch (err) {
@@ -294,8 +318,17 @@ export default function EditProduct() {
             </div>
 
             <div style={sectionStyle}>
-              <h3 style={sectionTitleStyle}>Organization</h3>
+              <h3 style={sectionTitleStyle}>Organization & Visibility</h3>
               
+              <div style={{ marginBottom: '1.5rem', background: '#f8fafc', padding: '1rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                <label style={{ ...labelStyle, color: '#0f172a' }}>Product Visibility</label>
+                <p style={{ fontSize: '0.75rem', color: '#64748b', margin: '0 0 12px 0' }}>Control if this product is visible on the main store.</p>
+                <select value={form.status} onChange={e => setForm({...form, status: e.target.value})} style={{ ...inputStyle, background: 'white' }}>
+                  <option value="publish">Published (Visible)</option>
+                  <option value="draft">Draft (Private)</option>
+                </select>
+              </div>
+
               <div style={{ marginBottom: '1.5rem' }}>
                 <label style={labelStyle}>Category</label>
                 <select value={form.category} onChange={e => setForm({...form, category: e.target.value})} style={inputStyle}>

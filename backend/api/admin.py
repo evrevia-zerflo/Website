@@ -140,6 +140,14 @@ async def upload_image(file: UploadFile = File(...), admin: dict = Depends(get_c
         
     return {"url": f"/images/products/{new_filename}"}
 
+@router.get("/products")
+async def get_all_products(admin: dict = Depends(get_current_admin)):
+    if not settings.MONGODB_URI:
+        raise HTTPException(status_code=500, detail="Database not connected")
+    # Admin needs to see all products, regardless of published/draft status
+    products = await Product.find_all().sort("-createdAt").to_list()
+    return products
+
 @router.post("/products")
 async def create_product(request: ProductCreateRequest, admin: dict = Depends(get_current_admin)):
     if not settings.MONGODB_URI:

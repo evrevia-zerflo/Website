@@ -21,6 +21,29 @@ export default function AddProduct() {
   });
   
   const [images, setImages] = useState([]);
+  const [draftLoaded, setDraftLoaded] = useState(false);
+
+  // Load draft from localStorage on mount
+  useEffect(() => {
+    const draft = localStorage.getItem('addProductDraft');
+    if (draft) {
+      try {
+        const parsed = JSON.parse(draft);
+        setForm(parsed);
+        toast.success("Draft restored automatically");
+      } catch (e) {
+        console.error("Failed to parse draft", e);
+      }
+    }
+    setDraftLoaded(true);
+  }, []);
+
+  // Save draft to localStorage on form change
+  useEffect(() => {
+    if (draftLoaded) {
+      localStorage.setItem('addProductDraft', JSON.stringify(form));
+    }
+  }, [form, draftLoaded]);
 
   const handleImageChange = (e) => {
     if (e.target.files) {
@@ -69,6 +92,7 @@ export default function AddProduct() {
 
       await api.post('/admin/products', payload);
       toast.success('Product added successfully!');
+      localStorage.removeItem('addProductDraft'); // Clear draft on success
       navigate('/products');
       
     } catch (err) {
@@ -226,8 +250,17 @@ export default function AddProduct() {
             </div>
 
             <div style={sectionStyle}>
-              <h3 style={sectionTitleStyle}>Organization</h3>
+              <h3 style={sectionTitleStyle}>Organization & Visibility</h3>
               
+              <div style={{ marginBottom: '1.5rem', background: '#f8fafc', padding: '1rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                <label style={{ ...labelStyle, color: '#0f172a' }}>Product Visibility</label>
+                <p style={{ fontSize: '0.75rem', color: '#64748b', margin: '0 0 12px 0' }}>Control if this product is visible on the main store.</p>
+                <select value={form.status} onChange={e => setForm({...form, status: e.target.value})} style={{ ...inputStyle, background: 'white' }}>
+                  <option value="publish">Published (Visible)</option>
+                  <option value="draft">Draft (Private)</option>
+                </select>
+              </div>
+
               <div style={{ marginBottom: '1.5rem' }}>
                 <label style={labelStyle}>Category</label>
                 <select value={form.category} onChange={e => setForm({...form, category: e.target.value})} style={inputStyle}>

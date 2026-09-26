@@ -12,8 +12,11 @@ async def get_products(category: Optional[str] = None):
         return []
         
     if category:
-        return await Product.find(Product.category == category).to_list()
-    return await Product.find_all().to_list()
+        return await Product.find(
+            Product.category == category,
+            Product.status.in_(["publish", "published"])
+        ).to_list()
+    return await Product.find(Product.status.in_(["publish", "published"])).to_list()
 
 @router.get("/{product_id}", response_model=Product)
 async def get_product(product_id: str):
