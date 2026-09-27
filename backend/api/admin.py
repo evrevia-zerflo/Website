@@ -180,8 +180,19 @@ async def create_product(request: ProductCreateRequest, admin: dict = Depends(ge
         raise HTTPException(status_code=500, detail="Database not connected")
         
     new_product_dict = request.dict()
-    if not new_product_dict.get("originalPrice"):
-        new_product_dict["originalPrice"] = int(new_product_dict["price"] * 1.5)
+    
+    # Generate slug from name
+    base_slug = new_product_dict["name"].lower().replace(" ", "-")
+    # Clean non-alphanumeric (simple approach)
+    base_slug = "".join(c for c in base_slug if c.isalnum() or c == "-")
+    new_product_dict["slug"] = base_slug
+    
+    # Map originalPrice to compareAtPrice
+    original_price = new_product_dict.pop("originalPrice", None)
+    if not original_price:
+        new_product_dict["compareAtPrice"] = float(new_product_dict["price"] * 1.5)
+    else:
+        new_product_dict["compareAtPrice"] = float(original_price)
         
     product = Product(**new_product_dict)
     await product.insert()
@@ -202,6 +213,10 @@ async def update_product(product_id: str, request: dict, admin: dict = Depends(g
         del request["_id"]
     if "id" in request:
         del request["id"]
+        
+    # Map originalPrice to compareAtPrice
+    if "originalPrice" in request:
+        request["compareAtPrice"] = float(request.pop("originalPrice")) if request["originalPrice"] else None
         
     await product.set(request)
     return product

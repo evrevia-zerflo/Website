@@ -1,12 +1,11 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../api/client';
 import Dashboard from './Dashboard';
 import { Upload, ArrowLeft, Save, X, Image as ImageIcon } from 'lucide-react';
 import toast from 'react-hot-toast';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
-
+import RichTextEditor from '../components/RichTextEditor';
+import DynamicListInput from '../components/DynamicListInput';
 export default function AddProduct() {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
@@ -29,8 +28,10 @@ export default function AddProduct() {
     if (draft) {
       try {
         const parsed = JSON.parse(draft);
-        setForm(parsed);
-        toast.success("Draft restored automatically");
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed) && Object.keys(parsed).length > 0) {
+          setForm(parsed);
+          toast.success("Draft restored automatically");
+        }
       } catch (e) {
         console.error("Failed to parse draft", e);
       }
@@ -137,10 +138,10 @@ export default function AddProduct() {
               </div>
               
               <div>
-                <label style={labelStyle}>Description</label>
-                <div style={{ background: '#fff' }}>
-                  <ReactQuill theme="snow" value={form.description} onChange={val => setForm({...form, description: val})} style={{ height: '200px', marginBottom: '50px' }} />
-                </div>
+                <RichTextEditor 
+                  value={form.description || ''} 
+                  onChange={val => setForm({...form, description: val})} 
+                />
               </div>
             </div>
 
@@ -192,27 +193,40 @@ export default function AddProduct() {
             <div style={sectionStyle}>
               <h3 style={sectionTitleStyle}>Garment Details (Store Tabs)</h3>
               
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem' }}>
-                <div>
-                  <label style={labelStyle}>Fabric & Composition</label>
-                  <textarea rows={3} value={form.fabric} onChange={e => setForm({...form, fabric: e.target.value})} style={{...inputStyle, resize: 'vertical'}} placeholder="E.g. 100% Pure Mulberry Silk Satin"></textarea>
-                </div>
-                <div>
-                  <label style={labelStyle}>Fit & Sizing</label>
-                  <textarea rows={3} value={form.fit} onChange={e => setForm({...form, fit: e.target.value})} style={{...inputStyle, resize: 'vertical'}} placeholder="E.g. Fluid relaxed silhouette. Fits true to size."></textarea>
-                </div>
-                <div>
-                  <label style={labelStyle}>Care Instructions</label>
-                  <textarea rows={3} value={form.care} onChange={e => setForm({...form, care: e.target.value})} style={{...inputStyle, resize: 'vertical'}} placeholder="E.g. Dry clean recommended."></textarea>
-                </div>
-                <div>
-                  <label style={labelStyle}>Styling Notes</label>
-                  <textarea rows={3} value={form.styling} onChange={e => setForm({...form, styling: e.target.value})} style={{...inputStyle, resize: 'vertical'}} placeholder="E.g. Pair with gold drop earrings..."></textarea>
-                </div>
-                <div>
-                  <label style={labelStyle}>What's Included</label>
-                  <textarea rows={3} value={form.whatsIncluded} onChange={e => setForm({...form, whatsIncluded: e.target.value})} style={{...inputStyle, resize: 'vertical'}} placeholder="E.g. 1x Garment, 1x Storage Bag"></textarea>
-                </div>
+                <DynamicListInput 
+                  label="Fabric & Composition"
+                  items={form.fabric ? form.fabric.split('|').filter(Boolean) : []}
+                  onChange={arr => setForm({...form, fabric: arr.join('|')})}
+                  placeholder="E.g. 100% Pure Mulberry Silk Satin"
+                />
+                
+                <DynamicListInput 
+                  label="Fit & Sizing"
+                  items={form.fit ? form.fit.split('|').filter(Boolean) : []}
+                  onChange={arr => setForm({...form, fit: arr.join('|')})}
+                  placeholder="E.g. Fluid relaxed silhouette. Fits true to size."
+                />
+                
+                <DynamicListInput 
+                  label="Care Instructions"
+                  items={form.care ? form.care.split('|').filter(Boolean) : []}
+                  onChange={arr => setForm({...form, care: arr.join('|')})}
+                  placeholder="E.g. Dry clean recommended."
+                />
+                
+                <DynamicListInput 
+                  label="Styling Notes"
+                  items={form.styling ? form.styling.split('|').filter(Boolean) : []}
+                  onChange={arr => setForm({...form, styling: arr.join('|')})}
+                  placeholder="E.g. Pair with gold drop earrings..."
+                />
+                
+                <DynamicListInput 
+                  label="What's Included"
+                  items={form.whatsIncluded ? form.whatsIncluded.split('|').filter(Boolean) : []}
+                  onChange={arr => setForm({...form, whatsIncluded: arr.join('|')})}
+                  placeholder="E.g. 1x Garment"
+                />
               </div>
             </div>
           </div>

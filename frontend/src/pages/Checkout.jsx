@@ -18,6 +18,7 @@ import {
   Edit2
 } from 'lucide-react';
 import CheckoutHeader from '../components/CheckoutHeader';
+import ProgressiveImage from '../components/ProgressiveImage';
 import useCartStore from '../store/cartStore';
 import useAddressStore from '../store/addressStore';
 import useAuthStore from '../store/authStore';
@@ -219,7 +220,9 @@ export default function Checkout() {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.5rem' }}>
                     {items.map((item, idx) => (
                       <div key={idx} style={{ display: 'flex', gap: '1rem', background: 'var(--bg-secondary)', padding: '0.85rem', borderRadius: 'var(--radius-md)' }}>
-                        <img src={item.image} alt={item.name} style={{ width: '65px', height: '80px', objectFit: 'cover', borderRadius: 'var(--radius-sm)' }} />
+                        <div style={{ width: '65px', height: '80px' }}>
+                          <ProgressiveImage src={item.image} alt={item.name} />
+                        </div>
                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                           <div>
                             <h4 style={{ fontSize: '0.9rem', fontWeight: 600 }}>{item.name}</h4>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, ShoppingBag, Plus, Minus, Trash2, ArrowRight, Tag, Truck } from 'lucide-react';
 import useCartStore from '../store/cartStore';
+import ProgressiveImage from './ProgressiveImage';
 
 export default function CartDrawer() {
   const navigate = useNavigate();
@@ -91,11 +92,9 @@ export default function CartDrawer() {
           ) : (
             items.map((item, index) => (
               <div key={`${item.productId}-${item.size}-${item.color}-${index}`} style={{ display: 'flex', gap: '1rem', paddingBottom: '1rem', borderBottom: '1px solid var(--border-subtle)' }}>
-                <img 
-                  src={item.image} 
-                  alt={item.name} 
-                  style={{ width: '70px', height: '90px', objectFit: 'cover', borderRadius: 'var(--radius-sm)' }} 
-                />
+                <div style={{ width: '70px', height: '90px' }}>
+                  <ProgressiveImage src={item.image} alt={item.name} />
+                </div>
 
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                   <div>

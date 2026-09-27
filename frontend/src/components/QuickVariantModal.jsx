@@ -12,7 +12,7 @@ export default function QuickVariantModal({ product, isOpen, onClose }) {
   if (!isOpen || !product) return null;
 
   const price = Number(product.price);
-  const imageSrc = product.images?.[0]?.url || product.image || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500&q=80';
+  const imageSrc = (typeof product.images?.[0] === 'string' ? product.images[0] : product.images?.[0]?.url) || product.image || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500&q=80';
 
   const handleConfirmAdd = () => {
     addToCart(product, 1, selectedSize, selectedColor);

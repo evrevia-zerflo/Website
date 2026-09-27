@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import ProgressiveImage from './ProgressiveImage';
 import { Heart, ShoppingBag, Star } from 'lucide-react';
 import useWishlistStore from '../store/wishlistStore';
 import QuickVariantModal from './QuickVariantModal';
@@ -13,7 +14,7 @@ export default function ProductCard({ product }) {
   const productId = product.id || product._id;
   const isSaved = isInWishlist(productId);
 
-  const imageSrc = product.images?.[0]?.url || product.image || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500&q=80';
+  const imageSrc = (typeof product.images?.[0] === 'string' ? product.images[0] : product.images?.[0]?.url) || product.image || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500&q=80';
   const price = Number(product.price);
   const originalPrice = product.originalPrice ? Number(product.originalPrice) : Math.round(price * 1.3);
   const discountPercent = Math.round(((originalPrice - price) / originalPrice) * 100);
@@ -32,19 +33,10 @@ export default function ProductCard({ product }) {
       }}>
         {/* Product Image Box */}
         <div style={{ position: 'relative', overflow: 'hidden', paddingTop: '125%', background: 'var(--bg-secondary)' }}>
-          <Link to={`/product/${productId}`}>
-            <img 
+          <Link to={`/product/${productId}`} style={{ display: 'block', width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}>
+            <ProgressiveImage 
               src={imageSrc} 
               alt={product.name} 
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                transition: 'transform 0.4s ease',
-              }}
               onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
               onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
             />

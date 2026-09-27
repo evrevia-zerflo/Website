@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ProgressiveImage from './ProgressiveImage';
 import { 
   Shirt, 
   ShoppingBag, 
@@ -75,7 +76,7 @@ export default function CategoryExplorer({ hideHeader = false, variant = 'full' 
                   className={`cat-avatar-btn ${isSelected ? 'selected' : ''}`}
                 >
                   <div style={{ position: 'relative', width: '48px', height: '48px', borderRadius: '50%', overflow: 'hidden', border: isSelected ? '2px solid var(--accent-gold)' : '1px solid var(--border-color)' }}>
-                    <img src={cat.image} alt={cat.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <ProgressiveImage src={cat.image} alt={cat.name} />
                     <div style={{ position: 'absolute', bottom: 0, right: 0, background: 'var(--text-main)', padding: '2px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <IconComp size={10} color="var(--accent-gold)" />
                     </div>
@@ -123,14 +124,14 @@ export default function CategoryExplorer({ hideHeader = false, variant = 'full' 
                       {badge && <span className="subcat-collage-tag">{badge}</span>}
                       
                       <div style={{ flex: '1.2', height: '100%', overflow: 'hidden' }}>
-                        <img src={subImages[0]} alt={`${subName} 1`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <ProgressiveImage src={subImages[0]} alt={`${subName} 1`} />
                       </div>
                       <div style={{ flex: '0.8', display: 'flex', flexDirection: 'column', gap: '2px', height: '100%' }}>
                         <div style={{ flex: 1, overflow: 'hidden' }}>
-                          <img src={subImages[1] || subImages[0]} alt={`${subName} 2`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          <ProgressiveImage src={subImages[1] || subImages[0]} alt={`${subName} 2`} />
                         </div>
                         <div style={{ flex: 1, overflow: 'hidden' }}>
-                          <img src={subImages[2] || subImages[0]} alt={`${subName} 3`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          <ProgressiveImage src={subImages[2] || subImages[0]} alt={`${subName} 3`} />
                         </div>
                       </div>
                     </div>
@@ -219,7 +220,7 @@ export default function CategoryExplorer({ hideHeader = false, variant = 'full' 
                           onClick={() => handleSubCategoryClick(cat.name, subName)}
                         >
                           <div className="quad-img-container">
-                            <img src={subImage} alt={subName} className="quad-tile-img" />
+                            <ProgressiveImage src={subImage} alt={subName} className="quad-tile-img" />
                             {badge && <span className="quad-tile-badge">{badge}</span>}
                           </div>
                           
@@ -275,7 +276,7 @@ export default function CategoryExplorer({ hideHeader = false, variant = 'full' 
                 className={`cat-avatar-btn ${isSelected ? 'selected' : ''}`}
               >
                 <div style={{ position: 'relative', width: '48px', height: '48px', borderRadius: '50%', overflow: 'hidden', border: isSelected ? '2px solid var(--accent-gold)' : '1px solid var(--border-color)' }}>
-                  <img src={cat.image} alt={cat.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <ProgressiveImage src={cat.image} alt={cat.name} />
                   <div style={{ position: 'absolute', bottom: 0, right: 0, background: 'var(--text-main)', padding: '2px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <IconComp size={10} color="var(--accent-gold)" />
                   </div>
@@ -323,14 +324,14 @@ export default function CategoryExplorer({ hideHeader = false, variant = 'full' 
                     {badge && <span className="subcat-collage-tag">{badge}</span>}
 
                     <div style={{ flex: '1.2', height: '100%', overflow: 'hidden' }}>
-                      <img src={subImages[0]} alt={`${subName} 1`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <ProgressiveImage src={subImages[0]} alt={`${subName} 1`} />
                     </div>
                     <div style={{ flex: '0.8', display: 'flex', flexDirection: 'column', gap: '2px', height: '100%' }}>
                       <div style={{ flex: 1, overflow: 'hidden' }}>
-                        <img src={subImages[1] || subImages[0]} alt={`${subName} 2`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <ProgressiveImage src={subImages[1] || subImages[0]} alt={`${subName} 2`} />
                       </div>
                       <div style={{ flex: 1, overflow: 'hidden' }}>
-                        <img src={subImages[2] || subImages[0]} alt={`${subName} 3`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <ProgressiveImage src={subImages[2] || subImages[0]} alt={`${subName} 3`} />
                       </div>
                     </div>
                   </div>

@@ -6,8 +6,10 @@ import {
 } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import CategoryExplorer from '../components/CategoryExplorer';
+import ProgressiveImage from '../components/ProgressiveImage';
 import api from '../api/client';
 import { MOCK_PRODUCTS } from '../data/mockProducts';
+import { preloadImages } from '../utils/imagePreloader';
 
 const MOCK_LOOK_COMBOS = [
   {
@@ -55,9 +57,13 @@ export default function Home() {
     async function loadData() {
       try {
         const res = await api.get('/products');
-        if (res.data && res.data.length > 0) setProducts(res.data);
+        if (res.data && res.data.length > 0) {
+          setProducts(res.data);
+          preloadImages(res.data.map(p => p.images?.[0]?.url || p.images?.[0]).filter(Boolean));
+        }
       } catch (err) {
         console.log("Using local mock products fallback");
+        preloadImages(MOCK_PRODUCTS.map(p => p.image).filter(Boolean));
       }
 
       try {
@@ -232,7 +238,7 @@ export default function Home() {
                 <React.Fragment key={itemIdx}>
                   {itemIdx > 0 && <span className="combo-plus-tag">+</span>}
                   <div style={{ textAlign: 'center', flexShrink: 0 }}>
-                    <img src={item.img} alt={item.name} className="combo-item-img" />
+                    <ProgressiveImage src={item.img} alt={item.name} className="combo-item-img" />
                     <p style={{ fontSize: '0.8rem', fontWeight: 600, marginTop: '6px', maxWidth: '100px', margin: '6px auto 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</p>
                     <p style={{ fontSize: '0.75rem', color: 'var(--accent-gold-hover)', fontWeight: 700 }}>₹{item.price.toLocaleString()}</p>
                   </div>

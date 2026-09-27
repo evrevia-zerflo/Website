@@ -1,9 +1,11 @@
 import os
+from pathlib import Path
 from pydantic import BaseModel
 from typing import Optional
 from dotenv import load_dotenv
 
-load_dotenv("backend/.env") # Load variables from .env file
+env_path = Path(__file__).parent.parent / '.env'
+load_dotenv(dotenv_path=env_path)
 
 class Settings(BaseModel):
     PROJECT_NAME: str = "EVRÉVIA Backend"

@@ -39,7 +39,7 @@ const useCartStore = create(
             name: product.name,
             price: Number(product.price),
             originalPrice: product.originalPrice ? Number(product.originalPrice) : Math.round(Number(product.price) * 1.25),
-            image: product.images?.[0]?.url || product.image || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500&q=80',
+            image: (typeof product.images?.[0] === 'string' ? product.images[0] : product.images?.[0]?.url) || product.image || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500&q=80',
             size: selectedSize,
             color: selectedColor,
             quantity 

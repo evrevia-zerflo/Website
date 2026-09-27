@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import useCartStore from '../store/cartStore';
+import ProgressiveImage from '../components/ProgressiveImage';
 
 export default function Cart() {
   const { items, removeFromCart, getCartTotal } = useCartStore();
@@ -21,7 +22,9 @@ export default function Cart() {
           <div className="cart-items">
             {items.map(item => (
               <div key={item.productId} className="cart-item">
-                <img src={item.image || 'https://via.placeholder.com/100'} alt={item.name} />
+                <div style={{ width: '100px', height: '100px' }}>
+                  <ProgressiveImage src={item.image || 'https://via.placeholder.com/100'} alt={item.name} />
+                </div>
                 <div className="item-details">
                   <h3>{item.name}</h3>
                   <p>₹{item.price}</p>

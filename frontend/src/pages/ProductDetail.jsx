@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Star, ShieldCheck, Truck, RotateCcw, Heart, ShoppingBag, MapPin, Sparkles, ArrowLeft, ChevronDown, ChevronUp, Check, Info } from 'lucide-react';
 import useCartStore from '../store/cartStore';
+import ProgressiveImage from '../components/ProgressiveImage';
 import useWishlistStore from '../store/wishlistStore';
 import { MOCK_PRODUCTS } from '../data/mockProducts';
 import ProductCard from '../components/ProductCard';
@@ -87,10 +88,9 @@ export default function ProductDetail() {
         {/* LEFT: Gallery */}
         <div>
           <div style={{ position: 'relative', height: 'clamp(300px, 50vh, 460px)', borderRadius: 'var(--radius-md)', overflow: 'hidden', background: 'var(--bg-secondary)', marginBottom: '0.85rem', border: '1px solid var(--border-subtle)' }}>
-            <img 
-              src={images[selectedImageIndex]?.url || images[0]?.url} 
+            <ProgressiveImage 
+              src={(typeof images[selectedImageIndex] === 'string' ? images[selectedImageIndex] : images[selectedImageIndex]?.url) || (typeof images[0] === 'string' ? images[0] : images[0]?.url)} 
               alt={product.name}
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
             
             <button 
@@ -128,7 +128,7 @@ export default function ProductDetail() {
                     cursor: 'pointer'
                   }}
                 >
-                  <img src={img.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <ProgressiveImage src={typeof img === 'string' ? img : img?.url} alt="" />
                 </div>
               ))}
             </div>
@@ -307,40 +307,63 @@ export default function ProductDetail() {
 
         {/* Spec Tab Content */}
         <div style={{ fontSize: '0.9rem', color: 'var(--text-main)', lineHeight: 1.7, minHeight: '80px' }}>
-          {activeSpecTab === 'fabric' && (
-            <div>
-              <p style={{ fontWeight: 600, color: 'var(--accent-gold-hover)', marginBottom: '4px' }}>Fabric & Material Details:</p>
-              <p>{product.fabric || '100% Pure Mulberry Silk Satin (19 Momme) / Fine Handloom Woven Fabric'}</p>
-            </div>
-          )}
+          {(() => {
+            const renderList = (text, fallback) => {
+              const content = text || fallback;
+              if (!content.includes('|')) return <p>{content}</p>;
+              
+              const items = content.split('|').filter(i => i.trim());
+              return (
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  {items.map((item, idx) => (
+                    <li key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                      <span style={{ color: 'var(--accent-gold)' }}>•</span>
+                      <span>{item.trim()}</span>
+                    </li>
+                  ))}
+                </ul>
+              );
+            };
 
-          {activeSpecTab === 'fit' && (
-            <div>
-              <p style={{ fontWeight: 600, color: 'var(--accent-gold-hover)', marginBottom: '4px' }}>Silhouette & Fit Guide:</p>
-              <p>{product.fit || 'Fluid relaxed silhouette. Fits true to size with tailored waist contouring.'}</p>
-            </div>
-          )}
+            return (
+              <>
+                {activeSpecTab === 'fabric' && (
+                  <div>
+                    <p style={{ fontWeight: 600, color: 'var(--accent-gold-hover)', marginBottom: '8px' }}>Fabric & Material Details:</p>
+                    {renderList(product.fabric, '100% Pure Mulberry Silk Satin (19 Momme) | Fine Handloom Woven Fabric')}
+                  </div>
+                )}
 
-          {activeSpecTab === 'care' && (
-            <div>
-              <p style={{ fontWeight: 600, color: 'var(--accent-gold-hover)', marginBottom: '4px' }}>Garment Care Instructions:</p>
-              <p>{product.care || 'Dry clean recommended. Store in a breathable muslin garment bag away from direct sunlight.'}</p>
-            </div>
-          )}
+                {activeSpecTab === 'fit' && (
+                  <div>
+                    <p style={{ fontWeight: 600, color: 'var(--accent-gold-hover)', marginBottom: '8px' }}>Silhouette & Fit Guide:</p>
+                    {renderList(product.fit, 'Fluid relaxed silhouette. | Fits true to size with tailored waist contouring.')}
+                  </div>
+                )}
 
-          {activeSpecTab === 'styling' && (
-            <div>
-              <p style={{ fontWeight: 600, color: 'var(--accent-gold-hover)', marginBottom: '4px' }}>Haute Couture Styling Notes:</p>
-              <p>{product.styling || 'Pair with gold drop earrings, a sleek crescent handbag, and stiletto sandals for evening receptions.'}</p>
-            </div>
-          )}
+                {activeSpecTab === 'care' && (
+                  <div>
+                    <p style={{ fontWeight: 600, color: 'var(--accent-gold-hover)', marginBottom: '8px' }}>Garment Care Instructions:</p>
+                    {renderList(product.care, 'Dry clean recommended. | Store in a breathable muslin garment bag away from direct sunlight.')}
+                  </div>
+                )}
 
-          {activeSpecTab === 'included' && (
-            <div>
-              <p style={{ fontWeight: 600, color: 'var(--accent-gold-hover)', marginBottom: '4px' }}>Package Contents:</p>
-              <p>{product.whatsIncluded || '1x Garment, 1x EVRÉVIA Signature Storage Protection Bag.'}</p>
-            </div>
-          )}
+                {activeSpecTab === 'styling' && (
+                  <div>
+                    <p style={{ fontWeight: 600, color: 'var(--accent-gold-hover)', marginBottom: '8px' }}>Haute Couture Styling Notes:</p>
+                    {renderList(product.styling, 'Pair with gold drop earrings | Sleek crescent handbag | Stiletto sandals for evening receptions.')}
+                  </div>
+                )}
+
+                {activeSpecTab === 'included' && (
+                  <div>
+                    <p style={{ fontWeight: 600, color: 'var(--accent-gold-hover)', marginBottom: '8px' }}>Package Contents:</p>
+                    {renderList(product.whatsIncluded, '1x Primary Garment | 1x Evrévia Signature Storage Bag | Authenticity Card')}
+                  </div>
+                )}
+              </>
+            );
+          })()}
         </div>
       </section>
 

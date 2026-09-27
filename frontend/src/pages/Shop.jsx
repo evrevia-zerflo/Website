@@ -10,6 +10,7 @@ import CategoryExplorer from '../components/CategoryExplorer';
 import api from '../api/client';
 import { MOCK_PRODUCTS } from '../data/mockProducts';
 import { EVREVIA_CATEGORIES } from '../data/categoriesData';
+import { preloadImages } from '../utils/imagePreloader';
 
 export default function Shop() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -30,9 +31,15 @@ export default function Shop() {
     async function loadProducts() {
       try {
         const res = await api.get('/products');
-        if (res.data && res.data.length > 0) setProducts(res.data);
+        if (res.data && res.data.length > 0) {
+          setProducts(res.data);
+          // Eagerly preload product images
+          preloadImages(res.data.map(p => p.images?.[0]?.url || p.images?.[0]).filter(Boolean));
+        }
       } catch (err) {
         console.log("Using local mock products fallback");
+        // Preload mock images too
+        preloadImages(MOCK_PRODUCTS.map(p => p.image).filter(Boolean));
       }
     }
     loadProducts();

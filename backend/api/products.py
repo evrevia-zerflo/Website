@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 from typing import List, Optional
 from backend.models.product import Product
 from backend.core.config import settings
+from beanie.operators import In
 
 router = APIRouter()
 
@@ -14,9 +15,9 @@ async def get_products(category: Optional[str] = None):
     if category:
         return await Product.find(
             Product.category == category,
-            Product.status.in_(["publish", "published"])
+            In(Product.status, ["publish", "published"])
         ).to_list()
-    return await Product.find(Product.status.in_(["publish", "published"])).to_list()
+    return await Product.find(In(Product.status, ["publish", "published"])).to_list()
 
 @router.get("/{product_id}", response_model=Product)
 async def get_product(product_id: str):
