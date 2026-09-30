@@ -1,17 +1,18 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from typing import List
 from datetime import datetime
-from backend.models.order import Order, Address
-from backend.models.cart import CartItem
+from backend.models.order import Order, Address, OrderItem
 from backend.models.product import Product
 from backend.core.config import settings
+from backend.api.auth import get_current_user
+from bson import ObjectId
 
 router = APIRouter()
 
 class OrderCreateRequest(BaseModel):
     userId: str
-    items: List[CartItem]
+    items: List[OrderItem]
     address: Address
     subtotal: float
     shipping: float = 0.0
@@ -54,3 +55,22 @@ async def create_order(request: OrderCreateRequest):
         "total": order.total,
         "status": order.paymentStatus
     }
+
+@router.get("/me")
+async def get_my_orders(current_user: dict = Depends(get_current_user)):
+    user_id = current_user["sub"]
+    orders = await Order.find({"userId": user_id}).sort("-createdAt").to_list()
+    return orders
+
+@router.get("/{order_id}")
+async def get_order_details(order_id: str, current_user: dict = Depends(get_current_user)):
+    user_id = current_user["sub"]
+    try:
+        order = await Order.get(ObjectId(order_id))
+        if not order:
+            raise HTTPException(status_code=404, detail="Order not found")
+        if order.userId != user_id:
+            raise HTTPException(status_code=403, detail="Not authorized to view this order")
+        return order
+    except Exception:
+        raise HTTPException(status_code=404, detail="Order not found")

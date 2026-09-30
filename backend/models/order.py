@@ -2,7 +2,15 @@ from beanie import Document
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
-from backend.models.cart import CartItem
+
+class OrderItem(BaseModel):
+    productId: str
+    name: str
+    price: float
+    quantity: int
+    size: Optional[str] = None
+    color: Optional[str] = None
+    image: str
 
 class Address(BaseModel):
     name: str
@@ -18,7 +26,7 @@ class Address(BaseModel):
 
 class Order(Document):
     userId: str
-    items: List[CartItem]
+    items: List[OrderItem]
     address: Address
     subtotal: float
     shipping: float = 0.0
@@ -26,6 +34,8 @@ class Order(Document):
     paymentStatus: str = "PENDING_PAYMENT" # PENDING_PAYMENT, PAID, FAILED, REVIEW
     orderStatus: str = "NEW" # NEW, PROCESSING, SHIPPED, DELIVERED, CANCELLED
     upiReference: Optional[str] = None
+    trackingId: Optional[str] = None
+    courierName: Optional[str] = None
     createdAt: datetime = datetime.utcnow()
     updatedAt: datetime = datetime.utcnow()
 

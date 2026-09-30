@@ -138,11 +138,18 @@ export default function Checkout() {
       try {
         const orderData = {
           userId: user?.id || 'guest-' + Date.now(),
-          items: items.map(i => ({ productId: i.productId, quantity: i.quantity, price: i.price, size: i.size, color: i.color })),
-          shippingAddress: selectedAddress,
-          totalAmount: total,
-          paymentMethod: 'UPI_QR',
-          status: 'PAID'
+          items: items.map(i => ({ 
+            productId: i.productId, 
+            name: i.name,
+            price: i.price, 
+            quantity: i.quantity, 
+            size: i.size, 
+            color: i.color,
+            image: i.image
+          })),
+          address: selectedAddress,
+          subtotal: subtotal,
+          shipping: shipping
         };
         const res = await api.post('/orders', orderData).catch(() => ({ data: { id: 'EV-' + Math.floor(1000 + Math.random() * 9000) } }));
         const orderId = res.data.id || res.data._id || 'EV-1042';

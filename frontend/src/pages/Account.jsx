@@ -4,6 +4,7 @@ import { User, Package, MapPin, Heart, LogOut, ChevronRight, Plus, Trash2, Edit2
 import useAuthStore from '../store/authStore';
 import useAddressStore from '../store/addressStore';
 import useWishlistStore from '../store/wishlistStore';
+import useOrderStore from '../store/orderStore';
 import ProductCard from '../components/ProductCard';
 import api from '../api/client';
 import toast from 'react-hot-toast';
@@ -14,6 +15,7 @@ export default function Account() {
   const { user, login, logout } = useAuthStore();
   const { addresses, deleteAddress, fetchAddresses, addAddress } = useAddressStore();
   const { items: wishlistItems } = useWishlistStore();
+  const { orders, fetchMyOrders, isLoading: ordersLoading } = useOrderStore();
 
   const activeTab = searchParams.get('tab') || 'profile';
 
@@ -41,50 +43,9 @@ export default function Account() {
   useEffect(() => {
     if (user) {
       fetchAddresses();
+      fetchMyOrders();
     }
-  }, [user, fetchAddresses]);
-
-  const sampleOrders = [
-    {
-      id: 'EV-1042',
-      date: '22 Sep 2026',
-      total: 14980,
-      status: 'In Transit',
-      statusDetail: 'Arriving Thursday by 8 PM',
-      items: [
-        {
-          id: 'p1',
-          name: 'Aurelia Silk Satin Gown',
-          image: '/assets/mock/gown.png', // Fallback handled by styling if missing
-          price: 10990,
-          returnWindow: 'Return eligible through Oct 22, 2026'
-        },
-        {
-          id: 'p2',
-          name: 'Linen Casual Top',
-          image: '/assets/mock/top.png',
-          price: 3990,
-          returnWindow: 'Return eligible through Oct 22, 2026'
-        }
-      ]
-    },
-    {
-      id: 'EV-0988',
-      date: '10 Aug 2026',
-      total: 42990,
-      status: 'Delivered',
-      statusDetail: 'Delivered Aug 14, 2026',
-      items: [
-        {
-          id: 'p3',
-          name: 'Chanderi Handloom Anarkali',
-          image: '/assets/mock/anarkali.png',
-          price: 42990,
-          returnWindow: 'Return window closed on Sep 14, 2026'
-        }
-      ]
-    }
-  ];
+  }, [user, fetchAddresses, fetchMyOrders]);
 
   const handleSaveProfile = async () => {
     setIsSaving(true);
@@ -256,14 +217,16 @@ export default function Account() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           <h3 style={{ fontSize: '1.4rem', fontFamily: 'var(--font-serif)', margin: '0 0 -1rem 0' }}>Your Orders</h3>
           
-          {sampleOrders.map(order => (
-            <div key={order.id} style={{ border: '1px solid var(--border-subtle)', borderRadius: '12px', overflow: 'hidden', background: '#fff' }}>
+          {ordersLoading && <div style={{textAlign:'center', padding: '2rem'}}>Loading orders...</div>}
+          {!ordersLoading && orders.length === 0 && <div style={{textAlign:'center', padding: '2rem'}}>No orders found.</div>}
+          {!ordersLoading && orders.map(order => (
+            <div key={order._id} style={{ border: '1px solid var(--border-subtle)', borderRadius: '12px', overflow: 'hidden', background: '#fff' }}>
               
               {/* Order Header (Amazon-style) */}
               <div style={{ background: '#f8fafc', padding: '1.25rem', borderBottom: '1px solid var(--border-subtle)', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '1rem', fontSize: '0.85rem' }}>
                 <div>
                   <div style={{ color: 'var(--text-muted)', marginBottom: '4px', textTransform: 'uppercase', fontSize: '0.75rem', fontWeight: 600 }}>Order Placed</div>
-                  <div style={{ color: 'var(--text-main)' }}>{order.date}</div>
+                  <div style={{ color: 'var(--text-main)' }}>{new Date(order.createdAt).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'})}</div>
                 </div>
                 <div>
                   <div style={{ color: 'var(--text-muted)', marginBottom: '4px', textTransform: 'uppercase', fontSize: '0.75rem', fontWeight: 600 }}>Total</div>
@@ -271,35 +234,40 @@ export default function Account() {
                 </div>
                 <div>
                   <div style={{ color: 'var(--text-muted)', marginBottom: '4px', textTransform: 'uppercase', fontSize: '0.75rem', fontWeight: 600 }}>Ship To</div>
-                  <div style={{ color: 'var(--text-main)' }}>{user?.name || 'Customer'}</div>
+                  <div style={{ color: 'var(--text-main)' }}>{order.address?.name || 'Customer'}</div>
                 </div>
                 <div style={{ textAlign: 'right', gridColumn: '1 / -1', '@media (min-width: 640px)': { gridColumn: 'auto' } }}>
-                  <div style={{ color: 'var(--text-muted)', marginBottom: '4px', textTransform: 'uppercase', fontSize: '0.75rem', fontWeight: 600 }}>Order # {order.id}</div>
+                  <div style={{ color: 'var(--text-muted)', marginBottom: '4px', textTransform: 'uppercase', fontSize: '0.75rem', fontWeight: 600 }}>Order # {order._id}</div>
                   <button style={{ background: 'none', border: 'none', color: 'var(--accent-gold)', fontSize: '0.85rem', cursor: 'pointer', padding: 0 }}>View Invoice</button>
                 </div>
               </div>
 
               {/* Order Body */}
               <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                <h4 style={{ fontSize: '1.1rem', margin: 0, color: order.status === 'Delivered' ? '#166534' : 'var(--text-main)' }}>
-                  {order.statusDetail}
+                <h4 style={{ fontSize: '1.1rem', margin: 0, color: order.orderStatus === 'DELIVERED' ? '#166534' : 'var(--text-main)' }}>
+                  Status: {order.orderStatus}
                 </h4>
 
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem' }}>
                   {/* Items List */}
                   <div style={{ flex: '1 1 400px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                     {order.items.map(item => (
-                      <div key={item.id} style={{ display: 'flex', gap: '1rem' }}>
+                      <div key={item.productId} style={{ display: 'flex', gap: '1rem' }}>
                         <div style={{ width: '90px', height: '120px', background: '#f1f5f9', borderRadius: '8px', overflow: 'hidden', flexShrink: 0 }}>
-                          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1' }}>
-                            <Box size={32} />
-                          </div>
+                          {item.image ? (
+                            <img src={item.image} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          ) : (
+                            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1' }}>
+                              <Box size={32} />
+                            </div>
+                          )}
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
-                          <Link to="/shop" style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-main)', textDecoration: 'none', marginBottom: '4px' }}>
+                          <Link to={`/product/${item.productId}`} style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-main)', textDecoration: 'none', marginBottom: '4px' }}>
                             {item.name}
                           </Link>
-                          <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '12px' }}>{item.returnWindow}</div>
+                          <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '4px' }}>Qty: {item.quantity} {item.size && `| Size: ${item.size}`}</div>
+                          <div style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--text-main)', marginBottom: '12px' }}>₹{item.price.toLocaleString('en-IN')}</div>
                           
                           <button className="btn-secondary" style={{ padding: '6px 12px', fontSize: '0.8rem', width: 'fit-content', borderRadius: '6px' }}>
                             <Package size={14} /> Buy it again
@@ -311,7 +279,7 @@ export default function Account() {
 
                   {/* Actions Column */}
                   <div style={{ width: '240px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                    <Link to={`/order-tracking/${order.id}`} className="btn-primary" style={{ padding: '10px', fontSize: '0.9rem', borderRadius: '8px', justifyContent: 'center', boxShadow: 'none' }}>
+                    <Link to={`/order-tracking/${order._id}`} className="btn-primary" style={{ padding: '10px', fontSize: '0.9rem', borderRadius: '8px', justifyContent: 'center', boxShadow: 'none' }}>
                       Track package
                     </Link>
                     <button className="btn-secondary" style={{ padding: '10px', fontSize: '0.9rem', borderRadius: '8px', justifyContent: 'center', background: '#fff' }}>
