@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Check, 
@@ -17,6 +17,7 @@ import {
   X,
   Edit2
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import CheckoutHeader from '../components/CheckoutHeader';
 import ProgressiveImage from '../components/ProgressiveImage';
 import useCartStore from '../store/cartStore';
@@ -72,6 +73,21 @@ export default function Checkout() {
 
   const [couponInput, setCouponInput] = useState('');
   const [couponMsg, setCouponMsg] = useState('');
+
+  useEffect(() => {
+    if (addresses.length > 0 && !selectedAddressId) {
+      const defaultAddr = addresses.find(a => a.isDefault);
+      setSelectedAddressId(defaultAddr ? defaultAddr.id : addresses[0].id);
+    }
+  }, [addresses, selectedAddressId, setSelectedAddressId]);
+
+  const handleContinueToReview = () => {
+    if (!selectedAddressId) {
+      toast.error('Please select or add a delivery address first.');
+      return;
+    }
+    setActiveStep(2);
+  };
 
   if (items.length === 0) {
     return (
@@ -193,7 +209,7 @@ export default function Checkout() {
                   ))}
 
                   <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
-                    <button className="btn-primary" onClick={() => setActiveStep(2)} style={{ width: 'auto' }}>
+                    <button className="btn-primary" onClick={handleContinueToReview} style={{ width: 'auto' }}>
                       <span>Continue to Order Review</span>
                       <ArrowRight size={16} />
                     </button>
@@ -307,8 +323,26 @@ export default function Checkout() {
           <div className="checkout-right" style={{ position: 'sticky', top: '80px' }}>
             <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)', padding: '1.25rem', boxShadow: 'var(--shadow-sm)' }}>
               <h3 style={{ fontSize: '1.1rem', fontFamily: 'var(--font-serif)', marginBottom: '1rem', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.75rem' }}>
-                Price Details
+                Order Summary
               </h3>
+
+              {/* Miniature Item List */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.25rem', borderBottom: '1px dashed var(--border-color)', paddingBottom: '1.25rem' }}>
+                {items.map((item, idx) => (
+                  <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', fontSize: '0.8rem' }}>
+                    <div style={{ display: 'flex', gap: '8px', flex: 1 }}>
+                      <div style={{ width: '36px', height: '48px', flexShrink: 0, borderRadius: '4px', overflow: 'hidden' }}>
+                        <ProgressiveImage src={item.image} alt={item.name} />
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span style={{ fontWeight: 600, color: 'var(--text-main)', display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{item.name}</span>
+                        <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Qty: {item.quantity} | {item.size}</span>
+                      </div>
+                    </div>
+                    <span style={{ fontWeight: 600, paddingLeft: '8px' }}>₹{(item.price * item.quantity).toLocaleString('en-IN')}</span>
+                  </div>
+                ))}
+              </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.85rem' }}>
                 <div className="flex-between" style={{ color: 'var(--text-muted)' }}>
@@ -360,7 +394,7 @@ export default function Checkout() {
         </div>
 
         {activeStep < 3 ? (
-          <button className="btn-primary" onClick={() => setActiveStep(prev => prev + 1)} style={{ width: 'auto', padding: '0.75rem 1.5rem' }}>
+          <button className="btn-primary" onClick={() => activeStep === 1 ? handleContinueToReview() : setActiveStep(3)} style={{ width: 'auto', padding: '0.75rem 1.5rem' }}>
             <span>Continue</span>
             <ArrowRight size={16} />
           </button>
