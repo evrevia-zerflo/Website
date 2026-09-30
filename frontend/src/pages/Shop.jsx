@@ -6,6 +6,7 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
+import ProductCardSkeleton from '../components/ProductCardSkeleton';
 import CategoryExplorer from '../components/CategoryExplorer';
 import api from '../api/client';
 import { MOCK_PRODUCTS } from '../data/mockProducts';
@@ -15,7 +16,9 @@ import { preloadImages } from '../utils/imagePreloader';
 export default function Shop() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [products, setProducts] = useState(MOCK_PRODUCTS);
+  const [products, setProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const expectedCount = parseInt(localStorage.getItem('evrevia_products_count') || '8', 10);
 
   // Filters State
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'All');
@@ -29,17 +32,24 @@ export default function Shop() {
 
   useEffect(() => {
     async function loadProducts() {
+      setIsLoading(true);
       try {
         const res = await api.get('/products');
         if (res.data && res.data.length > 0) {
           setProducts(res.data);
+          localStorage.setItem('evrevia_products_count', res.data.length.toString());
           // Eagerly preload product images
           preloadImages(res.data.map(p => p.images?.[0]?.url || p.images?.[0]).filter(Boolean));
+        } else {
+          setProducts(MOCK_PRODUCTS);
         }
       } catch (err) {
         console.log("Using local mock products fallback");
+        setProducts(MOCK_PRODUCTS);
         // Preload mock images too
         preloadImages(MOCK_PRODUCTS.map(p => p.image).filter(Boolean));
+      } finally {
+        setIsLoading(false);
       }
     }
     loadProducts();
@@ -298,7 +308,13 @@ export default function Shop() {
           </div>
 
           {/* DEDICATED COLLECTION PRODUCT GRID */}
-          {displayProducts.length === 0 ? (
+          {isLoading ? (
+            <div className="product-grid-catalog">
+              {Array.from({ length: Math.min(expectedCount, 8) }).map((_, i) => (
+                <ProductCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : displayProducts.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '3.5rem 1rem', background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)' }}>
               <p style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.4rem' }}>No products match your criteria</p>
               <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>Try clearing active filters or searching for another term.</p>
@@ -441,11 +457,19 @@ export default function Shop() {
           </div>
 
           {/* ALL PRODUCTS GRID */}
-          <div className="product-grid-catalog">
-            {displayProducts.map(product => (
-              <ProductCard key={product.id || product._id} product={product} />
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="product-grid-catalog">
+              {Array.from({ length: expectedCount }).map((_, i) => (
+                <ProductCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : (
+            <div className="product-grid-catalog">
+              {displayProducts.map(product => (
+                <ProductCard key={product.id || product._id} product={product} />
+              ))}
+            </div>
+          )}
         </div>
       )}
 

@@ -3,6 +3,7 @@ import api from '../api/client';
 import Dashboard from './Dashboard';
 import { Users, Search, Mail, Phone, Calendar, UserCheck } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { TableRowSkeleton } from '../components/AdminSkeleton';
 
 export default function Customers() {
   const [customers, setCustomers] = useState([]);
@@ -62,9 +63,20 @@ export default function Customers() {
           </div>
 
           {isLoading ? (
-            <div style={{ padding: '5rem', textAlign: 'center', color: '#64748b' }}>
-              <div style={{ animation: 'spin 1s linear infinite', margin: '0 auto 1rem', width: '24px', height: '24px', border: '2px solid #cbd5e1', borderTopColor: '#0f172a', borderRadius: '50%' }}></div>
-              Loading customers...
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                <thead>
+                  <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                    <th style={{ padding: '16px 24px', fontWeight: 600, color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Customer</th>
+                    <th style={{ padding: '16px 24px', fontWeight: 600, color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Contact</th>
+                    <th style={{ padding: '16px 24px', fontWeight: 600, color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Role</th>
+                    <th style={{ padding: '16px 24px', fontWeight: 600, color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Joined</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Array.from({ length: 5 }).map((_, i) => <TableRowSkeleton key={i} columns={4} />)}
+                </tbody>
+              </table>
             </div>
           ) : filteredCustomers.length === 0 ? (
             <div style={{ padding: '5rem', textAlign: 'center', color: '#64748b' }}>

@@ -7,6 +7,7 @@ import useWishlistStore from '../store/wishlistStore';
 import { MOCK_PRODUCTS } from '../data/mockProducts';
 import ProductCard from '../components/ProductCard';
 import api from '../api/client';
+import ProductDetailSkeleton from '../components/ProductDetailSkeleton';
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -66,11 +67,7 @@ export default function ProductDetail() {
   }, [id]);
 
   if (!product) {
-    return (
-      <div style={{ maxWidth: '800px', margin: '4rem auto', textAlign: 'center', padding: '2rem' }}>
-        <p>Loading product details...</p>
-      </div>
-    );
+    return <ProductDetailSkeleton />;
   }
 
   const productId = product.id || product._id;

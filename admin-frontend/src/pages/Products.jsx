@@ -4,6 +4,7 @@ import api from '../api/client';
 import Dashboard from './Dashboard';
 import { Plus, Trash2, Edit, Link as LinkIcon, Search, PackageOpen, Filter } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { TableRowSkeleton } from '../components/AdminSkeleton';
 
 export default function Products() {
   const [products, setProducts] = useState([]);
@@ -78,9 +79,22 @@ export default function Products() {
           </div>
 
           {isLoading ? (
-            <div style={{ padding: '5rem', textAlign: 'center', color: '#64748b' }}>
-              <div style={{ animation: 'spin 1s linear infinite', margin: '0 auto 1rem', width: '24px', height: '24px', border: '2px solid #cbd5e1', borderTopColor: '#0f172a', borderRadius: '50%' }}></div>
-              Loading catalog...
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                <thead>
+                  <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                    <th style={{ padding: '16px 24px', fontWeight: 600, color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Product</th>
+                    <th style={{ padding: '16px 24px', fontWeight: 600, color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Category</th>
+                    <th style={{ padding: '16px 24px', fontWeight: 600, color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Status</th>
+                    <th style={{ padding: '16px 24px', fontWeight: 600, color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Stock</th>
+                    <th style={{ padding: '16px 24px', fontWeight: 600, color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Price</th>
+                    <th style={{ padding: '16px 24px', fontWeight: 600, color: '#475569', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Array.from({ length: 5 }).map((_, i) => <TableRowSkeleton key={i} columns={6} />)}
+                </tbody>
+              </table>
             </div>
           ) : filteredProducts.length === 0 ? (
             <div style={{ padding: '5rem', textAlign: 'center', color: '#64748b' }}>

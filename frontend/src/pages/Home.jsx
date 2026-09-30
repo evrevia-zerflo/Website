@@ -5,6 +5,7 @@ import {
   Flame, Gem, Sparkles, Award, Grid, Search, Filter, SlidersHorizontal, Tag, X 
 } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
+import ProductCardSkeleton from '../components/ProductCardSkeleton';
 import CategoryExplorer from '../components/CategoryExplorer';
 import ProgressiveImage from '../components/ProgressiveImage';
 import api from '../api/client';
@@ -49,21 +50,30 @@ const MOCK_LOOK_COMBOS = [
 
 export default function Home() {
   const navigate = useNavigate();
-  const [products, setProducts] = useState(MOCK_PRODUCTS);
+  const [products, setProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const expectedCount = parseInt(localStorage.getItem('evrevia_products_count') || '4', 10);
   const [combos, setCombos] = useState(MOCK_LOOK_COMBOS);
   const [activeComboIndex, setActiveComboIndex] = useState(0);
 
   useEffect(() => {
     async function loadData() {
+      setIsLoading(true);
       try {
         const res = await api.get('/products');
         if (res.data && res.data.length > 0) {
           setProducts(res.data);
+          localStorage.setItem('evrevia_products_count', res.data.length.toString());
           preloadImages(res.data.map(p => p.images?.[0]?.url || p.images?.[0]).filter(Boolean));
+        } else {
+          setProducts(MOCK_PRODUCTS);
         }
       } catch (err) {
         console.log("Using local mock products fallback");
+        setProducts(MOCK_PRODUCTS);
         preloadImages(MOCK_PRODUCTS.map(p => p.image).filter(Boolean));
+      } finally {
+        setIsLoading(false);
       }
 
       try {
@@ -145,9 +155,13 @@ export default function Home() {
               <span>Trending Haute Apparel & Ethnic Wear</span>
             </h3>
             <div className="product-grid-catalog">
-              {trendingApparel.map(product => (
-                <ProductCard key={product.id || product._id} product={product} />
-              ))}
+              {isLoading ? (
+                Array.from({ length: Math.min(expectedCount, 4) }).map((_, i) => <ProductCardSkeleton key={i} />)
+              ) : (
+                trendingApparel.map(product => (
+                  <ProductCard key={product.id || product._id} product={product} />
+                ))
+              )}
             </div>
           </div>
 
@@ -158,9 +172,13 @@ export default function Home() {
               <span>Trending Bags & Accessories</span>
             </h3>
             <div className="product-grid-catalog">
-              {trendingAcc.map(product => (
-                <ProductCard key={product.id || product._id} product={product} />
-              ))}
+              {isLoading ? (
+                Array.from({ length: Math.min(expectedCount, 4) }).map((_, i) => <ProductCardSkeleton key={i} />)
+              ) : (
+                trendingAcc.map(product => (
+                  <ProductCard key={product.id || product._id} product={product} />
+                ))
+              )}
             </div>
           </div>
 
@@ -189,9 +207,13 @@ export default function Home() {
               </div>
 
               <div className="product-grid-catalog">
-                {under999Items.map(product => (
-                  <ProductCard key={product.id || product._id} product={product} />
-                ))}
+                {isLoading ? (
+                  Array.from({ length: Math.min(expectedCount, 4) }).map((_, i) => <ProductCardSkeleton key={i} />)
+                ) : (
+                  under999Items.map(product => (
+                    <ProductCard key={product.id || product._id} product={product} />
+                  ))
+                )}
               </div>
             </div>
           </section>

@@ -4,6 +4,7 @@ import api from '../api/client';
 import { LayoutDashboard, Package, ShoppingCart, Users, LogOut, TrendingUp, AlertTriangle, IndianRupee, Search, Bell, Menu, ChevronRight } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import toast from 'react-hot-toast';
+import { StatCardSkeleton } from '../components/AdminSkeleton';
 
 export default function Dashboard({ children }) {
   const navigate = useNavigate();
@@ -155,8 +156,8 @@ export default function Dashboard({ children }) {
               </div>
               
               {loading ? (
-                <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem', color: textMuted }}>
-                  <div style={{ animation: 'spin 1s linear infinite', margin: '0 auto 1rem', width: '24px', height: '24px', border: `2px solid ${borderSubtle}`, borderTopColor: primaryBrand, borderRadius: '50%' }}></div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+                  {[1, 2, 3, 4].map(i => <StatCardSkeleton key={i} />)}
                 </div>
               ) : analytics ? (
                 <>

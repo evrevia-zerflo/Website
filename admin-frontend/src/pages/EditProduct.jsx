@@ -6,6 +6,7 @@ import { Upload, ArrowLeft, Save, X, Image as ImageIcon } from 'lucide-react';
 import toast from 'react-hot-toast';
 import RichTextEditor from '../components/RichTextEditor';
 import DynamicListInput from '../components/DynamicListInput';
+import { FormFieldSkeleton } from '../components/AdminSkeleton';
 export default function EditProduct() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -156,7 +157,19 @@ export default function EditProduct() {
   };
 
   if (fetching) {
-    return <Dashboard><div style={{ padding: '5rem', textAlign: 'center', color: '#64748b' }}>Loading product details...</div></Dashboard>;
+    return (
+      <Dashboard>
+        <div style={{ padding: '2.5rem', maxWidth: '1000px', margin: '0 auto' }}>
+          <div style={{ background: 'white', padding: '2rem', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+            <div className="skeleton skeleton-text" style={{ width: '30%', height: '24px', marginBottom: '2rem' }}></div>
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }}>
+              <div>{[1, 2, 3].map(i => <FormFieldSkeleton key={i} />)}</div>
+              <div><FormFieldSkeleton /><FormFieldSkeleton /></div>
+            </div>
+          </div>
+        </div>
+      </Dashboard>
+    );
   }
 
   const inputStyle = { width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.9rem', outline: 'none', transition: 'border 0.2s', background: '#f8fafc' };

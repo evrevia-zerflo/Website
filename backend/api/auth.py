@@ -25,6 +25,13 @@ async def get_current_admin(credentials: HTTPAuthorizationCredentials = Depends(
     except jwt.PyJWTError:
         raise HTTPException(status_code=401, detail="Invalid authentication credentials")
 
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    try:
+        payload = jwt.decode(credentials.credentials, settings.JWT_SECRET, algorithms=["HS256"])
+        return payload
+    except jwt.PyJWTError:
+        raise HTTPException(status_code=401, detail="Invalid authentication credentials")
+
 # In production, set this in your environment variables
 GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID_HERE"
 
@@ -47,6 +54,11 @@ class VerifyOTPRequest(BaseModel):
 class AuthResponse(BaseModel):
     access_token: str
     user: dict
+    is_new_user: bool = False
+
+class UpdateProfileRequest(BaseModel):
+    name: str | None = None
+    phone: str | None = None
 
 @router.post("/google", response_model=AuthResponse)
 async def google_auth(request: GoogleAuthRequest):
@@ -97,7 +109,8 @@ async def google_auth(request: GoogleAuthRequest):
                 "name": user.name,
                 "role": user.role,
                 "avatar": user.avatar
-            }
+            },
+            "is_new_user": False
         }
     except ValueError:
         raise HTTPException(status_code=401, detail="Invalid Google token")
@@ -176,7 +189,9 @@ async def verify_otp(request: VerifyOTPRequest):
     user = await User.find_one(User.email == request.email)
     role = "admin" if request.email.lower() == "evrevia.zerflo@gmail.com" else "customer"
     
+    is_new_user = False
     if not user:
+        is_new_user = True
         user = User(
             email=request.email,
             name=request.email.split('@')[0], # Default name
@@ -199,6 +214,32 @@ async def verify_otp(request: VerifyOTPRequest):
             "id": str(user.id),
             "email": user.email,
             "name": user.name,
+            "role": user.role,
+            "avatar": user.avatar
+        },
+        "is_new_user": is_new_user
+    }
+
+@router.put("/profile")
+async def update_profile(request: UpdateProfileRequest, current_user: dict = Depends(get_current_user)):
+    user = await User.get(current_user["sub"])
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    if request.name is not None:
+        user.name = request.name
+    if request.phone is not None:
+        user.phone = request.phone
+        
+    await user.save()
+    
+    return {
+        "message": "Profile updated successfully",
+        "user": {
+            "id": str(user.id),
+            "email": user.email,
+            "name": user.name,
+            "phone": user.phone,
             "role": user.role,
             "avatar": user.avatar
         }
