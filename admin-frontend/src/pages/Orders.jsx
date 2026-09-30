@@ -14,6 +14,11 @@ export default function Orders() {
   
   // Slide-out state
   const [selectedOrder, setSelectedOrder] = useState(null);
+  
+  // Edit state for slide-out form
+  const [editStatus, setEditStatus] = useState("");
+  const [editTrackingId, setEditTrackingId] = useState("");
+  const [editCourierName, setEditCourierName] = useState("");
 
   useEffect(() => {
     fetchOrders();
@@ -32,19 +37,25 @@ export default function Orders() {
     }
   };
 
-  const handleStatusChange = async (orderId, newStatus) => {
+  const handleStatusUpdate = async () => {
+    if (!selectedOrder) return;
+    const orderId = selectedOrder._id || selectedOrder.id;
     try {
       setUpdating(orderId);
-      await api.put(`/admin/orders/${orderId}/status`, { status: newStatus });
-      
-      const updatedOrders = orders.map(o => (o._id === orderId || o.id === orderId) ? { ...o, orderStatus: newStatus } : o);
-      setOrders(updatedOrders);
-      
-      if (selectedOrder && (selectedOrder._id === orderId || selectedOrder.id === orderId)) {
-        setSelectedOrder({ ...selectedOrder, orderStatus: newStatus });
+      const payload = { status: editStatus };
+      if (editStatus === 'SHIPPED') {
+        payload.trackingId = editTrackingId;
+        payload.courierName = editCourierName;
       }
       
-      toast.success(`Order marked as ${newStatus}`);
+      const res = await api.put(`/admin/orders/${orderId}/status`, payload);
+      
+      const updatedOrders = orders.map(o => (o._id === orderId || o.id === orderId) ? { ...o, orderStatus: editStatus, trackingId: res.data.trackingId, courierName: res.data.courierName } : o);
+      setOrders(updatedOrders);
+      
+      setSelectedOrder({ ...selectedOrder, orderStatus: editStatus, trackingId: res.data.trackingId, courierName: res.data.courierName });
+      
+      toast.success(`Order updated successfully`);
     } catch (err) {
       console.error(err);
       toast.error("Failed to update status");
@@ -57,6 +68,9 @@ export default function Orders() {
     try {
       const res = await api.get(`/admin/orders/${orderId}`);
       setSelectedOrder(res.data);
+      setEditStatus(res.data.orderStatus);
+      setEditTrackingId(res.data.trackingId || "");
+      setEditCourierName(res.data.courierName || "");
     } catch(err) {
       toast.error("Failed to fetch full order details");
     }
@@ -231,12 +245,12 @@ export default function Orders() {
               {/* Status Update Block */}
               <div style={{ background: '#f8fafc', padding: '1.25rem', borderRadius: '12px', marginBottom: '1.5rem', border: '1px solid #e2e8f0' }}>
                 <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#475569', marginBottom: '8px' }}>UPDATE ORDER STATUS</label>
-                <div style={{ display: 'flex', gap: '8px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   <select 
-                    value={selectedOrder.orderStatus} 
-                    onChange={(e) => handleStatusChange(selectedOrder._id || selectedOrder.id, e.target.value)}
+                    value={editStatus} 
+                    onChange={(e) => setEditStatus(e.target.value)}
                     disabled={updating === (selectedOrder._id || selectedOrder.id)}
-                    style={{ flex: 1, padding: '10px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.9rem', outline: 'none', background: 'white', cursor: 'pointer', fontWeight: 500 }}
+                    style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.9rem', outline: 'none', background: 'white', cursor: 'pointer', fontWeight: 500 }}
                   >
                     <option value="NEW">New</option>
                     <option value="PROCESSING">Processing</option>
@@ -244,8 +258,44 @@ export default function Orders() {
                     <option value="DELIVERED">Delivered</option>
                     <option value="CANCELLED">Cancelled</option>
                   </select>
+
+                  {editStatus === 'SHIPPED' && (
+                    <div style={{ display: 'flex', gap: '8px', flexDirection: 'column', marginTop: '4px' }}>
+                      <input 
+                        type="text" 
+                        placeholder="Courier Name (e.g. Delhivery)" 
+                        value={editCourierName} 
+                        onChange={(e) => setEditCourierName(e.target.value)}
+                        style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.9rem', outline: 'none' }}
+                      />
+                      <input 
+                        type="text" 
+                        placeholder="Tracking ID" 
+                        value={editTrackingId} 
+                        onChange={(e) => setEditTrackingId(e.target.value)}
+                        style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.9rem', outline: 'none' }}
+                      />
+                    </div>
+                  )}
+
+                  <button 
+                    onClick={handleStatusUpdate}
+                    disabled={updating === (selectedOrder._id || selectedOrder.id)}
+                    style={{ background: '#0f172a', color: 'white', padding: '10px', borderRadius: '8px', border: 'none', fontWeight: 600, cursor: 'pointer', marginTop: '8px' }}
+                  >
+                    {updating === (selectedOrder._id || selectedOrder.id) ? 'Updating...' : 'Save Order Info'}
+                  </button>
                 </div>
               </div>
+
+              {/* Current Tracking Info */}
+              {(selectedOrder.trackingId || selectedOrder.courierName) && (
+                <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '12px', padding: '1rem', marginBottom: '2rem' }}>
+                  <h4 style={{ margin: '0 0 8px', fontSize: '0.85rem', color: '#166534', fontWeight: 700, textTransform: 'uppercase' }}>Tracking Details</h4>
+                  {selectedOrder.courierName && <p style={{ margin: '0 0 4px', fontSize: '0.9rem', color: '#14532d' }}><strong>Courier:</strong> {selectedOrder.courierName}</p>}
+                  {selectedOrder.trackingId && <p style={{ margin: '0', fontSize: '0.9rem', color: '#14532d' }}><strong>Tracking ID:</strong> {selectedOrder.trackingId}</p>}
+                </div>
+              )}
 
               {/* Customer Info */}
               <div style={{ marginBottom: '2rem' }}>
