@@ -1,67 +1,65 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-
-const DEFAULT_INITIAL_ADDRESSES = [
-  {
-    id: 'addr-1',
-    fullName: 'Sharif Rahman',
-    mobile: '9876543210',
-    pincode: '800001',
-    house: 'House #42, Al-Rahman Villa',
-    street: 'Boring Road, Near Canal',
-    landmark: 'Opposite Central Park',
-    city: 'Patna',
-    state: 'Bihar',
-    isDefault: true,
-  }
-];
+import api from '../api/client';
 
 const useAddressStore = create(
   persist(
     (set, get) => ({
-      addresses: DEFAULT_INITIAL_ADDRESSES,
-      selectedAddressId: 'addr-1',
+      addresses: [],
+      selectedAddressId: null,
+      isLoading: false,
+      error: null,
 
       setSelectedAddressId: (id) => set({ selectedAddressId: id }),
 
-      addAddress: (newAddr) => {
-        const id = 'addr-' + Date.now();
-        const addressObj = {
-          ...newAddr,
-          id,
-          isDefault: get().addresses.length === 0 ? true : Boolean(newAddr.isDefault),
-        };
-
-        let updated = [...get().addresses];
-        if (addressObj.isDefault) {
-          updated = updated.map(a => ({ ...a, isDefault: false }));
+      fetchAddresses: async () => {
+        set({ isLoading: true, error: null });
+        try {
+          const res = await api.get('/auth/profile/addresses');
+          set({ addresses: res.data, isLoading: false });
+          if (res.data.length > 0 && !get().selectedAddressId) {
+            set({ selectedAddressId: res.data[0].id });
+          }
+        } catch (err) {
+          console.error("Failed to fetch addresses", err);
+          set({ error: err.message, isLoading: false });
         }
-
-        updated.push(addressObj);
-        set({ addresses: updated, selectedAddressId: id });
-        return id;
       },
 
-      updateAddress: (id, updatedFields) => {
-        const updated = get().addresses.map(addr => {
-          if (addr.id === id) {
-            return { ...addr, ...updatedFields };
+      addAddress: async (newAddr) => {
+        set({ isLoading: true, error: null });
+        try {
+          const res = await api.post('/auth/profile/addresses', newAddr);
+          const updatedAddresses = res.data;
+          set({ addresses: updatedAddresses, isLoading: false });
+          // Auto select if it's the first one or set to default
+          const added = updatedAddresses[updatedAddresses.length - 1];
+          if (added) {
+            set({ selectedAddressId: added.id });
+            return added.id;
           }
-          if (updatedFields.isDefault) {
-            return { ...addr, isDefault: false };
-          }
-          return addr;
-        });
-        set({ addresses: updated });
+        } catch (err) {
+          console.error("Failed to add address", err);
+          set({ error: err.message, isLoading: false });
+          throw err;
+        }
       },
 
-      deleteAddress: (id) => {
-        const updated = get().addresses.filter(a => a.id !== id);
-        let newSelected = get().selectedAddressId;
-        if (newSelected === id) {
-          newSelected = updated[0]?.id || null;
+      deleteAddress: async (id) => {
+        set({ isLoading: true, error: null });
+        try {
+          const res = await api.delete(`/auth/profile/addresses/${id}`);
+          const updatedAddresses = res.data;
+          let newSelected = get().selectedAddressId;
+          if (newSelected === id) {
+            newSelected = updatedAddresses[0]?.id || null;
+          }
+          set({ addresses: updatedAddresses, selectedAddressId: newSelected, isLoading: false });
+        } catch (err) {
+          console.error("Failed to delete address", err);
+          set({ error: err.message, isLoading: false });
+          throw err;
         }
-        set({ addresses: updated, selectedAddressId: newSelected });
       },
 
       getSelectedAddress: () => {
@@ -71,6 +69,7 @@ const useAddressStore = create(
     }),
     {
       name: 'evrevia-address-storage',
+      partialize: (state) => ({ selectedAddressId: state.selectedAddressId }) // Only persist selected ID, let DB handle actual addresses
     }
   )
 );

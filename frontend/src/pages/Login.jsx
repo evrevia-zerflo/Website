@@ -218,16 +218,19 @@ export default function Login() {
         )}
 
         {/* Sliding Viewport */}
-        <div style={{ position: 'relative', overflow: 'hidden' }}>
-          <div style={{ 
-            display: 'flex', 
-            width: '500%', 
-            transform: `translateX(-${step * 20}%)`, 
-            transition: 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)' 
-          }}>
+        <div style={{ position: 'relative', overflow: 'hidden', width: '100%' }}>
+          <div style={{ display: 'grid' }}>
             
             {/* Step 0: Choice */}
-            <div style={{ width: '20%', padding: '0 4px', boxSizing: 'border-box' }}>
+            <div style={{ 
+              gridArea: '1 / 1', 
+              transform: `translateX(${(0 - step) * 100}%)`, 
+              transition: 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s',
+              opacity: step === 0 ? 1 : 0,
+              pointerEvents: step === 0 ? 'auto' : 'none',
+              width: '100%', 
+              boxSizing: 'border-box' 
+            }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <button onClick={() => handleChoice('create')} className="btn-primary" style={{ padding: '1rem', borderRadius: '12px', fontSize: '1rem' }}>
                   Create an Account
@@ -259,7 +262,15 @@ export default function Login() {
             </div>
 
             {/* Step 1: Email */}
-            <div style={{ width: '20%', padding: '0 4px', boxSizing: 'border-box' }}>
+            <div style={{ 
+              gridArea: '1 / 1', 
+              transform: `translateX(${(1 - step) * 100}%)`, 
+              transition: 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s',
+              opacity: step === 1 ? 1 : 0,
+              pointerEvents: step === 1 ? 'auto' : 'none',
+              width: '100%', 
+              boxSizing: 'border-box' 
+            }}>
               <form onSubmit={handleSendOTP} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 <div>
                   <label style={labelStyle}>Email Address</label>
@@ -284,7 +295,15 @@ export default function Login() {
             </div>
 
             {/* Step 2: OTP */}
-            <div style={{ width: '20%', padding: '0 4px', boxSizing: 'border-box' }}>
+            <div style={{ 
+              gridArea: '1 / 1', 
+              transform: `translateX(${(2 - step) * 100}%)`, 
+              transition: 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s',
+              opacity: step === 2 ? 1 : 0,
+              pointerEvents: step === 2 ? 'auto' : 'none',
+              width: '100%', 
+              boxSizing: 'border-box' 
+            }}>
               <form onSubmit={handleVerifyOTP} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 <div>
                   <label style={labelStyle}>6-Digit Verification Code</label>
@@ -313,7 +332,15 @@ export default function Login() {
             </div>
 
             {/* Step 3: Personal Info */}
-            <div style={{ width: '20%', padding: '0 4px', boxSizing: 'border-box' }}>
+            <div style={{ 
+              gridArea: '1 / 1', 
+              transform: `translateX(${(3 - step) * 100}%)`, 
+              transition: 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s',
+              opacity: step === 3 ? 1 : 0,
+              pointerEvents: step === 3 ? 'auto' : 'none',
+              width: '100%', 
+              boxSizing: 'border-box' 
+            }}>
               <form onSubmit={handlePersonalInfo} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 <div>
                   <label style={labelStyle}>Full Name</label>
@@ -351,7 +378,15 @@ export default function Login() {
             </div>
 
             {/* Step 4: Address */}
-            <div style={{ width: '20%', padding: '0 4px', boxSizing: 'border-box' }}>
+            <div style={{ 
+              gridArea: '1 / 1', 
+              transform: `translateX(${(4 - step) * 100}%)`, 
+              transition: 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s',
+              opacity: step === 4 ? 1 : 0,
+              pointerEvents: step === 4 ? 'auto' : 'none',
+              width: '100%', 
+              boxSizing: 'border-box' 
+            }}>
               <form onSubmit={handleAddressSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <div>
                   <label style={labelStyle}>Street Address</label>

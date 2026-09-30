@@ -10,7 +10,9 @@ from fastapi import APIRouter, HTTPException, BackgroundTasks, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, EmailStr
 from datetime import datetime, timedelta
-from backend.models.user import User
+from bson import ObjectId
+import uuid
+from backend.models.user import User, UserAddress
 from backend.models.otp import EmailOTP
 from backend.core.config import settings
 
@@ -288,7 +290,7 @@ async def verify_otp(request: VerifyOTPRequest):
 
 @router.put("/profile")
 async def update_profile(request: UpdateProfileRequest, current_user: dict = Depends(get_current_user)):
-    user = await User.get(current_user["sub"])
+    user = await User.get(ObjectId(current_user["sub"]))
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
         
@@ -310,3 +312,42 @@ async def update_profile(request: UpdateProfileRequest, current_user: dict = Dep
             "avatar": user.avatar
         }
     }
+
+# --- Address Endpoints ---
+
+@router.get("/profile/addresses")
+async def get_addresses(current_user: dict = Depends(get_current_user)):
+    user = await User.get(ObjectId(current_user["sub"]))
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user.addresses
+
+@router.post("/profile/addresses")
+async def add_address(address: UserAddress, current_user: dict = Depends(get_current_user)):
+    user = await User.get(ObjectId(current_user["sub"]))
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    # Generate unique ID for address if not provided or to ensure uniqueness
+    address.id = str(uuid.uuid4())
+    
+    if len(user.addresses) == 0:
+        address.isDefault = True
+    elif address.isDefault:
+        # Unset default from others
+        for a in user.addresses:
+            a.isDefault = False
+            
+    user.addresses.append(address)
+    await user.save()
+    return user.addresses
+
+@router.delete("/profile/addresses/{address_id}")
+async def delete_address(address_id: str, current_user: dict = Depends(get_current_user)):
+    user = await User.get(ObjectId(current_user["sub"]))
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    user.addresses = [a for a in user.addresses if a.id != address_id]
+    await user.save()
+    return user.addresses
