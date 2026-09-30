@@ -116,7 +116,7 @@ export default function Account() {
       await addAddress(newAddr);
       toast.success('Address added successfully!');
       setShowAddressModal(false);
-      setNewAddr({ fullName: user?.name || '', mobile: user?.phone || '', pincode: '', house: '', street: '', landmark: '', city: '', state: '', isDefault: true });
+      setNewAddr({ fullName: user?.name || '', mobile: user?.phone || '', alternatePhone: '', pincode: '', house: '', street: '', landmark: '', city: '', state: '', addressType: 'Home', isDefault: true });
     } catch (err) {
       toast.error('Failed to add address');
     }
