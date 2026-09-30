@@ -5,7 +5,7 @@ from datetime import datetime
 import uuid
 
 class UserAddress(BaseModel):
-    id: str
+    id: Optional[str] = None
     fullName: str
     mobile: str
     pincode: str

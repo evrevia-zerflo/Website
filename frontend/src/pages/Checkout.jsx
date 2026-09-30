@@ -75,6 +75,13 @@ export default function Checkout() {
   const [couponMsg, setCouponMsg] = useState('');
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      toast.error('Please login to proceed with checkout.');
+      navigate('/login?redirect=/checkout');
+    }
+  }, [isAuthenticated, navigate]);
+
+  useEffect(() => {
     if (addresses.length > 0 && !selectedAddressId) {
       const defaultAddr = addresses.find(a => a.isDefault);
       setSelectedAddressId(defaultAddr ? defaultAddr.id : addresses[0].id);
