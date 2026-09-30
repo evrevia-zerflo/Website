@@ -1,4 +1,5 @@
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
@@ -18,14 +19,17 @@ api.interceptors.request.use(
   }
 );
 
-// Add interceptor to handle 401 Unauthorized globally
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
+    if (!error.response) {
+      toast.error('Network Error: Please check your connection.');
+    } else if (error.response.status === 401) {
       localStorage.removeItem('auth-token');
       localStorage.removeItem('auth-role');
       window.location.href = '/login';
+    } else if (error.response.status >= 500) {
+      toast.error('Server error. Our team has been notified.');
     }
     return Promise.reject(error);
   }

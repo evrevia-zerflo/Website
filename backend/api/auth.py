@@ -107,7 +107,6 @@ def send_otp_email(email_address: str, otp: str):
     sender_password = os.getenv("VERIFY_EMAIL_PASSWORD")
     
     if not sender_email or not sender_password:
-        print(f"MOCK EMAIL SENT to {email_address} with OTP {otp}")
         return
         
     msg = MIMEText(f"Hello!\n\nYour EVRÉVIA login OTP is: {otp}\n\nThis code will expire in 10 minutes.")
@@ -137,6 +136,10 @@ async def send_otp(request: SendOTPRequest, background_tasks: BackgroundTasks):
     expires = datetime.utcnow() + timedelta(minutes=10)
     
     if existing_otp:
+        # Rate Limiting: Prevent spamming OTPs within 60 seconds
+        if existing_otp.expiresAt > datetime.utcnow() + timedelta(minutes=9):
+            raise HTTPException(status_code=429, detail="Please wait 60 seconds before requesting a new OTP.")
+            
         existing_otp.otp = otp
         existing_otp.expiresAt = expires
         await existing_otp.save()

@@ -303,13 +303,22 @@ const NavLink = ({ to, icon, label, expanded }) => {
 
 const StatCard = ({ title, value, icon, trend, trendUp, warning }) => (
   <div style={{ 
-    background: 'white', padding: '1.5rem', borderRadius: '16px', 
+    background: warning ? 'linear-gradient(135deg, #fffbeb 0%, #ffffff 100%)' : 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)', 
+    padding: '1.5rem', 
+    borderRadius: '16px', 
     border: warning ? '1px solid #fde047' : '1px solid #e2e8f0', 
-    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.02)', display: 'flex', flexDirection: 'column' 
-  }}>
+    boxShadow: '0 4px 15px -3px rgba(0, 0, 0, 0.05)', 
+    display: 'flex', 
+    flexDirection: 'column',
+    transition: 'all 0.3s ease',
+    cursor: 'default',
+  }}
+  onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 10px 25px -5px rgba(0, 0, 0, 0.1)'; }}
+  onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 15px -3px rgba(0, 0, 0, 0.05)'; }}
+  >
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
       <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 600 }}>{title}</span>
-      <div style={{ background: warning ? '#fefce8' : '#f8fafc', padding: '10px', borderRadius: '12px' }}>
+      <div style={{ background: warning ? '#fefce8' : '#ffffff', padding: '10px', borderRadius: '12px', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
         {icon}
       </div>
     </div>

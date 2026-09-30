@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { Bold, Italic, List, ListOrdered, Heading1, Heading2, RemoveFormatting } from 'lucide-react';
+import { Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight, AlignJustify, List, ListOrdered, Heading1, Heading2, RemoveFormatting } from 'lucide-react';
 
 export default function RichTextEditor({ value, onChange, label = "Description" }) {
   const editorRef = useRef(null);
@@ -66,16 +66,24 @@ export default function RichTextEditor({ value, onChange, label = "Description" 
         {/* Toolbar */}
         <div style={{ 
           display: 'flex', 
+          flexWrap: 'wrap',
           gap: '4px', 
-          padding: '8px', 
+          padding: '10px 12px', 
           borderBottom: '1px solid var(--border-subtle)',
           background: 'var(--bg-surface)'
         }}>
-          <ToolbarButton icon={Bold} command="bold" title="Bold" />
-          <ToolbarButton icon={Italic} command="italic" title="Italic" />
-          <div style={{ width: '1px', background: 'var(--border-subtle)', margin: '0 4px' }} />
           <ToolbarButton icon={Heading1} command="formatBlock" arg="H3" title="Heading 1" />
           <ToolbarButton icon={Heading2} command="formatBlock" arg="H4" title="Heading 2" />
+          <div style={{ width: '1px', background: 'var(--border-subtle)', margin: '0 4px' }} />
+          <ToolbarButton icon={Bold} command="bold" title="Bold" />
+          <ToolbarButton icon={Italic} command="italic" title="Italic" />
+          <ToolbarButton icon={Underline} command="underline" title="Underline" />
+          <ToolbarButton icon={Strikethrough} command="strikethrough" title="Strikethrough" />
+          <div style={{ width: '1px', background: 'var(--border-subtle)', margin: '0 4px' }} />
+          <ToolbarButton icon={AlignLeft} command="justifyLeft" title="Align Left" />
+          <ToolbarButton icon={AlignCenter} command="justifyCenter" title="Align Center" />
+          <ToolbarButton icon={AlignRight} command="justifyRight" title="Align Right" />
+          <ToolbarButton icon={AlignJustify} command="justifyFull" title="Justify" />
           <div style={{ width: '1px', background: 'var(--border-subtle)', margin: '0 4px' }} />
           <ToolbarButton icon={List} command="insertUnorderedList" title="Bullet List" />
           <ToolbarButton icon={ListOrdered} command="insertOrderedList" title="Numbered List" />

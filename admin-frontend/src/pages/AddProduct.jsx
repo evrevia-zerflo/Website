@@ -15,7 +15,7 @@ export default function AddProduct() {
     name: '', category: 'Clothing', subcategory: '', description: '', 
     price: '', originalPrice: '', stock: '25', supplierUrl: '', 
     sizes: 'XS,S,M,L,XL', colors: '', material: '', careInstructions: '', 
-    tags: '', status: 'publish', isNew: true, isBestSeller: false,
+    tags: '', status: 'published', isNew: true, isBestSeller: false,
     fabric: '', fit: '', care: '', styling: '', whatsIncluded: ''
   });
   
@@ -229,7 +229,6 @@ export default function AddProduct() {
                 />
               </div>
             </div>
-          </div>
 
           {/* Right Column */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
@@ -270,7 +269,7 @@ export default function AddProduct() {
                 <label style={{ ...labelStyle, color: '#0f172a' }}>Product Visibility</label>
                 <p style={{ fontSize: '0.75rem', color: '#64748b', margin: '0 0 12px 0' }}>Control if this product is visible on the main store.</p>
                 <select value={form.status} onChange={e => setForm({...form, status: e.target.value})} style={{ ...inputStyle, background: 'white' }}>
-                  <option value="publish">Published (Visible)</option>
+                  <option value="published">Published (Visible)</option>
                   <option value="draft">Draft (Private)</option>
                 </select>
               </div>

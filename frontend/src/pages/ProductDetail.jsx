@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Star, ShieldCheck, Truck, RotateCcw, Heart, ShoppingBag, MapPin, Sparkles, ArrowLeft, ChevronDown, ChevronUp, Check, Info } from 'lucide-react';
+import { Star, ShieldCheck, Truck, RotateCcw, Heart, ShoppingBag, MapPin, Sparkles, ArrowLeft, ChevronDown, ChevronUp, Check, Info, ChevronLeft, ChevronRight } from 'lucide-react';
 import useCartStore from '../store/cartStore';
 import ProgressiveImage from '../components/ProgressiveImage';
 import useWishlistStore from '../store/wishlistStore';
@@ -21,6 +21,30 @@ export default function ProductDetail() {
 
   // Garment Info Tab
   const [activeSpecTab, setActiveSpecTab] = useState('fabric');
+
+  // Fullscreen Image Modal
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Swipe handling for slider
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+  const onTouchMove = (e) => setTouchEnd(e.targetTouches[0].clientX);
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    if (distance > minSwipeDistance) {
+      setSelectedImageIndex(prev => prev === images.length - 1 ? 0 : prev + 1);
+    }
+    if (distance < -minSwipeDistance) {
+      setSelectedImageIndex(prev => prev === 0 ? images.length - 1 : prev - 1);
+    }
+  };
 
   const addToCart = useCartStore(state => state.addToCart);
   const openCart = useCartStore(state => state.openCart);
@@ -74,7 +98,7 @@ export default function ProductDetail() {
   const relatedProducts = MOCK_PRODUCTS.filter(p => (p.id || p._id) !== productId).slice(0, 4);
 
   return (
-    <div style={{ maxWidth: '1150px', width: '100%', boxSizing: 'border-box', margin: '0 auto', padding: '1.25rem 1rem 4rem' }}>
+    <div style={{ maxWidth: '1400px', width: '100%', boxSizing: 'border-box', margin: '0 auto', padding: '1.25rem 2rem 4rem' }}>
       
       <button 
         onClick={() => navigate(-1)}
@@ -83,14 +107,21 @@ export default function ProductDetail() {
         <ArrowLeft size={15} /> Back to Collection
       </button>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 290px), 1fr))', gap: '1.75rem', marginBottom: '3rem' }}>
+      <div className="product-detail-layout">
         
         {/* LEFT: Gallery */}
         <div>
-          <div style={{ position: 'relative', height: 'clamp(300px, 50vh, 460px)', borderRadius: 'var(--radius-md)', overflow: 'hidden', background: 'var(--bg-secondary)', marginBottom: '0.85rem', border: '1px solid var(--border-subtle)' }}>
+          <div 
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+            onClick={() => setIsFullscreen(true)}
+            style={{ position: 'relative', width: '100%', aspectRatio: '3/4', maxHeight: '75vh', borderRadius: 'var(--radius-md)', overflow: 'hidden', background: 'var(--bg-secondary)', marginBottom: '0.85rem', border: '1px solid var(--border-subtle)', cursor: 'pointer' }}
+          >
             <ProgressiveImage 
               src={(typeof images[selectedImageIndex] === 'string' ? images[selectedImageIndex] : images[selectedImageIndex]?.url) || (typeof images[0] === 'string' ? images[0] : images[0]?.url)} 
               alt={product.name}
+              imageStyle={{ objectFit: 'contain' }}
             />
             
             <button 
@@ -101,18 +132,49 @@ export default function ProductDetail() {
                 color: isSaved ? '#FFF' : 'var(--text-main)',
                 border: 'none', borderRadius: '50%', width: '38px', height: '38px',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)', zIndex: 10
               }}
             >
               <Heart size={18} fill={isSaved ? '#FFF' : 'none'} />
             </button>
 
             {images.length > 1 && (
-              <div style={{ position: 'absolute', bottom: '12px', left: '50%', transform: 'translateX(-50%)', background: 'rgba(0,0,0,0.6)', color: '#FFF', padding: '3px 10px', borderRadius: 'var(--radius-full)', fontSize: '0.75rem' }}>
+              <div style={{ position: 'absolute', bottom: '12px', left: '50%', transform: 'translateX(-50%)', background: 'rgba(0,0,0,0.6)', color: '#FFF', padding: '3px 10px', borderRadius: 'var(--radius-full)', fontSize: '0.75rem', zIndex: 10 }}>
                 {selectedImageIndex + 1} / {images.length}
               </div>
             )}
           </div>
+
+          {/* Fullscreen Modal */}
+          {isFullscreen && (
+            <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'black', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <button 
+                onClick={(e) => { e.stopPropagation(); setIsFullscreen(false); }}
+                style={{ position: 'absolute', top: '20px', right: '20px', background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', padding: '10px', borderRadius: '50%', cursor: 'pointer', zIndex: 10000 }}
+              >
+                ✕
+              </button>
+              
+              <div 
+                onTouchStart={onTouchStart}
+                onTouchMove={onTouchMove}
+                onTouchEnd={onTouchEnd}
+                style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <img 
+                  src={(typeof images[selectedImageIndex] === 'string' ? images[selectedImageIndex] : images[selectedImageIndex]?.url) || (typeof images[0] === 'string' ? images[0] : images[0]?.url)} 
+                  alt={product.name}
+                  style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
+                />
+              </div>
+
+              {images.length > 1 && (
+                <div style={{ position: 'absolute', bottom: '30px', left: '50%', transform: 'translateX(-50%)', background: 'rgba(0,0,0,0.8)', color: '#FFF', padding: '5px 15px', borderRadius: 'var(--radius-full)', fontSize: '1rem', zIndex: 10000 }}>
+                  {selectedImageIndex + 1} / {images.length}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Thumbnail Strip */}
           {images.length > 1 && (

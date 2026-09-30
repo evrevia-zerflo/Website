@@ -1,4 +1,4 @@
-import React, { useState, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import MobileBottomNav from './components/MobileBottomNav';
@@ -6,6 +6,8 @@ import CartDrawer from './components/CartDrawer';
 import SearchModal from './components/SearchModal';
 import Footer from './components/Footer';
 import ErrorBoundary from './components/ErrorBoundary';
+import api from './api/client';
+import { preloadImages } from './utils/imagePreloader';
 
 // Lazy load Pages for better performance
 const Home = React.lazy(() => import('./pages/Home'));
@@ -31,6 +33,21 @@ function FallbackLoader() {
 function AppContent() {
   const location = useLocation();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  // Aggressive global preloader
+  useEffect(() => {
+    // Fire and forget - silently preloads all product images in background
+    api.get('/products')
+      .then(res => {
+        if (res.data && Array.isArray(res.data)) {
+          const allImages = res.data.flatMap(p => 
+            p.images?.map(img => typeof img === 'string' ? img : img.url) || []
+          ).filter(Boolean);
+          preloadImages(allImages);
+        }
+      })
+      .catch(err => console.error("Preload error:", err));
+  }, []);
 
   // Check if current route is checkout
   const isCheckoutPage = location.pathname === '/checkout';

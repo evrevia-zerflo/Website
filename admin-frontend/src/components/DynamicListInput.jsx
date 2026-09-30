@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, CheckCircle2 } from 'lucide-react';
 
 export default function DynamicListInput({ label, items, onChange, placeholder = "Add an item..." }) {
   const [inputValue, setInputValue] = useState('');
@@ -43,9 +43,11 @@ export default function DynamicListInput({ label, items, onChange, placeholder =
               fontSize: '0.88rem',
               border: '1px solid var(--border-subtle)'
             }}>
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
-                <span style={{ color: 'var(--accent-gold)', marginTop: '2px' }}>•</span>
-                <span>{item}</span>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+                <span style={{ color: '#10b981', marginTop: '1px' }}>
+                  <CheckCircle2 size={16} />
+                </span>
+                <span style={{ color: 'var(--text-main)' }}>{item}</span>
               </div>
               <button 
                 onClick={(e) => handleRemove(idx, e)}

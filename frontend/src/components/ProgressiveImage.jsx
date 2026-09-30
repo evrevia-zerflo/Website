@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ImageOff } from 'lucide-react';
 
-export default function ProgressiveImage({ src, alt, className = '', style = {}, onMouseOver, onMouseOut, fallbackText = 'Image Unavailable' }) {
+export default function ProgressiveImage({ src, alt, className = '', imageClassName = '', style = {}, imageStyle = {}, onMouseOver, onMouseOut, fallbackText = 'Image Unavailable' }) {
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState(false);
 
@@ -37,7 +37,8 @@ export default function ProgressiveImage({ src, alt, className = '', style = {},
         <img 
           src={src} 
           alt={alt || "Product Image"} 
-          className={`progressive-image ${loaded ? 'loaded' : ''}`} 
+          className={`progressive-image ${loaded ? 'loaded' : ''} ${imageClassName}`} 
+          style={imageStyle}
         />
       )}
 
