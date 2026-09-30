@@ -5,6 +5,7 @@ import smtplib
 import random
 import string
 from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from fastapi import APIRouter, HTTPException, BackgroundTasks, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, EmailStr
@@ -122,10 +123,75 @@ def send_otp_email(email_address: str, otp: str):
     if not sender_email or not sender_password:
         return
         
-    msg = MIMEText(f"Hello!\n\nYour EVRÉVIA login OTP is: {otp}\n\nThis code will expire in 10 minutes.")
-    msg['Subject'] = 'Your EVRÉVIA Login Code'
+    msg = MIMEMultipart("alternative")
+    msg['Subject'] = 'Your EVRÉVIA Access Code'
     msg['From'] = f"EVRÉVIA <{sender_email}>"
     msg['To'] = email_address
+
+    text = f"Your EVRÉVIA login code is: {otp}\nThis code will expire in 10 minutes."
+    
+    html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <style>
+      body {{ margin: 0; padding: 0; background-color: #FDFBF7; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }}
+      .container {{ max-width: 480px; margin: 40px auto; background: #ffffff; padding: 40px 30px; border-radius: 8px; text-align: center; border: 1px solid #F3EDE4; }}
+      .logo {{ font-size: 24px; font-weight: 400; letter-spacing: 0.3em; color: #2C2C2C; margin-bottom: 8px; font-family: "Times New Roman", Times, serif; }}
+      .logo-accent {{ color: #D4AF37; font-size: 10px; margin-bottom: 30px; letter-spacing: 2px; }}
+      .title {{ font-size: 18px; color: #2C2C2C; margin-bottom: 24px; font-weight: 400; font-family: Georgia, serif; }}
+      .copy {{ color: #4A4A4A; font-size: 14px; line-height: 1.6; margin-bottom: 30px; }}
+      .otp-box {{ background-color: #FDFBF7; border: 1px solid #EBE3D5; border-radius: 6px; padding: 24px; margin: 0 auto 30px auto; max-width: 260px; }}
+      .otp-code {{ font-size: 38px; font-weight: 400; letter-spacing: 0.35em; color: #2C2C2C; margin: 0; -webkit-user-select: all; user-select: all; cursor: text; padding-left: 0.35em; font-family: "Times New Roman", Times, serif; }}
+      .decorative-detail {{ color: #A78B81; font-size: 11px; letter-spacing: 2px; margin-bottom: 30px; }}
+      .signoff {{ font-size: 14px; color: #4A4A4A; margin-bottom: 4px; font-style: italic; font-family: Georgia, serif; }}
+      .brand-name {{ font-size: 13px; font-weight: 600; color: #2C2C2C; letter-spacing: 0.15em; margin-bottom: 4px; }}
+      .tagline {{ font-size: 12px; color: #888; margin-bottom: 24px; }}
+      .disclaimer {{ font-size: 12px; color: #888; margin-bottom: 30px; }}
+      .legal {{ font-size: 11px; color: #aaa; border-top: 1px solid #F3EDE4; padding-top: 20px; }}
+    </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="logo">EVR&Eacute;VIA</div>
+        <div class="logo-accent">&#10022; &mdash;&mdash;&mdash;&mdash; &mdash;&mdash;&mdash;&mdash; &#10022;</div>
+        
+        <div class="title">Your secure access code</div>
+        
+        <div class="copy">
+          Hello,<br><br>
+          Use the code below to securely continue with EVR&Eacute;VIA.<br>
+          Your code expires in 10 minutes.
+        </div>
+        
+        <div class="otp-box">
+          <div class="otp-code">{otp}</div>
+        </div>
+        
+        <div class="decorative-detail">&#10022; &mdash;&mdash;&mdash; &#9825; &mdash;&mdash;&mdash; &#10022;</div>
+        
+        <div class="disclaimer">
+          If you didn't request this code, you can safely ignore this email.
+        </div>
+        
+        <div style="text-align: center;">
+          <div class="signoff">With love,</div>
+          <div class="brand-name">EVR&Eacute;VIA</div>
+          <div class="tagline">Where elegance meets everyday.</div>
+          
+          <div class="legal">
+            &copy; 2026 EVR&Eacute;VIA &middot; Privacy &middot; Support
+          </div>
+        </div>
+      </div>
+    </body>
+    </html>
+    """
+    
+    part1 = MIMEText(text, 'plain')
+    part2 = MIMEText(html, 'html')
+    msg.attach(part1)
+    msg.attach(part2)
 
     try:
         server = smtplib.SMTP('smtp.gmail.com', 587)
