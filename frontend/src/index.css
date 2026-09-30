@@ -1126,7 +1126,6 @@ a {
   background: var(--accent-gold-hover);
 }
 
-/* Modals & Backdrop */
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -1134,6 +1133,10 @@ a {
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
 }
 
 .cart-drawer-overlay {
