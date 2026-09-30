@@ -23,17 +23,18 @@ export default function Account() {
   const [editPhone, setEditPhone] = useState(user?.phone || '');
   const [isSaving, setIsSaving] = useState(false);
 
-  // Address Modal State
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [newAddr, setNewAddr] = useState({
     fullName: user?.name || '',
     mobile: user?.phone || '',
+    alternatePhone: '',
     pincode: '',
     house: '',
     street: '',
     landmark: '',
     city: '',
     state: '',
+    addressType: 'Home',
     isDefault: true
   });
 
@@ -352,14 +353,17 @@ export default function Account() {
             {addresses.map(addr => (
               <div key={addr.id} className="address-card" style={{ background: 'var(--bg-surface)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-subtle)' }}>
                 <div className="flex-between" style={{ marginBottom: '8px' }}>
-                  <strong style={{ fontSize: '1.05rem' }}>{addr.fullName}</strong>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <strong style={{ fontSize: '1.05rem' }}>{addr.fullName}</strong>
+                    {addr.addressType && <span className="badge" style={{ background: '#f1f5f9', color: '#475569' }}>{addr.addressType}</span>}
+                  </div>
                   {addr.isDefault && <span className="badge badge-gold" style={{ fontSize: '0.7rem', padding: '2px 8px' }}>Default</span>}
                 </div>
                 <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', lineHeight: 1.5, marginBottom: '1rem' }}>
                   {addr.house}<br />
-                  {addr.street}<br />
+                  {addr.street}{addr.landmark ? `, Near ${addr.landmark}` : ''}<br />
                   {addr.city}, {addr.state} {addr.pincode}<br />
-                  Phone: {addr.mobile}
+                  Phone: {addr.mobile} {addr.alternatePhone ? `, ${addr.alternatePhone}` : ''}
                 </div>
                 <div style={{ display: 'flex', gap: '0.75rem', borderTop: '1px solid var(--border-subtle)', paddingTop: '1rem' }}>
                   <button style={{ background: 'none', border: 'none', color: 'var(--accent-gold)', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600, padding: 0 }}>
@@ -414,12 +418,12 @@ export default function Account() {
 
               <div>
                 <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>Mobile Number *</label>
-                <input type="text" required value={newAddr.mobile} onChange={(e) => setNewAddr({ ...newAddr, mobile: e.target.value })} style={{ width: '100%', padding: '10px 14px', border: '1px solid var(--border-color)', borderRadius: '8px', outline: 'none' }} />
+                <input type="tel" required value={newAddr.mobile} onChange={(e) => setNewAddr({ ...newAddr, mobile: e.target.value })} style={{ width: '100%', padding: '10px 14px', border: '1px solid var(--border-color)', borderRadius: '8px', outline: 'none' }} />
               </div>
 
               <div>
-                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>PIN Code *</label>
-                <input type="text" required value={newAddr.pincode} onChange={(e) => setNewAddr({ ...newAddr, pincode: e.target.value })} style={{ width: '100%', padding: '10px 14px', border: '1px solid var(--border-color)', borderRadius: '8px', outline: 'none' }} />
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>Alternate Number</label>
+                <input type="tel" value={newAddr.alternatePhone} onChange={(e) => setNewAddr({ ...newAddr, alternatePhone: e.target.value })} placeholder="Optional" style={{ width: '100%', padding: '10px 14px', border: '1px solid var(--border-color)', borderRadius: '8px', outline: 'none' }} />
               </div>
 
               <div style={{ gridColumn: 'span 2' }}>
@@ -428,8 +432,18 @@ export default function Account() {
               </div>
 
               <div style={{ gridColumn: 'span 2' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>Area / Street / Landmark</label>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>Area / Street / Sector</label>
                 <input type="text" value={newAddr.street} onChange={(e) => setNewAddr({ ...newAddr, street: e.target.value })} style={{ width: '100%', padding: '10px 14px', border: '1px solid var(--border-color)', borderRadius: '8px', outline: 'none' }} />
+              </div>
+
+              <div>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>Landmark</label>
+                <input type="text" value={newAddr.landmark} onChange={(e) => setNewAddr({ ...newAddr, landmark: e.target.value })} placeholder="Optional" style={{ width: '100%', padding: '10px 14px', border: '1px solid var(--border-color)', borderRadius: '8px', outline: 'none' }} />
+              </div>
+              
+              <div>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>PIN Code *</label>
+                <input type="text" required value={newAddr.pincode} onChange={(e) => setNewAddr({ ...newAddr, pincode: e.target.value })} style={{ width: '100%', padding: '10px 14px', border: '1px solid var(--border-color)', borderRadius: '8px', outline: 'none' }} />
               </div>
 
               <div>
@@ -440,6 +454,18 @@ export default function Account() {
               <div>
                 <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>State</label>
                 <input type="text" value={newAddr.state} onChange={(e) => setNewAddr({ ...newAddr, state: e.target.value })} style={{ width: '100%', padding: '10px 14px', border: '1px solid var(--border-color)', borderRadius: '8px', outline: 'none' }} />
+              </div>
+
+              <div style={{ gridColumn: 'span 2' }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>Address Type</label>
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.9rem' }}>
+                    <input type="radio" name="addressType" checked={newAddr.addressType === 'Home'} onChange={() => setNewAddr({ ...newAddr, addressType: 'Home' })} style={{ accentColor: 'var(--accent-gold)' }} /> Home
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.9rem' }}>
+                    <input type="radio" name="addressType" checked={newAddr.addressType === 'Work'} onChange={() => setNewAddr({ ...newAddr, addressType: 'Work' })} style={{ accentColor: 'var(--accent-gold)' }} /> Work
+                  </label>
+                </div>
               </div>
 
               <div style={{ gridColumn: 'span 2', marginTop: '1rem' }}>

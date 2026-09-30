@@ -38,9 +38,12 @@ export default function Login() {
   const [address, setAddress] = useState({
     house: '',
     street: '',
+    landmark: '',
     city: '',
     state: '',
-    pincode: ''
+    pincode: '',
+    alternatePhone: '',
+    addressType: 'Home'
   });
 
   const emailRef = React.useRef(null);
@@ -389,11 +392,26 @@ export default function Login() {
             }}>
               <form onSubmit={handleAddressSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <div>
-                  <label style={labelStyle}>Street Address</label>
+                  <label style={labelStyle}>Alternate Phone Number</label>
+                  <div style={{ position: 'relative' }}>
+                    <Phone size={18} style={iconStyle} />
+                    <input type="tel" value={address.alternatePhone} onChange={e => setAddress({...address, alternatePhone: e.target.value})} placeholder="Optional" style={{...inputStyle, paddingLeft: '40px'}} />
+                  </div>
+                </div>
+                <div>
+                  <label style={labelStyle}>House / Flat / Building *</label>
                   <div style={{ position: 'relative' }}>
                     <MapPin size={18} style={iconStyle} />
                     <input type="text" value={address.house} onChange={e => setAddress({...address, house: e.target.value})} placeholder="Apartment, suite, etc." style={{...inputStyle, paddingLeft: '40px'}} required />
                   </div>
+                </div>
+                <div>
+                  <label style={labelStyle}>Area / Street / Sector</label>
+                  <input type="text" value={address.street} onChange={e => setAddress({...address, street: e.target.value})} placeholder="Area or Street name" style={{...inputStyle, paddingLeft: '14px'}} />
+                </div>
+                <div>
+                  <label style={labelStyle}>Landmark</label>
+                  <input type="text" value={address.landmark} onChange={e => setAddress({...address, landmark: e.target.value})} placeholder="Optional" style={{...inputStyle, paddingLeft: '14px'}} />
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <div>
@@ -401,8 +419,19 @@ export default function Login() {
                     <input type="text" value={address.city} onChange={e => setAddress({...address, city: e.target.value})} placeholder="City" style={{...inputStyle, paddingLeft: '14px'}} required />
                   </div>
                   <div>
-                    <label style={labelStyle}>Zip Code</label>
-                    <input type="text" value={address.pincode} onChange={e => setAddress({...address, pincode: e.target.value})} placeholder="10001" style={{...inputStyle, paddingLeft: '14px'}} required />
+                    <label style={labelStyle}>PIN Code *</label>
+                    <input type="text" value={address.pincode} onChange={e => setAddress({...address, pincode: e.target.value})} placeholder="800001" style={{...inputStyle, paddingLeft: '14px'}} required />
+                  </div>
+                </div>
+                <div>
+                  <label style={labelStyle}>Address Type</label>
+                  <div style={{ display: 'flex', gap: '1rem', marginTop: '4px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.9rem' }}>
+                      <input type="radio" name="loginAddressType" checked={address.addressType === 'Home'} onChange={() => setAddress({ ...address, addressType: 'Home' })} style={{ accentColor: 'var(--accent-gold)' }} /> Home
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.9rem' }}>
+                      <input type="radio" name="loginAddressType" checked={address.addressType === 'Work'} onChange={() => setAddress({ ...address, addressType: 'Work' })} style={{ accentColor: 'var(--accent-gold)' }} /> Work
+                    </label>
                   </div>
                 </div>
                 <button type="submit" className="btn-primary" style={{ padding: '1rem', borderRadius: '12px', marginTop: '0.5rem' }}>

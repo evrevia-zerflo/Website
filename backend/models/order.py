@@ -7,10 +7,14 @@ from backend.models.cart import CartItem
 class Address(BaseModel):
     name: str
     phone: str
+    alternatePhone: Optional[str] = None
+    house: str
     street: str
+    landmark: Optional[str] = None
     city: str
     state: str
     pincode: str
+    addressType: str = "Home"
 
 class Order(Document):
     userId: str

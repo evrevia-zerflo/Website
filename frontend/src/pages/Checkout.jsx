@@ -53,12 +53,14 @@ export default function Checkout() {
   const [newAddr, setNewAddr] = useState({
     fullName: user?.name || '',
     mobile: user?.phone || '',
+    alternatePhone: '',
     pincode: '800001',
     house: '',
     street: '',
     landmark: '',
     city: 'Patna',
     state: 'Bihar',
+    addressType: 'Home',
     isDefault: true
   });
 
@@ -177,9 +179,10 @@ export default function Checkout() {
                       onClick={() => setSelectedAddressId(addr.id)}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                        <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                           <strong style={{ fontSize: '0.95rem' }}>{addr.fullName}</strong>
-                          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginLeft: '8px' }}>📱 {addr.mobile}</span>
+                          {addr.addressType && <span className="badge" style={{ background: '#f1f5f9', color: '#475569', fontSize: '0.65rem' }}>{addr.addressType}</span>}
+                          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginLeft: '4px' }}>📱 {addr.mobile} {addr.alternatePhone ? `| ${addr.alternatePhone}` : ''}</span>
                         </div>
                         {selectedAddressId === addr.id && <span className="badge badge-gold">Deliver Here</span>}
                       </div>
@@ -385,12 +388,12 @@ export default function Checkout() {
 
               <div>
                 <label style={{ fontSize: '0.75rem', fontWeight: 600 }}>Mobile Number *</label>
-                <input type="text" required value={newAddr.mobile} onChange={(e) => setNewAddr({ ...newAddr, mobile: e.target.value })} style={{ width: '100%', padding: '8px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)' }} />
+                <input type="tel" required value={newAddr.mobile} onChange={(e) => setNewAddr({ ...newAddr, mobile: e.target.value })} style={{ width: '100%', padding: '8px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)' }} />
               </div>
 
               <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 600 }}>PIN Code *</label>
-                <input type="text" required value={newAddr.pincode} onChange={(e) => setNewAddr({ ...newAddr, pincode: e.target.value })} style={{ width: '100%', padding: '8px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)' }} />
+                <label style={{ fontSize: '0.75rem', fontWeight: 600 }}>Alternate Number</label>
+                <input type="tel" value={newAddr.alternatePhone} onChange={(e) => setNewAddr({ ...newAddr, alternatePhone: e.target.value })} placeholder="Optional" style={{ width: '100%', padding: '8px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)' }} />
               </div>
 
               <div style={{ gridColumn: 'span 2' }}>
@@ -399,8 +402,18 @@ export default function Checkout() {
               </div>
 
               <div style={{ gridColumn: 'span 2' }}>
-                <label style={{ fontSize: '0.75rem', fontWeight: 600 }}>Area / Street / Landmark</label>
+                <label style={{ fontSize: '0.75rem', fontWeight: 600 }}>Area / Street / Sector</label>
                 <input type="text" value={newAddr.street} onChange={(e) => setNewAddr({ ...newAddr, street: e.target.value })} style={{ width: '100%', padding: '8px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)' }} />
+              </div>
+
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 600 }}>Landmark</label>
+                <input type="text" value={newAddr.landmark} onChange={(e) => setNewAddr({ ...newAddr, landmark: e.target.value })} placeholder="Optional" style={{ width: '100%', padding: '8px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)' }} />
+              </div>
+              
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 600 }}>PIN Code *</label>
+                <input type="text" required value={newAddr.pincode} onChange={(e) => setNewAddr({ ...newAddr, pincode: e.target.value })} style={{ width: '100%', padding: '8px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)' }} />
               </div>
 
               <div>
@@ -411,6 +424,18 @@ export default function Checkout() {
               <div>
                 <label style={{ fontSize: '0.75rem', fontWeight: 600 }}>State</label>
                 <input type="text" value={newAddr.state} onChange={(e) => setNewAddr({ ...newAddr, state: e.target.value })} style={{ width: '100%', padding: '8px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)' }} />
+              </div>
+
+              <div style={{ gridColumn: 'span 2' }}>
+                <label style={{ fontSize: '0.75rem', fontWeight: 600, marginBottom: '6px', display: 'block' }}>Address Type</label>
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.85rem' }}>
+                    <input type="radio" name="checkoutAddressType" checked={newAddr.addressType === 'Home'} onChange={() => setNewAddr({ ...newAddr, addressType: 'Home' })} style={{ accentColor: 'var(--accent-gold)' }} /> Home
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.85rem' }}>
+                    <input type="radio" name="checkoutAddressType" checked={newAddr.addressType === 'Work'} onChange={() => setNewAddr({ ...newAddr, addressType: 'Work' })} style={{ accentColor: 'var(--accent-gold)' }} /> Work
+                  </label>
+                </div>
               </div>
 
               <div style={{ gridColumn: 'span 2', marginTop: '1rem' }}>

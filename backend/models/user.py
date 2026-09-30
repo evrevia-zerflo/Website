@@ -14,6 +14,8 @@ class UserAddress(BaseModel):
     landmark: Optional[str] = None
     city: str
     state: str
+    alternatePhone: Optional[str] = None
+    addressType: str = "Home" # 'Home' or 'Work'
     isDefault: bool = False
 
 class User(Document):
