@@ -147,7 +147,18 @@ export default function Checkout() {
             color: i.color,
             image: i.image
           })),
-          address: selectedAddress,
+          address: {
+            name: selectedAddress.fullName || selectedAddress.name || 'Customer',
+            phone: selectedAddress.mobile || selectedAddress.phone || '0000000000',
+            alternatePhone: selectedAddress.alternatePhone,
+            house: selectedAddress.house,
+            street: selectedAddress.street,
+            landmark: selectedAddress.landmark,
+            city: selectedAddress.city,
+            state: selectedAddress.state,
+            pincode: selectedAddress.pincode,
+            addressType: selectedAddress.addressType || 'Home'
+          },
           subtotal: subtotal,
           shipping: shipping
         };

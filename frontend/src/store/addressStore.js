@@ -45,6 +45,18 @@ const useAddressStore = create(
         }
       },
 
+      updateAddress: async (id, updatedAddr) => {
+        set({ isLoading: true, error: null });
+        try {
+          const res = await api.put(`/auth/profile/addresses/${id}`, updatedAddr);
+          set({ addresses: res.data, isLoading: false });
+        } catch (err) {
+          console.error("Failed to update address", err);
+          set({ error: err.message, isLoading: false });
+          throw err;
+        }
+      },
+
       deleteAddress: async (id) => {
         set({ isLoading: true, error: null });
         try {

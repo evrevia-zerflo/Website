@@ -351,3 +351,21 @@ async def delete_address(address_id: str, current_user: dict = Depends(get_curre
     user.addresses = [a for a in user.addresses if a.id != address_id]
     await user.save()
     return user.addresses
+
+@router.put("/profile/addresses/{address_id}")
+async def update_address(address_id: str, address: Address, current_user: dict = Depends(get_current_user)):
+    user = await User.get(current_user["sub"])
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    for i, a in enumerate(user.addresses):
+        if a.id == address_id:
+            address.id = address_id
+            if address.isDefault:
+                for addr in user.addresses:
+                    addr.isDefault = False
+            user.addresses[i] = address
+            await user.save()
+            return user.addresses
+            
+    raise HTTPException(status_code=404, detail="Address not found")

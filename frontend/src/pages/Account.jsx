@@ -13,7 +13,7 @@ export default function Account() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user, login, logout } = useAuthStore();
-  const { addresses, deleteAddress, fetchAddresses, addAddress } = useAddressStore();
+  const { addresses, deleteAddress, fetchAddresses, addAddress, updateAddress } = useAddressStore();
   const { items: wishlistItems } = useWishlistStore();
 
   const activeTab = searchParams.get('tab') || 'profile';
@@ -25,6 +25,7 @@ export default function Account() {
   const [isSaving, setIsSaving] = useState(false);
 
   const [showAddressModal, setShowAddressModal] = useState(false);
+  const [editAddressId, setEditAddressId] = useState(null);
   const [newAddr, setNewAddr] = useState({
     fullName: user?.name || '',
     mobile: user?.phone || '',
@@ -96,13 +97,25 @@ export default function Account() {
       return;
     }
     try {
-      await addAddress(newAddr);
-      toast.success('Address added successfully!');
+      if (editAddressId) {
+        await updateAddress(editAddressId, newAddr);
+        toast.success('Address updated successfully!');
+      } else {
+        await addAddress(newAddr);
+        toast.success('Address added successfully!');
+      }
       setShowAddressModal(false);
+      setEditAddressId(null);
       setNewAddr({ fullName: user?.name || '', mobile: user?.phone || '', alternatePhone: '', pincode: '', house: '', street: '', landmark: '', city: '', state: '', addressType: 'Home', isDefault: true });
     } catch (err) {
-      toast.error('Failed to add address');
+      toast.error(editAddressId ? 'Failed to update address' : 'Failed to add address');
     }
+  };
+
+  const handleEditAddress = (addr) => {
+    setEditAddressId(addr.id);
+    setNewAddr({ ...addr });
+    setShowAddressModal(true);
   };
 
   return (
@@ -338,7 +351,7 @@ export default function Account() {
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
             <h3 style={{ fontSize: '1.4rem', fontFamily: 'var(--font-serif)', margin: 0 }}>Saved Delivery Locations</h3>
-            <button onClick={() => setShowAddressModal(true)} className="btn-primary" style={{ width: 'auto', padding: '8px 16px', fontSize: '0.85rem', borderRadius: '8px' }}>
+            <button onClick={() => { setEditAddressId(null); setNewAddr({ fullName: user?.name || '', mobile: user?.phone || '', alternatePhone: '', pincode: '', house: '', street: '', landmark: '', city: '', state: '', addressType: 'Home', isDefault: true }); setShowAddressModal(true); }} className="btn-primary" style={{ width: 'auto', padding: '8px 16px', fontSize: '0.85rem', borderRadius: '8px' }}>
               <Plus size={16} /> Add New Address
             </button>
           </div>
@@ -367,7 +380,7 @@ export default function Account() {
                   Phone: {addr.mobile} {addr.alternatePhone ? `, ${addr.alternatePhone}` : ''}
                 </div>
                 <div style={{ display: 'flex', gap: '0.75rem', borderTop: '1px solid var(--border-subtle)', paddingTop: '1rem' }}>
-                  <button style={{ background: 'none', border: 'none', color: 'var(--accent-gold)', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600, padding: 0 }}>
+                  <button onClick={() => handleEditAddress(addr)} style={{ background: 'none', border: 'none', color: 'var(--accent-gold)', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600, padding: 0 }}>
                     Edit
                   </button>
                   <span style={{ color: 'var(--border-color)' }}>|</span>
@@ -402,12 +415,12 @@ export default function Account() {
         </div>
       )}
 
-      {/* Add New Address Modal */}
+      {/* Add/Edit Address Modal */}
       {showAddressModal && (
         <div className="modal-backdrop" onClick={() => setShowAddressModal(false)}>
           <div className="modal-card" onClick={(e) => e.stopPropagation()} style={{ padding: '1.5rem', width: '90%', maxWidth: '500px' }}>
             <div className="flex-between" style={{ marginBottom: '1.5rem' }}>
-              <h3 style={{ fontSize: '1.2rem', fontFamily: 'var(--font-serif)' }}>Add Delivery Address</h3>
+              <h3 style={{ fontSize: '1.2rem', fontFamily: 'var(--font-serif)' }}>{editAddressId ? 'Edit Delivery Address' : 'Add Delivery Address'}</h3>
               <button className="icon-btn" onClick={() => setShowAddressModal(false)}><X size={18} /></button>
             </div>
 
@@ -470,7 +483,7 @@ export default function Account() {
               </div>
 
               <div style={{ gridColumn: 'span 2', marginTop: '1rem' }}>
-                <button type="submit" className="btn-primary" style={{ width: '100%', padding: '12px', borderRadius: '8px' }}>Save Address</button>
+                <button type="submit" className="btn-primary" style={{ width: '100%', padding: '12px', borderRadius: '8px' }}>{editAddressId ? 'Update Address' : 'Save Address'}</button>
               </div>
             </form>
           </div>
