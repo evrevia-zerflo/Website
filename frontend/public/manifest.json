@@ -1,0 +1,16 @@
+{
+  "short_name": "EVRÉVIA",
+  "name": "EVRÉVIA Store",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#FAF8F5",
+  "background_color": "#FAF8F5",
+  "description": "Curated fashion, accessories, and everyday luxury for modern women."
+}

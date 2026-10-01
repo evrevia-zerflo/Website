@@ -84,7 +84,7 @@ export default function Navbar({ onOpenSearch }) {
               <span>{user?.name?.split(' ')[0] || 'Account'}</span>
             </Link>
           ) : (
-            <Link to="/login" className="btn-secondary hide-on-mobile" style={{ padding: '0.35rem 0.85rem', fontSize: '0.8rem', borderRadius: 'var(--radius-full)' }}>
+            <Link to="/account" className="btn-secondary hide-on-mobile" style={{ padding: '0.35rem 0.85rem', fontSize: '0.8rem', borderRadius: 'var(--radius-full)' }}>
               Sign In
             </Link>
           )}

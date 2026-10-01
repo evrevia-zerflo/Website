@@ -864,15 +864,21 @@ a {
 .combo-items-display {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  gap: 1.5rem;
-  margin-bottom: 1.75rem;
+  gap: 3.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.combo-item-wrapper {
+  text-align: center;
+  flex-shrink: 0;
+  width: 250px;
 }
 
 .combo-item-img {
-  width: 120px;
-  height: 150px;
+  width: 250px;
+  height: 330px;
   object-fit: cover;
   border-radius: var(--radius-md);
   box-shadow: 0 4px 14px rgba(0,0,0,0.06);
@@ -883,51 +889,87 @@ a {
   transform: scale(1.04);
 }
 
+.combo-item-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-top: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.combo-item-price {
+  font-size: 0.85rem;
+  color: var(--accent-gold-hover);
+  font-weight: 700;
+  margin-top: 4px;
+}
+
 .combo-plus-tag {
-  font-size: 1.5rem;
+  font-size: 2.5rem;
   color: var(--accent-gold);
   font-weight: 300;
+  margin-top: 135px;
+}
+
+/* Fix mobile centering bug for scroll rows */
+.combo-switcher-row {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 0.5rem;
+  padding-bottom: 6px;
+  margin-bottom: 2rem;
+  justify-content: center; /* PC: centered */
 }
 
 @media (max-width: 640px) {
   .combo-box-card {
     padding: 1.25rem 0.85rem;
   }
+  .combo-switcher-row {
+    justify-content: flex-start; /* Mobile: start so it doesn't get cut off on left */
+    padding-left: 0.5rem;
+  }
   .combo-items-display {
     display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    flex-wrap: nowrap;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 1rem;
-    margin-bottom: 1.25rem;
-    padding-bottom: 1rem;
-    margin-left: -0.85rem;
-    margin-right: -0.85rem;
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
+    flex-wrap: nowrap; /* Never wrap on mobile */
+    align-items: flex-start;
+    justify-content: flex-start; /* Start from left */
+    gap: 0.85rem;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem; /* Space for scroll */
+    overflow-x: auto; /* Enable horizontal scrolling */
+    -webkit-overflow-scrolling: touch;
+    /* Hide scrollbar for cleaner UI */
+    scrollbar-width: none;
   }
   .combo-items-display::-webkit-scrollbar {
     display: none;
   }
-  .combo-items-display > * {
-    scroll-snap-align: center;
+  .combo-item-wrapper {
+    width: 100px; /* Fixed width to allow scrolling */
+    flex-shrink: 0;
   }
   .combo-item-img {
-    width: 85px;
-    height: 110px;
+    width: 100px;
+    height: 135px;
+    object-fit: cover;
+  }
+  .combo-item-name {
+    font-size: 0.75rem;
+    margin-top: 8px;
   }
   .combo-plus-tag {
-    font-size: 1.1rem;
-    margin-top: 40px;
+    font-size: 1.5rem;
+    margin-top: 50px;
+    flex-shrink: 0;
   }
 }
 
 @media (max-width: 400px) {
-  .combo-item-img {
-    width: 72px;
-    height: 95px;
+  .combo-plus-tag {
+    margin-top: 30px;
   }
 }
 
@@ -1852,5 +1894,51 @@ a {
   }
   .footer-main-grid > div:first-child {
     grid-column: span 2; /* Brand info spans full width */
+  }
+}
+
+@media (min-width: 641px) {
+  .hide-on-pc {
+    display: none !important;
+  }
+}
+
+/* ---------------------------------------------------- */
+/* GUEST ACCOUNT VIEW */
+/* ---------------------------------------------------- */
+.guest-account-wrapper {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 4rem 1.25rem 6rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+}
+
+.guest-account-card {
+  background: var(--bg-surface);
+  border-radius: 24px;
+  padding: 4rem 3rem;
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 20px 60px -15px rgba(0,0,0,0.06);
+  border: 1px solid rgba(0,0,0,0.04);
+}
+
+@media (max-width: 640px) {
+  .guest-account-wrapper {
+    padding: 2rem 1rem 4rem;
+  }
+  .guest-account-card {
+    padding: 2.5rem 1.5rem;
+    box-shadow: 0 10px 40px -10px rgba(0,0,0,0.05);
   }
 }

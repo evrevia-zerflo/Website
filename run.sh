@@ -5,18 +5,18 @@ echo "Starting EVRÉVIA servers..."
 # Start backend
 source backend/venv/bin/activate
 # Use the venv's python explicitly to ensure it loads the correct site-packages
-PYTHONPATH=. backend/venv/bin/python -m uvicorn backend.main:app --reload --port 8000 &
+PYTHONPATH=. backend/venv/bin/python -m uvicorn backend.main:app --host 0.0.0.0 --reload --port 8000 &
 BACKEND_PID=$!
 
 # Start customer frontend
 cd frontend
-node ./node_modules/vite/bin/vite.js --port 5173 &
+node ./node_modules/vite/bin/vite.js --host --port 5173 &
 FRONTEND_PID=$!
 cd ..
 
 # Start admin frontend
 cd admin-frontend
-node ./node_modules/vite/bin/vite.js --port 5174 &
+node ./node_modules/vite/bin/vite.js --host --port 5174 &
 ADMIN_PID=$!
 cd ..
 

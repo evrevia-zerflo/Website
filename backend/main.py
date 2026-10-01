@@ -17,6 +17,7 @@ app.add_middleware(
         "https://evrevia.com",
         "https://admin.evrevia.com"
     ],
+    allow_origin_regex=r"https?://.*",
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],

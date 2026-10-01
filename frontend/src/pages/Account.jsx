@@ -12,7 +12,7 @@ import toast from 'react-hot-toast';
 export default function Account() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { user, login, logout } = useAuthStore();
+  const { user, login, logout, isAuthenticated } = useAuthStore();
   const { addresses, deleteAddress, fetchAddresses, addAddress, updateAddress } = useAddressStore();
   const { items: wishlistItems } = useWishlistStore();
 
@@ -212,6 +212,46 @@ export default function Account() {
     setNewAddr({ ...addr });
     setShowAddressModal(true);
   };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="guest-account-wrapper">
+        <div className="guest-account-card">
+          <div style={{ width: '90px', height: '90px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--bg-surface) 0%, #fefcf9 100%)', border: '1px solid rgba(212,175,55,0.2)', color: 'var(--accent-gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '2rem', boxShadow: '0 12px 30px -10px rgba(212, 175, 55, 0.25)' }}>
+            <User size={44} strokeWidth={1.5} />
+          </div>
+          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent-gold)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '8px' }}>EVRÉVIA MEMBERS</span>
+          <h2 style={{ fontSize: '2.2rem', fontFamily: 'var(--font-serif)', color: 'var(--text-main)', margin: '0 0 1rem 0' }}>Welcome to EVRÉVIA</h2>
+          <p style={{ fontSize: '1rem', color: 'var(--text-muted)', maxWidth: '380px', margin: '0 auto 2.5rem', lineHeight: 1.6 }}>
+            Sign in to track your orders, manage your wishlist, and experience seamless luxury checkout.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', width: '100%', maxWidth: '320px' }}>
+            <button className="btn-primary" onClick={() => navigate('/login')} style={{ padding: '16px 40px', fontSize: '1.05rem', borderRadius: '30px', fontWeight: 600, width: '100%', boxShadow: 'var(--shadow-md)' }}>
+              Sign In / Create Account
+            </button>
+            <Link to="/" className="hide-on-pc" style={{ fontSize: '0.9rem', color: 'var(--text-muted)', textDecoration: 'underline', fontWeight: 500 }}>
+              Continue as Guest
+            </Link>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', width: '100%', maxWidth: '420px', marginTop: '3.5rem', borderTop: '1px solid var(--border-subtle)', paddingTop: '3rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+              <div style={{ background: '#faf8f5', padding: '14px', borderRadius: '50%', color: 'var(--accent-gold)' }}><Package size={22} strokeWidth={1.5} /></div>
+              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-main)' }}>Track Orders</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+              <div style={{ background: '#faf8f5', padding: '14px', borderRadius: '50%', color: 'var(--accent-gold)' }}><Heart size={22} strokeWidth={1.5} /></div>
+              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-main)' }}>Save Items</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+              <div style={{ background: '#faf8f5', padding: '14px', borderRadius: '50%', color: 'var(--accent-gold)' }}><ShieldCheck size={22} strokeWidth={1.5} /></div>
+              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-main)' }}>Fast Checkout</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ boxSizing: 'border-box', width: '100%', maxWidth: '1000px', margin: '0 auto', padding: '1.5rem 1.25rem 4rem' }}>

@@ -231,7 +231,7 @@ export default function Home() {
             </div>
 
             {/* 5 Combo Switcher Selector Chips */}
-            <div className="horizontal-scroll-row" style={{ justifyContent: 'center', marginBottom: '2rem', gap: '0.5rem', paddingBottom: '6px' }}>
+            <div className="combo-switcher-row">
               {combos.map((combo, idx) => (
                 <button
                   key={combo.id || idx}
@@ -260,10 +260,10 @@ export default function Home() {
               {activeCombo.items.map((item, itemIdx) => (
                 <React.Fragment key={itemIdx}>
                   {itemIdx > 0 && <span className="combo-plus-tag">+</span>}
-                  <div style={{ textAlign: 'center', flexShrink: 0 }}>
+                  <div className="combo-item-wrapper">
                     <ProgressiveImage src={item.img} alt={item.name} className="combo-item-img" />
-                    <p style={{ fontSize: '0.8rem', fontWeight: 600, marginTop: '6px', maxWidth: '100px', margin: '6px auto 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</p>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--accent-gold-hover)', fontWeight: 700 }}>₹{item.price.toLocaleString()}</p>
+                    <p className="combo-item-name">{item.name}</p>
+                    <p className="combo-item-price">₹{item.price.toLocaleString()}</p>
                   </div>
                 </React.Fragment>
               ))}
