@@ -898,11 +898,11 @@ a {
   }
   .combo-items-display {
     display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 0.35rem;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
     margin-bottom: 1.25rem;
-    overflow-x: auto;
     padding-bottom: 6px;
   }
   .combo-item-img {
@@ -1007,21 +1007,15 @@ a {
 /* Horizontal scroll track on small mobile screens */
 @media (max-width: 639px) {
   .why-evrevia-scroll-track {
-    display: flex;
-    gap: 0.85rem;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
     padding-bottom: 0.75rem;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-  .why-evrevia-scroll-track::-webkit-scrollbar {
-    display: none;
   }
   .why-evrevia-scroll-track .why-evrevia-card {
-    flex: 0 0 240px;
+    flex: none;
+    width: 100%;
     padding: 1rem 1.1rem;
-    scroll-snap-align: start;
   }
   .why-evrevia-icon-wrap {
     width: 44px;
@@ -1161,6 +1155,8 @@ a {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
+  touch-action: none;
+  overscroll-behavior: contain;
 }
 
 .cart-drawer-overlay.open {
@@ -1177,6 +1173,7 @@ a {
   display: flex;
   flex-direction: column;
   transform: translateX(100%);
+  overscroll-behavior: contain;
   transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: var(--shadow-lg);
 }
@@ -1478,7 +1475,7 @@ a {
 
 @media (max-width: 640px) {
   .checkout-container {
-    padding: 1rem 0.85rem 4rem !important;
+    padding: 1rem 0.85rem 6rem !important;
   }
   .checkout-card-header {
     padding: 0.85rem 1rem;
@@ -1794,3 +1791,23 @@ a {
 .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 
+/* Sticky Mobile Action Bar for Product Detail */
+@media (max-width: 768px) {
+  .mobile-sticky-action-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg-surface);
+    padding: 1rem 1.25rem;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
+    z-index: 100;
+    display: flex;
+    gap: 0.85rem;
+  }
+  
+  /* Add padding to bottom of product container so it doesn't get hidden under the sticky bar */
+  .product-detail-container {
+    padding-bottom: 90px !important;
+  }
+}

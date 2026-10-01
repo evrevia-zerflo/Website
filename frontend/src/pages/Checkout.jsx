@@ -223,7 +223,7 @@ export default function Checkout() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                           <strong style={{ fontSize: '0.95rem' }}>{addr.fullName}</strong>
                           {addr.addressType && <span className="badge" style={{ background: '#f1f5f9', color: '#475569', fontSize: '0.65rem' }}>{addr.addressType}</span>}
-                          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginLeft: '4px' }}>📱 {addr.mobile} {addr.alternatePhone ? `| ${addr.alternatePhone}` : ''}</span>
+                          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginLeft: '4px' }}>{addr.mobile} {addr.alternatePhone ? `| ${addr.alternatePhone}` : ''}</span>
                         </div>
                         {selectedAddressId === addr.id && <span className="badge badge-gold">Deliver Here</span>}
                       </div>
@@ -395,7 +395,7 @@ export default function Checkout() {
 
               {discount > 0 && (
                 <div style={{ marginTop: '1rem', background: '#E8F5E9', color: '#2E7D32', padding: '8px 12px', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem', fontWeight: 600, textAlign: 'center' }}>
-                  🎉 You are saving ₹{discount.toLocaleString('en-IN')} on this order!
+                  You are saving ₹{discount.toLocaleString('en-IN')} on this order!
                 </div>
               )}
 
@@ -411,24 +411,7 @@ export default function Checkout() {
         </div>
       </main>
 
-      {/* Sticky Mobile Action Bar */}
-      <div className="mobile-checkout-bar">
-        <div>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>Total Amount</span>
-          <strong style={{ fontSize: '1.15rem', color: 'var(--text-main)' }}>₹{total.toLocaleString('en-IN')}</strong>
-        </div>
 
-        {activeStep < 3 ? (
-          <button className="btn-primary" onClick={() => activeStep === 1 ? handleContinueToReview() : setActiveStep(3)} style={{ width: 'auto', padding: '0.75rem 1.5rem' }}>
-            <span>Continue</span>
-            <ArrowRight size={16} />
-          </button>
-        ) : (
-          <button className="btn-primary" onClick={handlePlaceOrderAndPay} style={{ width: 'auto', padding: '0.75rem 1.5rem' }}>
-            <span>Pay ₹{total.toLocaleString('en-IN')}</span>
-          </button>
-        )}
-      </div>
 
       {/* Add New Address Modal */}
       {showAddressModal && (

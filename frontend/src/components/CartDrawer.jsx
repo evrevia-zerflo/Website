@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, ShoppingBag, Plus, Minus, Trash2, ArrowRight, Tag, Truck } from 'lucide-react';
 import useCartStore from '../store/cartStore';
@@ -23,6 +23,21 @@ export default function CartDrawer() {
   } = useCartStore();
 
   const [inputCoupon, setInputCoupon] = useState('');
+
+  // Lock background scroll when cart is open
+  useEffect(() => {
+    if (isCartOpen) {
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    };
+  }, [isCartOpen]);
 
   const subtotal = getCartSubtotal();
   const discount = getDiscountAmount();
@@ -68,7 +83,7 @@ export default function CartDrawer() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.8rem', marginBottom: '6px' }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 500 }}>
                 <Truck size={14} color="var(--accent-gold)" />
-                {subtotal >= freeShippingThreshold ? '🎉 You unlocked FREE Shipping!' : `Add ₹${freeShippingThreshold - subtotal} more for FREE shipping`}
+                {subtotal >= freeShippingThreshold ? 'You unlocked FREE Shipping!' : `Add ₹${freeShippingThreshold - subtotal} more for FREE shipping`}
               </span>
               <span style={{ fontWeight: 600 }}>{progressPercent}%</span>
             </div>

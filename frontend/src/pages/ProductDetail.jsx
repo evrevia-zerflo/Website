@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Star, ShieldCheck, Truck, RotateCcw, Heart, ShoppingBag, MapPin, Sparkles, ArrowLeft, ChevronDown, ChevronUp, Check, Info, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Star, ShieldCheck, Truck, RotateCcw, Heart, ShoppingBag, MapPin, Sparkles, ArrowLeft, ChevronDown, ChevronUp, Check, Info, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import useCartStore from '../store/cartStore';
 import ProgressiveImage from '../components/ProgressiveImage';
 import useWishlistStore from '../store/wishlistStore';
@@ -96,7 +96,7 @@ export default function ProductDetail() {
   const relatedProducts = MOCK_PRODUCTS.filter(p => (p.id || p._id) !== productId).slice(0, 4);
 
   return (
-    <div style={{ maxWidth: '1400px', width: '100%', boxSizing: 'border-box', margin: '0 auto', padding: '1.25rem 2rem 4rem' }}>
+    <div className="product-detail-container" style={{ maxWidth: '1400px', width: '100%', boxSizing: 'border-box', margin: '0 auto', padding: '1.25rem 2rem 4rem' }}>
       
       <button 
         onClick={() => navigate(-1)}
@@ -123,7 +123,7 @@ export default function ProductDetail() {
             />
             
             <button 
-              onClick={() => toggleWishlist(product)}
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist(product); }}
               style={{
                 position: 'absolute', top: '12px', right: '12px',
                 background: isSaved ? 'var(--text-main)' : 'rgba(255, 255, 255, 0.9)',
@@ -150,7 +150,7 @@ export default function ProductDetail() {
                 onClick={(e) => { e.stopPropagation(); setIsFullscreen(false); }}
                 style={{ position: 'absolute', top: '20px', right: '20px', background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', padding: '10px', borderRadius: '50%', cursor: 'pointer', zIndex: 10000 }}
               >
-                ✕
+                <X size={24} />
               </button>
               
               <div 
@@ -288,7 +288,7 @@ export default function ProductDetail() {
           )}
 
           {/* Action Buttons */}
-          <div style={{ display: 'flex', gap: '0.85rem', marginBottom: '1.75rem' }}>
+          <div className="mobile-sticky-action-bar" style={{ display: 'flex', gap: '0.85rem', marginBottom: '1.75rem' }}>
             <button 
               className="btn-primary"
               onClick={() => { addToCart(product, 1, selectedSize, selectedColor); openCart(); }}

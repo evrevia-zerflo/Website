@@ -54,11 +54,11 @@ function AppContent() {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
-  // Check if current route is checkout
-  const isCheckoutPage = location.pathname === '/checkout';
+  // Check if current route should hide bottom nav
+  const isHiddenNav = location.pathname === '/checkout' || location.pathname.startsWith('/product/');
 
   return (
-    <div className={`app-container ${!isCheckoutPage ? 'has-bottom-nav' : ''}`}>
+    <div className={`app-container ${!isHiddenNav ? 'has-bottom-nav' : ''}`}>
       {/* Standard Header (hidden on Checkout page) */}
       <Navbar onOpenSearch={() => setIsSearchOpen(true)} />
 
@@ -86,7 +86,7 @@ function AppContent() {
       {/* Global Overlays & Mobile Bars */}
       <CartDrawer />
       <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
-      <MobileBottomNav onOpenSearch={() => setIsSearchOpen(true)} />
+      {!isHiddenNav && <MobileBottomNav onOpenSearch={() => setIsSearchOpen(true)} />}
     </div>
   );
 }

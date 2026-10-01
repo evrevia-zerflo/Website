@@ -1,16 +1,12 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Compass, Search, Grid, User, ShoppingBag } from 'lucide-react';
-import useCartStore from '../store/cartStore';
+import { Home, Compass, Search, Grid, User } from 'lucide-react';
 import useWishlistStore from '../store/wishlistStore';
 
 export default function MobileBottomNav({ onOpenSearch }) {
   const location = useLocation();
-  const cartItems = useCartStore(state => state.items);
-  const toggleCartDrawer = useCartStore(state => state.toggleCartDrawer);
   const wishlistItems = useWishlistStore(state => state.items);
 
-  const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
   const wishlistCount = wishlistItems.length;
 
   // Don't show bottom nav on checkout page
@@ -23,7 +19,7 @@ export default function MobileBottomNav({ onOpenSearch }) {
         <span>Home</span>
       </Link>
 
-      <Link to="/shop" className={`bottom-nav-item ${location.pathname === '/shop' ? 'active' : ''}`}>
+      <Link to="/categories" className={`bottom-nav-item ${location.pathname === '/categories' ? 'active' : ''}`}>
         <Compass size={20} />
         <span>Explore</span>
       </Link>
@@ -33,16 +29,12 @@ export default function MobileBottomNav({ onOpenSearch }) {
         <span>Search</span>
       </button>
 
-      <Link to="/categories" className={`bottom-nav-item ${location.pathname === '/categories' ? 'active' : ''}`}>
+      <Link to="/shop" className={`bottom-nav-item ${location.pathname === '/shop' ? 'active' : ''}`}>
         <Grid size={20} />
         <span>Catalog</span>
       </Link>
 
-      <button className="bottom-nav-item" onClick={() => toggleCartDrawer(true)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-        <ShoppingBag size={20} />
-        {cartCount > 0 && <span className="badge-count" style={{ top: '2px', right: '14px', width: '15px', height: '15px', fontSize: '0.65rem' }}>{cartCount}</span>}
-        <span>Bag</span>
-      </button>
+
 
       <Link to="/account" className={`bottom-nav-item ${location.pathname === '/account' && !location.search.includes('wishlist') ? 'active' : ''}`}>
         <User size={20} />

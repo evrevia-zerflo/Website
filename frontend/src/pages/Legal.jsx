@@ -93,9 +93,9 @@ export default function Legal() {
             <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.6rem', marginBottom: '1rem' }}>Concierge Support</h2>
             <p style={{ marginBottom: '1.5rem' }}>Have questions about sizing, fabric care, or order customization? Our styling team is here to assist.</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: '0.95rem' }}>
-              <p>📱 <strong>WhatsApp Concierge:</strong> +91 98765 43210</p>
-              <p>✉️ <strong>Email Support:</strong> concierge@evrevia.com</p>
-              <p>📍 <strong>Flagship Studio:</strong> EVRÉVIA Atelier, Boring Road, Patna, Bihar – 800001</p>
+              <p><strong>WhatsApp Concierge:</strong> +91 98765 43210</p>
+              <p><strong>Email Support:</strong> concierge@evrevia.com</p>
+              <p><strong>Flagship Studio:</strong> EVRÉVIA Atelier, Boring Road, Patna, Bihar – 800001</p>
             </div>
           </div>
         )}

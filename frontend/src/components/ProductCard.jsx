@@ -51,7 +51,7 @@ export default function ProductCard({ product }) {
 
           {/* Wishlist Heart Button */}
           <button 
-            onClick={() => toggleWishlist(product)}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist(product); }}
             style={{
               position: 'absolute',
               top: '8px',
