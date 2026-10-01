@@ -176,9 +176,9 @@ export default function Account() {
 
       {/* Tab Content 1: Profile */}
       {activeTab === 'profile' && (
-        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-lg)', padding: '2rem', width: '100%', position: 'relative' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '-1rem' }}>
             <h3 style={{ fontSize: '1.4rem', fontFamily: 'var(--font-serif)', margin: 0 }}>Login & Security</h3>
             {!isEditingProfile && (
               <button onClick={() => setIsEditingProfile(true)} style={{ background: 'none', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-full)', padding: '6px 14px', fontSize: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600 }}>
@@ -187,63 +187,65 @@ export default function Account() {
             )}
           </div>
 
-          {!isEditingProfile ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              <div style={{ paddingBottom: '1rem', borderBottom: '1px solid var(--border-subtle)' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>Name</label>
-                <div style={{ fontSize: '1.05rem', color: 'var(--text-main)' }}>{user?.name || 'Not provided'}</div>
+          <div style={{ border: '1px solid var(--border-subtle)', borderRadius: '12px', background: '#fff', padding: '2rem' }}>
+            {!isEditingProfile ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <div style={{ paddingBottom: '1rem', borderBottom: '1px solid var(--border-subtle)' }}>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>Name</label>
+                  <div style={{ fontSize: '1.05rem', color: 'var(--text-main)' }}>{user?.name || 'Not provided'}</div>
+                </div>
+                <div style={{ paddingBottom: '1rem', borderBottom: '1px solid var(--border-subtle)' }}>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>Email Address</label>
+                  <div style={{ fontSize: '1.05rem', color: 'var(--text-main)' }}>{user?.email || 'Not provided'}</div>
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>Mobile Phone Number</label>
+                  <div style={{ fontSize: '1.05rem', color: 'var(--text-main)' }}>{user?.phone || 'Not provided'}</div>
+                </div>
               </div>
-              <div style={{ paddingBottom: '1rem', borderBottom: '1px solid var(--border-subtle)' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>Email Address</label>
-                <div style={{ fontSize: '1.05rem', color: 'var(--text-main)' }}>{user?.email || 'Not provided'}</div>
-              </div>
-              <div style={{ paddingBottom: '1rem' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>Mobile Phone Number</label>
-                <div style={{ fontSize: '1.05rem', color: 'var(--text-main)' }}>{user?.phone || 'Not provided'}</div>
-              </div>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              <div>
-                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>Name</label>
-                <input 
-                  type="text" 
-                  value={editName} 
-                  onChange={e => setEditName(e.target.value)}
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '1rem', outline: 'none' }}
-                />
-              </div>
-              <div>
-                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>Email Address</label>
-                <input 
-                  type="email" 
-                  value={user?.email} 
-                  disabled
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border-subtle)', fontSize: '1rem', background: '#f8fafc', color: 'var(--text-muted)' }}
-                />
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-light)', marginTop: '4px', display: 'block' }}>Email cannot be changed online.</span>
-              </div>
-              <div>
-                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>Mobile Phone Number</label>
-                <input 
-                  type="tel" 
-                  value={editPhone} 
-                  onChange={e => setEditPhone(e.target.value)}
-                  placeholder="+91 9876543210"
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '1rem', outline: 'none' }}
-                />
-              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <div>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>Name</label>
+                  <input 
+                    type="text" 
+                    value={editName} 
+                    onChange={e => setEditName(e.target.value)}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '1rem', outline: 'none' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>Email Address</label>
+                  <input 
+                    type="email" 
+                    value={user?.email} 
+                    disabled
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border-subtle)', fontSize: '1rem', background: '#f8fafc', color: 'var(--text-muted)' }}
+                  />
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-light)', marginTop: '4px', display: 'block' }}>Email cannot be changed online.</span>
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>Mobile Phone Number</label>
+                  <input 
+                    type="tel" 
+                    value={editPhone} 
+                    onChange={e => setEditPhone(e.target.value)}
+                    placeholder="+91 9876543210"
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '1rem', outline: 'none' }}
+                  />
+                </div>
 
-              <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                <button onClick={handleSaveProfile} className="btn-primary" style={{ padding: '10px 20px', flex: 1, borderRadius: '8px' }} disabled={isSaving}>
-                  {isSaving ? "Saving..." : <><Check size={16} /> Save Changes</>}
-                </button>
-                <button onClick={handleEditCancel} className="btn-secondary" style={{ padding: '10px 20px', flex: 1, borderRadius: '8px' }}>
-                  <X size={16} /> Cancel
-                </button>
+                <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                  <button onClick={handleSaveProfile} className="btn-primary" style={{ padding: '10px 20px', flex: 1, borderRadius: '8px' }} disabled={isSaving}>
+                    {isSaving ? "Saving..." : <><Check size={16} /> Save Changes</>}
+                  </button>
+                  <button onClick={handleEditCancel} className="btn-secondary" style={{ padding: '10px 20px', flex: 1, borderRadius: '8px' }}>
+                    <X size={16} /> Cancel
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       )}
 
