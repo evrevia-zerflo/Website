@@ -567,30 +567,27 @@ a {
 /* ---------------------------------------------------- */
 .why-evrevia-grid {
   display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  gap: 1.25rem;
-}
-
-@media (min-width: 640px) {
-  .why-evrevia-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
 }
 
 @media (min-width: 1024px) {
   .why-evrevia-grid {
     grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
   }
 }
 
 .why-evrevia-card {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 1.1rem;
+  text-align: center;
+  gap: 0.85rem;
   background: var(--bg-surface);
-  padding: 1.25rem 1.4rem;
+  padding: 1.75rem 1rem;
   border-radius: var(--radius-lg);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid rgba(212, 182, 142, 0.15);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
@@ -598,18 +595,17 @@ a {
 }
 
 .why-evrevia-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-4px);
   border-color: var(--accent-gold);
-  box-shadow: 0 10px 30px rgba(212, 182, 142, 0.12);
+  box-shadow: 0 12px 30px rgba(212, 182, 142, 0.12);
 }
 
 .why-evrevia-icon-wrap {
-  width: 52px;
-  height: 52px;
-  min-width: 52px;
-  border-radius: var(--radius-md);
-  background: linear-gradient(135deg, rgba(212, 182, 142, 0.15) 0%, rgba(212, 182, 142, 0.05) 100%);
-  border: 1px solid rgba(212, 182, 142, 0.3);
+  width: 54px;
+  height: 54px;
+  border-radius: var(--radius-full);
+  background: var(--bg-primary);
+  border: 1px solid var(--accent-gold);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -617,9 +613,8 @@ a {
 }
 
 .why-evrevia-card:hover .why-evrevia-icon-wrap {
-  transform: scale(1.08) rotate(-3deg);
+  transform: scale(1.1) rotate(5deg);
   background: var(--accent-gold);
-  border-color: var(--accent-gold);
 }
 
 .why-evrevia-card:hover .why-evrevia-icon-wrap svg {
@@ -629,21 +624,23 @@ a {
 .why-evrevia-text {
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: center;
 }
 
 .why-evrevia-title {
   font-size: 0.95rem;
-  font-weight: 700;
+  font-family: var(--font-serif);
+  font-weight: 600;
   color: var(--text-main);
-  letter-spacing: -0.01em;
-  margin-bottom: 2px;
+  margin-bottom: 6px;
 }
 
 .why-evrevia-desc {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--text-muted);
-  line-height: 1.4;
+  line-height: 1.45;
+  max-width: 90%;
 }
 
 /* ---------------------------------------------------- */
@@ -898,12 +895,24 @@ a {
   }
   .combo-items-display {
     display: flex;
-    flex-wrap: wrap;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    flex-wrap: nowrap;
     align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
+    justify-content: flex-start;
+    gap: 1rem;
     margin-bottom: 1.25rem;
-    padding-bottom: 6px;
+    padding-bottom: 1rem;
+    margin-left: -0.85rem;
+    margin-right: -0.85rem;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+  .combo-items-display::-webkit-scrollbar {
+    display: none;
+  }
+  .combo-items-display > * {
+    scroll-snap-align: center;
   }
   .combo-item-img {
     width: 85px;
@@ -1003,34 +1012,6 @@ a {
     font-size: 0.75rem;
   }
 }
-
-/* Horizontal scroll track on small mobile screens */
-@media (max-width: 639px) {
-  .why-evrevia-scroll-track {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    padding-bottom: 0.75rem;
-  }
-  .why-evrevia-scroll-track .why-evrevia-card {
-    flex: none;
-    width: 100%;
-    padding: 1rem 1.1rem;
-  }
-  .why-evrevia-icon-wrap {
-    width: 44px;
-    height: 44px;
-    min-width: 44px;
-  }
-  .why-evrevia-title {
-    font-size: 0.88rem;
-  }
-  .why-evrevia-desc {
-    font-size: 0.75rem;
-  }
-}
-
-
 
 /* ---------------------------------------------------- */
 /* PRODUCT GRID CATALOG */

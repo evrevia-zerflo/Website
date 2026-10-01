@@ -12,6 +12,7 @@ export default function Footer() {
   return (
     <footer style={{ background: 'var(--bg-secondary)', borderTop: '1px solid var(--border-color)', marginTop: '4rem', padding: '3.5rem 1.5rem 2rem' }}>
       {/* Reassurance Bar */}
+      {location.pathname !== '/' && (
       <div style={{ maxWidth: '1150px', margin: '0 auto 3.5rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.25rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'var(--bg-surface)', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)' }}>
           <Truck size={22} color="var(--accent-gold)" />
@@ -45,6 +46,7 @@ export default function Footer() {
           </div>
         </div>
       </div>
+      )}
 
       {/* Main Link Columns */}
       <div style={{ maxWidth: '1150px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2.5rem', paddingBottom: '2.5rem', borderBottom: '1px solid var(--border-color)' }}>

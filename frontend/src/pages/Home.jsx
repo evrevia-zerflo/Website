@@ -2,7 +2,8 @@ import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   ArrowRight, ShieldCheck, RotateCcw, Truck, ChevronLeft, ChevronRight, 
-  Flame, Gem, Sparkles, Award, Grid, Search, Filter, SlidersHorizontal, Tag, X 
+  Flame, Gem, Sparkles, Award, Grid, Search, Filter, SlidersHorizontal, Tag, X,
+  Star, Scissors
 } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import ProductCardSkeleton from '../components/ProductCardSkeleton';
@@ -220,7 +221,7 @@ export default function Home() {
         )}
 
         {/* 6. Complete the Look (5 Dynamic Styled Outfit Combos Switcher) */}
-        <section className="home-sec-combos" style={{ maxWidth: '1050px', margin: '0 auto 4rem', padding: '0 1.25rem' }}>
+        <section className="home-sec-combos" style={{ maxWidth: '1250px', margin: '0 auto 4rem', padding: '0 1.25rem' }}>
           <div className="combo-box-card">
             
             <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
@@ -285,49 +286,49 @@ export default function Home() {
             <h2 style={{ fontSize: '2rem', fontFamily: 'var(--font-serif)', marginTop: '4px' }}>Why Women Shop at EVRÉVIA</h2>
           </div>
 
-          <div className="why-evrevia-scroll-track why-evrevia-grid">
+          <div className="why-evrevia-grid">
             
-            {/* Card 1: Easy Doorstep Returns */}
+            {/* Card 1: Curated Aesthetics */}
             <div className="why-evrevia-card">
               <div className="why-evrevia-icon-wrap">
-                <RotateCcw size={24} color="var(--accent-gold)" />
+                <Star size={24} color="var(--accent-gold)" />
               </div>
               <div className="why-evrevia-text">
-                <h4 className="why-evrevia-title">Easy 7-Day Returns</h4>
-                <p className="why-evrevia-desc">Hassle-free doorstep pickup if the fit isn't right.</p>
+                <h4 className="why-evrevia-title">Curated Aesthetics</h4>
+                <p className="why-evrevia-desc">Every piece is handpicked to keep your wardrobe effortlessly on-trend.</p>
               </div>
             </div>
 
-            {/* Card 2: 100% Encrypted & COD */}
-            <div className="why-evrevia-card">
-              <div className="why-evrevia-icon-wrap">
-                <ShieldCheck size={24} color="var(--accent-gold)" />
-              </div>
-              <div className="why-evrevia-text">
-                <h4 className="why-evrevia-title">100% Secure Payments</h4>
-                <p className="why-evrevia-desc">Encrypted UPI, Cards & Cash on Delivery support.</p>
-              </div>
-            </div>
-
-            {/* Card 3: Pan-India Express Delivery */}
-            <div className="why-evrevia-card">
-              <div className="why-evrevia-icon-wrap">
-                <Truck size={24} color="var(--accent-gold)" />
-              </div>
-              <div className="why-evrevia-text">
-                <h4 className="why-evrevia-title">Pan-India Express Delivery</h4>
-                <p className="why-evrevia-desc">Delivered directly to your doorstep in 2–4 days.</p>
-              </div>
-            </div>
-
-            {/* Card 4: Artisanal Luxury Assurance */}
+            {/* Card 2: Haute Quality */}
             <div className="why-evrevia-card">
               <div className="why-evrevia-icon-wrap">
                 <Award size={24} color="var(--accent-gold)" />
               </div>
               <div className="why-evrevia-text">
-                <h4 className="why-evrevia-title">Haute Quality Assurance</h4>
-                <p className="why-evrevia-desc">100% inspected pure fabrics & luxury finish.</p>
+                <h4 className="why-evrevia-title">Haute Quality</h4>
+                <p className="why-evrevia-desc">100% inspected premium fabrics with a flawless, luxury finish.</p>
+              </div>
+            </div>
+
+            {/* Card 3: Exclusive Collections */}
+            <div className="why-evrevia-card">
+              <div className="why-evrevia-icon-wrap">
+                <Sparkles size={24} color="var(--accent-gold)" />
+              </div>
+              <div className="why-evrevia-text">
+                <h4 className="why-evrevia-title">Exclusive Collections</h4>
+                <p className="why-evrevia-desc">Limited-run drops designed to make you stand out from the crowd.</p>
+              </div>
+            </div>
+
+            {/* Card 4: Effortless Fit */}
+            <div className="why-evrevia-card">
+              <div className="why-evrevia-icon-wrap">
+                <Scissors size={24} color="var(--accent-gold)" />
+              </div>
+              <div className="why-evrevia-text">
+                <h4 className="why-evrevia-title">Effortless Fit</h4>
+                <p className="why-evrevia-desc">Tailored to flatter, celebrating the modern woman’s silhouette.</p>
               </div>
             </div>
 

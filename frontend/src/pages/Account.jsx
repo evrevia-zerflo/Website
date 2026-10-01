@@ -214,7 +214,7 @@ export default function Account() {
   };
 
   return (
-    <div style={{ boxSizing: 'border-box', maxWidth: '100%', margin: '0 auto', padding: '1.5rem 1.25rem 4rem' }}>
+    <div style={{ boxSizing: 'border-box', width: '100%', maxWidth: '1000px', margin: '0 auto', padding: '1.5rem 1.25rem 4rem' }}>
       {/* Account Header */}
       <div style={{ 
         background: 'linear-gradient(135deg, #ffffff 0%, #faf8f5 100%)', 
