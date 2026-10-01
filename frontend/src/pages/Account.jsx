@@ -92,16 +92,26 @@ export default function Account() {
 
   const handleAddAddressSubmit = async (e) => {
     e.preventDefault();
-    if (!newAddr.fullName || !newAddr.mobile || !newAddr.house || !newAddr.pincode) {
+    if ((!newAddr.fullName && !newAddr.name) || (!newAddr.mobile && !newAddr.phone) || !newAddr.house || !newAddr.pincode) {
       toast.error('Please fill all required address fields.');
       return;
     }
+
+    const payload = {
+      ...newAddr,
+      name: newAddr.fullName || newAddr.name,
+      phone: newAddr.mobile || newAddr.phone,
+      street: newAddr.street || 'N/A',
+      city: newAddr.city || 'N/A',
+      state: newAddr.state || 'N/A'
+    };
+
     try {
       if (editAddressId) {
-        await updateAddress(editAddressId, newAddr);
+        await updateAddress(editAddressId, payload);
         toast.success('Address updated successfully!');
       } else {
-        await addAddress(newAddr);
+        await addAddress(payload);
         toast.success('Address added successfully!');
       }
       setShowAddressModal(false);

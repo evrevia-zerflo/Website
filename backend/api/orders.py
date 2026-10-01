@@ -30,14 +30,18 @@ async def create_order(request: OrderCreateRequest):
             "message": "Mock order created successfully"
         }
         
+    from bson.errors import InvalidId
     # Deduct stock for each item
     for item in request.items:
-        product = await Product.get(item.productId)
-        if product and product.stock >= item.quantity:
-            product.stock -= item.quantity
-            await product.save()
-        elif product:
-            raise HTTPException(status_code=400, detail=f"Not enough stock for {product.name}")
+        try:
+            product = await Product.get(item.productId)
+            if product and product.stock >= item.quantity:
+                product.stock -= item.quantity
+                await product.save()
+            elif product:
+                raise HTTPException(status_code=400, detail=f"Not enough stock for {product.name}")
+        except InvalidId:
+            pass # Mock product or invalid ID, skip stock deduction
 
     order = Order(
         userId=request.userId,
