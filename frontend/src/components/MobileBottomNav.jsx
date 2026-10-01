@@ -9,8 +9,8 @@ export default function MobileBottomNav({ onOpenSearch }) {
 
   const wishlistCount = wishlistItems.length;
 
-  // Don't show bottom nav on checkout page
-  if (location.pathname === '/checkout') return null;
+  // Don't show bottom nav on checkout or product detail pages (to avoid sticky collision)
+  if (location.pathname === '/checkout' || location.pathname.startsWith('/product')) return null;
 
   return (
     <nav className="mobile-bottom-nav">

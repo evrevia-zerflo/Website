@@ -1793,3 +1793,32 @@ a {
     padding-bottom: 90px !important;
   }
 }
+
+/* ---------------------------------------------------- */
+/* GENERAL MOBILE UI OPTIMIZATIONS                      */
+/* ---------------------------------------------------- */
+
+.product-card-info {
+  padding: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: space-between;
+}
+
+@media (max-width: 640px) {
+  /* Reduce padding on mobile product cards to prevent text squishing */
+  .product-card-info {
+    padding: 0.5rem;
+  }
+  
+  /* Prevent massive headings on mobile */
+  h1 {
+    font-size: 1.5rem !important;
+    line-height: 1.25 !important;
+  }
+  h2 {
+    font-size: 1.35rem !important;
+    line-height: 1.3 !important;
+  }
+}
