@@ -1821,4 +1821,36 @@ a {
     font-size: 1.35rem !important;
     line-height: 1.3 !important;
   }
+
+  /* Minimalist Account Footer */
+  .account-footer .hide-on-mobile {
+    display: none !important;
+  }
+  .account-footer {
+    text-align: center;
+    padding: 2rem 1rem 1rem !important;
+    margin-top: 2rem !important;
+  }
+  .account-footer .footer-main-grid {
+    display: block !important;
+    border-bottom: none !important;
+    padding-bottom: 0 !important;
+  }
+  .account-footer .footer-bottom-row {
+    flex-direction: column;
+    justify-content: center;
+    margin-top: 1rem !important;
+  }
+  .account-footer .brand-desc {
+    margin: 0 auto 1.25rem;
+  }
+
+  /* Global Footer Mobile Layout */
+  .footer-main-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 1.5rem 1rem !important;
+  }
+  .footer-main-grid > div:first-child {
+    grid-column: span 2; /* Brand info spans full width */
+  }
 }
