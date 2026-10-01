@@ -15,7 +15,6 @@ export default function Account() {
   const { user, login, logout } = useAuthStore();
   const { addresses, deleteAddress, fetchAddresses, addAddress } = useAddressStore();
   const { items: wishlistItems } = useWishlistStore();
-  const { orders, fetchMyOrders, isLoading: ordersLoading } = useOrderStore();
 
   const activeTab = searchParams.get('tab') || 'profile';
 
@@ -39,6 +38,29 @@ export default function Account() {
     addressType: 'Home',
     isDefault: true
   });
+
+  const { orders, fetchMyOrders, isLoading: ordersLoading, requestReturn } = useOrderStore();
+  const [returnModalOrder, setReturnModalOrder] = useState(null);
+  const [returnReason, setReturnReason] = useState("");
+  const [isSubmittingReturn, setIsSubmittingReturn] = useState(false);
+
+  const handleSubmitReturn = async () => {
+    if (!returnReason.trim()) {
+      toast.error("Please enter a reason for the return.");
+      return;
+    }
+    setIsSubmittingReturn(true);
+    try {
+      await requestReturn(returnModalOrder._id, returnReason);
+      toast.success("Return requested successfully!");
+      setReturnModalOrder(null);
+      setReturnReason("");
+    } catch (err) {
+      toast.error(err.message || "Failed to submit return request.");
+    } finally {
+      setIsSubmittingReturn(false);
+    }
+  };
 
   useEffect(() => {
     if (user) {
@@ -266,7 +288,7 @@ export default function Account() {
                           <Link to={`/product/${item.productId}`} style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-main)', textDecoration: 'none', marginBottom: '4px' }}>
                             {item.name}
                           </Link>
-                          <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '4px' }}>Qty: {item.quantity} {item.size && `| Size: ${item.size}`}</div>
+                          <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '4px' }}>Qty: {item.quantity} {item.size && `| Size: ${item.size}`} {item.color && `| Color: ${item.color}`}</div>
                           <div style={{ fontSize: '0.9rem', fontWeight: 500, color: 'var(--text-main)', marginBottom: '12px' }}>₹{item.price.toLocaleString('en-IN')}</div>
                           
                           <button className="btn-secondary" style={{ padding: '6px 12px', fontSize: '0.8rem', width: 'fit-content', borderRadius: '6px' }}>
@@ -282,9 +304,20 @@ export default function Account() {
                     <Link to={`/order-tracking/${order._id}`} className="btn-primary" style={{ padding: '10px', fontSize: '0.9rem', borderRadius: '8px', justifyContent: 'center', boxShadow: 'none' }}>
                       Track package
                     </Link>
-                    <button className="btn-secondary" style={{ padding: '10px', fontSize: '0.9rem', borderRadius: '8px', justifyContent: 'center', background: '#fff' }}>
-                      <RotateCcw size={16} /> Return or replace items
-                    </button>
+                    {order.orderStatus === 'DELIVERED' && (!order.returnStatus || order.returnStatus === 'NONE') && (
+                      <button 
+                        onClick={() => setReturnModalOrder(order)}
+                        className="btn-secondary" 
+                        style={{ padding: '10px', fontSize: '0.9rem', borderRadius: '8px', justifyContent: 'center', background: '#fff' }}
+                      >
+                        <RotateCcw size={16} /> Return or replace items
+                      </button>
+                    )}
+                    {order.returnStatus && order.returnStatus !== 'NONE' && (
+                      <div style={{ padding: '10px', fontSize: '0.85rem', borderRadius: '8px', background: '#fff8f1', color: '#c2410c', border: '1px solid #fed7aa', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 500 }}>
+                        <RotateCcw size={14} /> Return Status: {order.returnStatus}
+                      </div>
+                    )}
                     <button className="btn-secondary" style={{ padding: '10px', fontSize: '0.9rem', borderRadius: '8px', justifyContent: 'center', background: '#fff' }}>
                       <ShieldCheck size={16} /> Get order help
                     </button>
@@ -440,6 +473,59 @@ export default function Account() {
                 <button type="submit" className="btn-primary" style={{ width: '100%', padding: '12px', borderRadius: '8px' }}>Save Address</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes fadeSlideUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+
+      {/* Return Modal */}
+      {returnModalOrder && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div style={{ background: 'white', width: '100%', maxWidth: '500px', borderRadius: '16px', overflow: 'hidden', animation: 'fadeSlideUp 0.3s ease-out' }}>
+            <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ margin: 0, fontSize: '1.25rem', fontFamily: 'var(--font-serif)' }}>Return Request</h3>
+              <button onClick={() => setReturnModalOrder(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
+                <X size={20} />
+              </button>
+            </div>
+            <div style={{ padding: '1.5rem' }}>
+              <p style={{ margin: '0 0 1rem 0', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                You are requesting a return for Order #{returnModalOrder.id || returnModalOrder._id.slice(-6).toUpperCase()}. Please tell us the reason for your return.
+              </p>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div>
+                  <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '8px', display: 'block' }}>Reason for Return</label>
+                  <select 
+                    value={returnReason} 
+                    onChange={(e) => setReturnReason(e.target.value)}
+                    style={{ width: '100%', padding: '12px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '0.95rem', outline: 'none', background: 'var(--bg-surface)' }}
+                  >
+                    <option value="">Select a reason</option>
+                    <option value="Item defective or doesn't work">Item defective or doesn't work</option>
+                    <option value="Wrong size or fit">Wrong size or fit</option>
+                    <option value="Product looks different from image">Product looks different from image</option>
+                    <option value="Arrived damaged">Arrived damaged</option>
+                    <option value="No longer needed">No longer needed</option>
+                  </select>
+                </div>
+
+                <button 
+                  onClick={handleSubmitReturn}
+                  disabled={isSubmittingReturn || !returnReason}
+                  className="btn-primary" 
+                  style={{ width: '100%', marginTop: '0.5rem', opacity: (!returnReason || isSubmittingReturn) ? 0.7 : 1 }}
+                >
+                  {isSubmittingReturn ? 'Submitting...' : 'Submit Return Request'}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

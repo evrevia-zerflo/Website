@@ -64,6 +64,25 @@ export default function Orders() {
     }
   };
 
+  const handleReturnStatusUpdate = async (status) => {
+    if (!selectedOrder) return;
+    const orderId = selectedOrder._id || selectedOrder.id;
+    try {
+      setUpdating(`return-${orderId}`);
+      const res = await api.put(`/admin/orders/${orderId}/return-status`, { returnStatus: status });
+      
+      const updatedOrders = orders.map(o => (o._id === orderId || o.id === orderId) ? { ...o, returnStatus: status } : o);
+      setOrders(updatedOrders);
+      setSelectedOrder({ ...selectedOrder, returnStatus: status });
+      toast.success(`Return status updated to ${status}`);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to update return status");
+    } finally {
+      setUpdating(null);
+    }
+  };
+
   const fetchOrderDetails = async (orderId) => {
     try {
       const res = await api.get(`/admin/orders/${orderId}`);
@@ -203,6 +222,11 @@ export default function Orders() {
                           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: statusStyle.bg, color: statusStyle.text, padding: '4px 10px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 600 }}>
                             {statusStyle.icon} {order.orderStatus}
                           </span>
+                          {order.returnStatus && order.returnStatus !== 'NONE' && (
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#fff8f1', color: '#c2410c', border: '1px solid #fed7aa', padding: '3px 8px', borderRadius: '12px', fontSize: '0.7rem', fontWeight: 600, marginTop: '6px' }}>
+                              <RotateCcw size={12} /> Return: {order.returnStatus}
+                            </span>
+                          )}
                         </td>
                         <td style={{ padding: '16px 24px', textAlign: 'right' }}>
                           <ChevronRight size={18} color="#94a3b8" />
@@ -288,6 +312,38 @@ export default function Orders() {
                 </div>
               </div>
 
+              {/* Return Request Block */}
+              {selectedOrder.returnStatus && selectedOrder.returnStatus !== 'NONE' && (
+                <div style={{ background: '#fff8f1', padding: '1.25rem', borderRadius: '12px', marginBottom: '1.5rem', border: '1px solid #fed7aa' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', fontWeight: 700, color: '#9a3412', marginBottom: '8px', textTransform: 'uppercase' }}>
+                    <RotateCcw size={16} /> RETURN REQUEST: {selectedOrder.returnStatus}
+                  </label>
+                  {selectedOrder.returnReason && (
+                    <p style={{ fontSize: '0.9rem', color: '#9a3412', margin: '0 0 12px 0', background: 'rgba(255,255,255,0.5)', padding: '8px', borderRadius: '6px' }}>
+                      <strong>Reason:</strong> {selectedOrder.returnReason}
+                    </p>
+                  )}
+                  {selectedOrder.returnStatus === 'REQUESTED' && (
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button 
+                        onClick={() => handleReturnStatusUpdate('APPROVED')}
+                        disabled={updating === `return-${selectedOrder._id || selectedOrder.id}`}
+                        style={{ flex: 1, background: '#166534', color: 'white', padding: '8px', borderRadius: '6px', border: 'none', fontWeight: 600, cursor: 'pointer' }}
+                      >
+                        Approve Return
+                      </button>
+                      <button 
+                        onClick={() => handleReturnStatusUpdate('REJECTED')}
+                        disabled={updating === `return-${selectedOrder._id || selectedOrder.id}`}
+                        style={{ flex: 1, background: '#991b1b', color: 'white', padding: '8px', borderRadius: '6px', border: 'none', fontWeight: 600, cursor: 'pointer' }}
+                      >
+                        Reject Return
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Current Tracking Info */}
               {(selectedOrder.trackingId || selectedOrder.courierName) && (
                 <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '12px', padding: '1rem', marginBottom: '2rem' }}>
@@ -316,8 +372,8 @@ export default function Orders() {
                 </h4>
                 <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1rem' }}>
                   <p style={{ margin: '0 0 4px 0', fontSize: '0.85rem', color: '#475569' }}>{selectedOrder.address?.street}</p>
-                  <p style={{ margin: '0 0 4px 0', fontSize: '0.85rem', color: '#475569' }}>{selectedOrder.address?.city}, {selectedOrder.address?.state} {selectedOrder.address?.pinCode}</p>
-                  <p style={{ margin: '0', fontSize: '0.85rem', color: '#475569' }}>{selectedOrder.address?.country}</p>
+                  <p style={{ margin: '0 0 4px 0', fontSize: '0.85rem', color: '#475569' }}>{selectedOrder.address?.city}, {selectedOrder.address?.state} {selectedOrder.address?.pincode}</p>
+                  <p style={{ margin: '0', fontSize: '0.85rem', color: '#475569' }}>{selectedOrder.address?.country || 'India'}</p>
                 </div>
               </div>
 
@@ -335,7 +391,7 @@ export default function Orders() {
                       <div style={{ flex: 1 }}>
                         <p style={{ margin: '0 0 4px 0', fontSize: '0.85rem', fontWeight: 600, color: '#0f172a' }}>{item.name}</p>
                         <p style={{ margin: '0 0 4px 0', fontSize: '0.75rem', color: '#64748b' }}>
-                          Size: {item.selectedSize} {item.selectedColor ? `| Color: ${item.selectedColor}` : ''}
+                          Size: {item.size || 'N/A'} {item.color ? `| Color: ${item.color}` : ''}
                         </p>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
                           <span style={{ fontSize: '0.8rem', color: '#475569' }}>Qty: {item.quantity}</span>

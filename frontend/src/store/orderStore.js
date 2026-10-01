@@ -29,6 +29,23 @@ const useOrderStore = create((set, get) => ({
       set({ error: err.response?.data?.detail || err.message, isLoading: false });
       return null;
     }
+  },
+
+  requestReturn: async (orderId, reason) => {
+    set({ isLoading: true, error: null });
+    try {
+      const res = await api.post(`/orders/${orderId}/return`, { reason });
+      // Update local state orders array
+      const currentOrders = get().orders;
+      const updatedOrders = currentOrders.map(o => (o._id === orderId) ? { ...o, returnStatus: res.data.returnStatus, returnReason: res.data.returnReason } : o);
+      set({ orders: updatedOrders, isLoading: false });
+      return res.data;
+    } catch (err) {
+      console.error("Failed to request return", err);
+      const errorMessage = err.response?.data?.detail || err.message;
+      set({ error: errorMessage, isLoading: false });
+      throw new Error(errorMessage);
+    }
   }
 }));
 

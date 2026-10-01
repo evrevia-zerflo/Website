@@ -132,6 +132,23 @@ async def update_order_status(order_id: str, payload: dict, admin: dict = Depend
         
     return order
 
+@router.put("/orders/{order_id}/return-status")
+async def update_return_status(order_id: str, payload: dict, admin: dict = Depends(get_current_admin)):
+    if not settings.MONGODB_URI:
+        raise HTTPException(status_code=500, detail="Database not connected")
+        
+    order = await Order.get(order_id)
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+        
+    return_status = payload.get("returnStatus")
+    if return_status:
+        order.returnStatus = return_status
+        order.updatedAt = datetime.utcnow()
+        await order.save()
+        
+    return order
+
 @router.post("/upload")
 async def upload_image(file: UploadFile = File(...), admin: dict = Depends(get_current_admin)):
     if not file:

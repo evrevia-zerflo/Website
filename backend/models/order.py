@@ -36,6 +36,8 @@ class Order(Document):
     upiReference: Optional[str] = None
     trackingId: Optional[str] = None
     courierName: Optional[str] = None
+    returnStatus: str = "NONE" # NONE, REQUESTED, APPROVED, REJECTED, REFUNDED, REPLACED
+    returnReason: Optional[str] = None
     createdAt: datetime = datetime.utcnow()
     updatedAt: datetime = datetime.utcnow()
 

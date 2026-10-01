@@ -74,3 +74,30 @@ async def get_order_details(order_id: str, current_user: dict = Depends(get_curr
         return order
     except Exception:
         raise HTTPException(status_code=404, detail="Order not found")
+
+class ReturnRequest(BaseModel):
+    reason: str
+
+@router.post("/{order_id}/return")
+async def request_order_return(order_id: str, payload: ReturnRequest, current_user: dict = Depends(get_current_user)):
+    user_id = current_user["sub"]
+    try:
+        order = await Order.get(ObjectId(order_id))
+        if not order:
+            raise HTTPException(status_code=404, detail="Order not found")
+        if order.userId != user_id:
+            raise HTTPException(status_code=403, detail="Not authorized")
+            
+        if order.orderStatus != "DELIVERED":
+            raise HTTPException(status_code=400, detail="Only delivered orders can be returned")
+            
+        if order.returnStatus != "NONE":
+            raise HTTPException(status_code=400, detail="Return already requested")
+            
+        order.returnStatus = "REQUESTED"
+        order.returnReason = payload.reason
+        order.updatedAt = datetime.utcnow()
+        await order.save()
+        return order
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
