@@ -187,6 +187,12 @@ a {
   .nav-actions {
     gap: 0.25rem;
   }
+  .hide-on-mobile {
+    display: none !important;
+  }
+  .responsive-p-2rem {
+    padding: 1rem !important;
+  }
 }
 
 [data-theme="dark"] .navbar {
@@ -1778,3 +1784,7 @@ a {
   width: 60px;
   border-radius: var(--radius-sm);
 }
+
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+

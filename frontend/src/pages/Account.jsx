@@ -138,7 +138,7 @@ export default function Account() {
       </div>
 
       {/* Tabs Navigation Header */}
-      <div style={{ display: 'flex', gap: '0.5rem', borderBottom: '1px solid var(--border-color)', marginBottom: '2rem', overflowX: 'auto' }}>
+      <div className="hide-scrollbar" style={{ display: 'flex', gap: '0.5rem', borderBottom: '1px solid var(--border-color)', marginBottom: '2rem', overflowX: 'auto', maxWidth: '100%', WebkitOverflowScrolling: 'touch' }}>
         {[
           { id: 'profile', label: 'Profile Info', icon: User },
           { id: 'orders', label: 'Order History', icon: Package },
@@ -178,7 +178,7 @@ export default function Account() {
       {activeTab === 'profile' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '-1rem' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'space-between', alignItems: 'center', marginBottom: '-1rem' }}>
             <h3 style={{ fontSize: '1.4rem', fontFamily: 'var(--font-serif)', margin: 0 }}>Login & Security</h3>
             {!isEditingProfile && (
               <button onClick={() => setIsEditingProfile(true)} style={{ background: 'none', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-full)', padding: '6px 14px', fontSize: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600 }}>
@@ -187,7 +187,7 @@ export default function Account() {
             )}
           </div>
 
-          <div style={{ border: '1px solid var(--border-subtle)', borderRadius: '12px', background: '#fff', padding: '2rem' }}>
+          <div className="responsive-p-2rem" style={{ border: '1px solid var(--border-subtle)', borderRadius: '12px', background: '#fff', padding: '2rem' }}>
             {!isEditingProfile ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                 <div style={{ paddingBottom: '1rem', borderBottom: '1px solid var(--border-subtle)' }}>
@@ -351,7 +351,7 @@ export default function Account() {
       {/* Tab Content 3: Addresses */}
       {activeTab === 'addresses' && (
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
             <h3 style={{ fontSize: '1.4rem', fontFamily: 'var(--font-serif)', margin: 0 }}>Saved Delivery Locations</h3>
             <button onClick={() => { setEditAddressId(null); setNewAddr({ fullName: user?.name || '', mobile: user?.phone || '', alternatePhone: '', pincode: '', house: '', street: '', landmark: '', city: '', state: '', addressType: 'Home', isDefault: true }); setShowAddressModal(true); }} className="btn-primary" style={{ width: 'auto', padding: '8px 16px', fontSize: '0.85rem', borderRadius: '8px' }}>
               <Plus size={16} /> Add New Address

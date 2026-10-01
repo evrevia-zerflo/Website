@@ -64,7 +64,7 @@ export default function Navbar({ onOpenSearch }) {
             <Search size={19} />
           </button>
 
-          <Link to="/account?tab=wishlist" className="icon-btn" title="Wishlist" aria-label="Wishlist">
+          <Link to="/account?tab=wishlist" className="icon-btn hide-on-mobile" title="Wishlist" aria-label="Wishlist">
             <Heart size={19} />
             {wishlistCount > 0 && <span className="badge-count">{wishlistCount}</span>}
           </Link>
@@ -79,12 +79,12 @@ export default function Navbar({ onOpenSearch }) {
           </button>
 
           {isAuthenticated ? (
-            <Link to="/account" className="icon-btn" title="Account" style={{ background: 'var(--bg-secondary)', padding: '6px 12px', borderRadius: 'var(--radius-full)', fontSize: '0.82rem', fontWeight: 600 }}>
+            <Link to="/account" className="icon-btn hide-on-mobile" title="Account" style={{ background: 'var(--bg-secondary)', padding: '6px 12px', borderRadius: 'var(--radius-full)', fontSize: '0.82rem', fontWeight: 600 }}>
               <User size={15} />
               <span>{user?.name?.split(' ')[0] || 'Account'}</span>
             </Link>
           ) : (
-            <Link to="/login" className="btn-secondary" style={{ padding: '0.35rem 0.85rem', fontSize: '0.8rem', borderRadius: 'var(--radius-full)' }}>
+            <Link to="/login" className="btn-secondary hide-on-mobile" style={{ padding: '0.35rem 0.85rem', fontSize: '0.8rem', borderRadius: 'var(--radius-full)' }}>
               Sign In
             </Link>
           )}
