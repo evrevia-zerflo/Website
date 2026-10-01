@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/client';
 import Dashboard from './Dashboard';
-import { Package, Search, ChevronDown, CheckCircle, Clock, XCircle, Truck, X, User, MapPin, CreditCard, ChevronRight } from 'lucide-react';
+import { Package, Search, ChevronDown, CheckCircle, Clock, XCircle, Truck, X, User, MapPin, CreditCard, ChevronRight, Copy } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { TableRowSkeleton } from '../components/AdminSkeleton';
 
@@ -109,9 +109,31 @@ export default function Orders() {
   const filteredOrders = orders.filter(o => {
     const matchesSearch = o._id?.toLowerCase().includes(search.toLowerCase()) || 
                           o.address?.name.toLowerCase().includes(search.toLowerCase());
-    const matchesStatus = statusFilter === 'ALL' || o.orderStatus === statusFilter;
+    const matchesStatus = statusFilter === 'ALL' || 
+                          (statusFilter === 'ACTION_REQUIRED' ? (o.orderStatus === 'PROCESSING' || o.returnStatus === 'REQUESTED' || o.orderStatus === 'NEW') : o.orderStatus === statusFilter);
     return matchesSearch && matchesStatus;
   });
+
+  const newOrdersCount = orders.filter(o => o.orderStatus === 'NEW').length;
+  const actionRequiredCount = orders.filter(o => o.orderStatus === 'PROCESSING' || (o.returnStatus && o.returnStatus === 'REQUESTED')).length;
+  const completedCount = orders.filter(o => o.orderStatus === 'DELIVERED').length;
+
+  const copyDropshipAddress = (order) => {
+    if (!order.address) return;
+    const { name, phone, street, city, state, pincode } = order.address;
+    // Assuming house and landmark might be part of street if they weren't saved strictly, but let's safely try to format it.
+    
+    const formattedAddress = `Name: ${name || ''}
+Phone: ${phone || ''}
+Address: ${street || ''}
+City: ${city || ''}
+State: ${state || ''}
+Pincode: ${pincode || ''}`;
+
+    navigator.clipboard.writeText(formattedAddress)
+      .then(() => toast.success("Address copied for Dropshipping!"))
+      .catch(() => toast.error("Failed to copy address"));
+  };
 
   return (
     <Dashboard>
@@ -120,6 +142,39 @@ export default function Orders() {
           <div>
             <h2 style={{ fontSize: '1.875rem', margin: 0, fontWeight: 700, color: '#0f172a' }}>Orders</h2>
             <p style={{ color: '#64748b', margin: '4px 0 0' }}>Manage customer orders, track fulfillments, and update statuses</p>
+          </div>
+        </div>
+
+        {/* Metrics Dashboard */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '2.5rem' }}>
+          <div 
+            onClick={() => setStatusFilter('NEW')}
+            style={{ background: 'white', padding: '1.5rem', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 2px 4px rgba(0,0,0,0.02)', cursor: 'pointer', transition: 'transform 0.2s' }}
+            onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+            onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+          >
+            <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', marginBottom: '8px' }}>New Orders</div>
+            <div style={{ fontSize: '2rem', fontWeight: 700, color: '#0f172a' }}>{newOrdersCount}</div>
+          </div>
+          
+          <div 
+            onClick={() => setStatusFilter('ACTION_REQUIRED')}
+            style={{ background: 'white', padding: '1.5rem', borderRadius: '12px', border: '1px solid #fca5a5', borderLeft: '4px solid #ef4444', boxShadow: '0 2px 4px rgba(0,0,0,0.02)', cursor: 'pointer', transition: 'transform 0.2s' }}
+            onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+            onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+          >
+            <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#991b1b', textTransform: 'uppercase', marginBottom: '8px' }}>Action Required</div>
+            <div style={{ fontSize: '2rem', fontWeight: 700, color: '#7f1d1d' }}>{actionRequiredCount}</div>
+          </div>
+
+          <div 
+            onClick={() => setStatusFilter('DELIVERED')}
+            style={{ background: 'white', padding: '1.5rem', borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 2px 4px rgba(0,0,0,0.02)', cursor: 'pointer', transition: 'transform 0.2s' }}
+            onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+            onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+          >
+            <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', marginBottom: '8px' }}>Completed</div>
+            <div style={{ fontSize: '2rem', fontWeight: 700, color: '#0f172a' }}>{completedCount}</div>
           </div>
         </div>
 
@@ -144,6 +199,7 @@ export default function Orders() {
                 style={{ appearance: 'none', padding: '10px 36px 10px 16px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.9rem', outline: 'none', background: 'white', cursor: 'pointer', fontWeight: 500 }}
               >
                 <option value="ALL">All Statuses</option>
+                <option value="ACTION_REQUIRED">Action Required</option>
                 <option value="NEW">New</option>
                 <option value="PROCESSING">Processing</option>
                 <option value="SHIPPED">Shipped</option>
@@ -204,7 +260,9 @@ export default function Orders() {
                           if (e.target.tagName !== 'SELECT') fetchOrderDetails(order._id || order.id);
                         }}
                       >
-                        <td style={{ padding: '16px 24px', fontSize: '0.9rem', fontWeight: 600, color: '#0f172a' }}>
+                        <td style={{ padding: '16px 24px', fontSize: '0.9rem', fontWeight: 600, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          {order.orderStatus === 'NEW' && <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#3b82f6', flexShrink: 0 }} title="New Order" />}
+                          {order.returnStatus === 'REQUESTED' && <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ef4444', flexShrink: 0 }} title="Return Requested" />}
                           #{ (order._id || order.id).slice(-8).toUpperCase() }
                         </td>
                         <td style={{ padding: '16px 24px', fontSize: '0.9rem', color: '#475569' }}>
@@ -365,15 +423,28 @@ export default function Orders() {
                 </div>
               </div>
 
-              {/* Shipping Address */}
+              {/* Shipping / Dropshipping Address */}
               <div style={{ marginBottom: '2rem' }}>
-                <h4 style={{ fontSize: '0.9rem', fontWeight: 600, color: '#0f172a', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <MapPin size={16} color="#64748b" /> Shipping Address
-                </h4>
-                <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1rem' }}>
-                  <p style={{ margin: '0 0 4px 0', fontSize: '0.85rem', color: '#475569' }}>{selectedOrder.address?.street}</p>
-                  <p style={{ margin: '0 0 4px 0', fontSize: '0.85rem', color: '#475569' }}>{selectedOrder.address?.city}, {selectedOrder.address?.state} {selectedOrder.address?.pincode}</p>
-                  <p style={{ margin: '0', fontSize: '0.85rem', color: '#475569' }}>{selectedOrder.address?.country || 'India'}</p>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                  <h4 style={{ fontSize: '0.9rem', fontWeight: 600, color: '#0f172a', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <MapPin size={16} color="#64748b" /> Dropship Address
+                  </h4>
+                  <button 
+                    onClick={() => copyDropshipAddress(selectedOrder)}
+                    style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '6px 12px', fontSize: '0.8rem', fontWeight: 600, color: '#334155', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', transition: '0.2s' }}
+                    onMouseOver={(e) => { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
+                    onMouseOut={(e) => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
+                  >
+                    <Copy size={14} /> Copy for Meesho
+                  </button>
+                </div>
+                <div style={{ background: '#f8fafc', border: '1px dashed #cbd5e1', borderRadius: '12px', padding: '1.25rem', fontFamily: 'monospace', fontSize: '0.85rem', color: '#334155', lineHeight: '1.6' }}>
+                  <strong>Name:</strong> {selectedOrder.address?.name}<br/>
+                  <strong>Phone:</strong> {selectedOrder.address?.phone}<br/>
+                  <strong>Address:</strong> {selectedOrder.address?.street}<br/>
+                  <strong>City:</strong> {selectedOrder.address?.city}<br/>
+                  <strong>State:</strong> {selectedOrder.address?.state}<br/>
+                  <strong>Pincode:</strong> {selectedOrder.address?.pincode}
                 </div>
               </div>
 
