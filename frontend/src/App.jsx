@@ -49,6 +49,11 @@ function AppContent() {
       .catch(err => console.error("Preload error:", err));
   }, []);
 
+  // Scroll to top on every route change
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
   // Check if current route is checkout
   const isCheckoutPage = location.pathname === '/checkout';
 

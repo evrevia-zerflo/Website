@@ -52,6 +52,7 @@ export default function ProductDetail() {
   const { isInWishlist, toggleWishlist } = useWishlistStore();
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     const found = MOCK_PRODUCTS.find(p => p.id === id || p._id === id);
     if (found) {
       setProduct(found);
