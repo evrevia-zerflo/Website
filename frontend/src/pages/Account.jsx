@@ -122,13 +122,13 @@ export default function Account() {
     <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '1.5rem 1.25rem 4rem' }}>
       {/* Account Header */}
       <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-lg)', padding: '1.5rem', marginBottom: '2rem', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'var(--accent-gold-light)', color: 'var(--accent-gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 700, fontFamily: 'var(--font-serif)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', minWidth: 0 }}>
+          <div style={{ width: '60px', height: '60px', flexShrink: 0, borderRadius: '50%', background: 'var(--accent-gold-light)', color: 'var(--accent-gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 700, fontFamily: 'var(--font-serif)' }}>
             {user?.name?.[0]?.toUpperCase() || 'U'}
           </div>
-          <div>
-            <h2 style={{ fontSize: '1.4rem', fontFamily: 'var(--font-serif)' }}>{user?.name || 'Valued Customer'}</h2>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{user?.email || 'customer@evrevia.com'}</p>
+          <div style={{ minWidth: 0 }}>
+            <h2 style={{ fontSize: '1.4rem', fontFamily: 'var(--font-serif)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.name || 'Valued Customer'}</h2>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', wordBreak: 'break-all' }}>{user?.email || 'customer@evrevia.com'}</p>
           </div>
         </div>
 
@@ -187,7 +187,7 @@ export default function Account() {
             )}
           </div>
 
-          <div className="responsive-p-2rem" style={{ border: '1px solid var(--border-subtle)', borderRadius: '12px', background: '#fff', padding: '2rem' }}>
+          <div className="responsive-p-2rem" style={{ border: '1px solid var(--border-subtle)', borderRadius: '12px', background: '#fff' }}>
             {!isEditingProfile ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                 <div style={{ paddingBottom: '1rem', borderBottom: '1px solid var(--border-subtle)' }}>
@@ -196,7 +196,7 @@ export default function Account() {
                 </div>
                 <div style={{ paddingBottom: '1rem', borderBottom: '1px solid var(--border-subtle)' }}>
                   <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>Email Address</label>
-                  <div style={{ fontSize: '1.05rem', color: 'var(--text-main)' }}>{user?.email || 'Not provided'}</div>
+                  <div style={{ fontSize: '1.05rem', color: 'var(--text-main)', wordBreak: 'break-all' }}>{user?.email || 'Not provided'}</div>
                 </div>
                 <div>
                   <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>Mobile Phone Number</label>

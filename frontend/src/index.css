@@ -176,7 +176,11 @@ a {
   box-sizing: border-box;
 }
 
-@media (max-width: 640px) {
+.responsive-p-2rem {
+  padding: 2rem;
+}
+
+@media (max-width: 768px) {
   .navbar {
     padding: 0 0.85rem;
   }
@@ -191,7 +195,7 @@ a {
     display: none !important;
   }
   .responsive-p-2rem {
-    padding: 1rem !important;
+    padding: 1rem;
   }
 }
 
