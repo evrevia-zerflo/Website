@@ -19,6 +19,7 @@ export default function Orders() {
   const [editStatus, setEditStatus] = useState("");
   const [editTrackingId, setEditTrackingId] = useState("");
   const [editCourierName, setEditCourierName] = useState("");
+  const [editSupplierOrderId, setEditSupplierOrderId] = useState("");
 
   useEffect(() => {
     fetchOrders();
@@ -47,13 +48,14 @@ export default function Orders() {
         payload.trackingId = editTrackingId;
         payload.courierName = editCourierName;
       }
+      payload.supplierOrderId = editSupplierOrderId;
       
       const res = await api.put(`/admin/orders/${orderId}/status`, payload);
       
-      const updatedOrders = orders.map(o => (o._id === orderId || o.id === orderId) ? { ...o, orderStatus: editStatus, trackingId: res.data.trackingId, courierName: res.data.courierName } : o);
+      const updatedOrders = orders.map(o => (o._id === orderId || o.id === orderId) ? { ...o, orderStatus: editStatus, trackingId: res.data.trackingId, courierName: res.data.courierName, supplierOrderId: res.data.supplierOrderId } : o);
       setOrders(updatedOrders);
       
-      setSelectedOrder({ ...selectedOrder, orderStatus: editStatus, trackingId: res.data.trackingId, courierName: res.data.courierName });
+      setSelectedOrder({ ...selectedOrder, orderStatus: editStatus, trackingId: res.data.trackingId, courierName: res.data.courierName, supplierOrderId: res.data.supplierOrderId });
       
       toast.success(`Order updated successfully`);
     } catch (err) {
@@ -90,6 +92,7 @@ export default function Orders() {
       setEditStatus(res.data.orderStatus);
       setEditTrackingId(res.data.trackingId || "");
       setEditCourierName(res.data.courierName || "");
+      setEditSupplierOrderId(res.data.supplierOrderId || "");
     } catch(err) {
       toast.error("Failed to fetch full order details");
     }
@@ -120,11 +123,11 @@ export default function Orders() {
 
   const copyDropshipAddress = (order) => {
     if (!order.address) return;
-    const { name, phone, street, city, state, pincode } = order.address;
-    // Assuming house and landmark might be part of street if they weren't saved strictly, but let's safely try to format it.
+    const { name, phone, house, street, city, state, pincode } = order.address;
     
     const formattedAddress = `Name: ${name || ''}
 Phone: ${phone || ''}
+House/Flat: ${house || ''}
 Address: ${street || ''}
 City: ${city || ''}
 State: ${state || ''}
@@ -359,6 +362,16 @@ Pincode: ${pincode || ''}`;
                       />
                     </div>
                   )}
+                  
+                  <div style={{ marginTop: editStatus === 'SHIPPED' ? '0' : '4px' }}>
+                    <input 
+                      type="text" 
+                      placeholder="Supplier Order ID (Meesho/Amazon)" 
+                      value={editSupplierOrderId} 
+                      onChange={(e) => setEditSupplierOrderId(e.target.value)}
+                      style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '0.9rem', outline: 'none' }}
+                    />
+                  </div>
 
                   <button 
                     onClick={handleStatusUpdate}
@@ -403,11 +416,12 @@ Pincode: ${pincode || ''}`;
               )}
 
               {/* Current Tracking Info */}
-              {(selectedOrder.trackingId || selectedOrder.courierName) && (
+              {(selectedOrder.trackingId || selectedOrder.courierName || selectedOrder.supplierOrderId) && (
                 <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '12px', padding: '1rem', marginBottom: '2rem' }}>
                   <h4 style={{ margin: '0 0 8px', fontSize: '0.85rem', color: '#166534', fontWeight: 700, textTransform: 'uppercase' }}>Tracking Details</h4>
                   {selectedOrder.courierName && <p style={{ margin: '0 0 4px', fontSize: '0.9rem', color: '#14532d' }}><strong>Courier:</strong> {selectedOrder.courierName}</p>}
                   {selectedOrder.trackingId && <p style={{ margin: '0', fontSize: '0.9rem', color: '#14532d' }}><strong>Tracking ID:</strong> {selectedOrder.trackingId}</p>}
+                  {selectedOrder.supplierOrderId && <p style={{ margin: '4px 0 0', fontSize: '0.9rem', color: '#14532d' }}><strong>Supplier Order ID:</strong> {selectedOrder.supplierOrderId}</p>}
                 </div>
               )}
 

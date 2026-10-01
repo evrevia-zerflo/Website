@@ -127,6 +127,7 @@ async def update_order_status(order_id: str, payload: dict, admin: dict = Depend
         order.orderStatus = new_status
         order.trackingId = payload.get("trackingId", order.trackingId)
         order.courierName = payload.get("courierName", order.courierName)
+        order.supplierOrderId = payload.get("supplierOrderId", order.supplierOrderId)
         order.updatedAt = datetime.utcnow()
         await order.save()
         

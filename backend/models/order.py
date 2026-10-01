@@ -36,6 +36,7 @@ class Order(Document):
     upiReference: Optional[str] = None
     trackingId: Optional[str] = None
     courierName: Optional[str] = None
+    supplierOrderId: Optional[str] = None # Added for dropshipping workflow
     returnStatus: str = "NONE" # NONE, REQUESTED, APPROVED, REJECTED, REFUNDED, REPLACED
     returnReason: Optional[str] = None
     createdAt: datetime = datetime.utcnow()
