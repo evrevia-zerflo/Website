@@ -172,12 +172,17 @@ export default function Checkout() {
     }
   }, [addresses, selectedAddressId, setSelectedAddressId]);
 
-  const handleContinueToReview = () => {
-    if (!selectedAddressId) {
+  const handleStepChange = (targetStep) => {
+    // If trying to access step 2 or 3 without an address selected, block it.
+    if (targetStep > 1 && !selectedAddressId) {
       toast.error('Please select or add a delivery address first.');
       return;
     }
-    setActiveStep(2);
+    setActiveStep(targetStep);
+  };
+
+  const handleContinueToReview = () => {
+    handleStepChange(2);
   };
 
   if (items.length === 0) {
@@ -273,7 +278,7 @@ export default function Checkout() {
             
             {/* STEP 1: Delivery Address */}
             <div className={`checkout-card ${activeStep === 1 ? 'active' : ''}`}>
-              <div className="checkout-card-header" onClick={() => setActiveStep(1)}>
+              <div className="checkout-card-header" onClick={() => handleStepChange(1)}>
                 <div className="checkout-card-title">
                   <div className={`step-number ${activeStep > 1 ? 'completed' : ''}`}>
                     {activeStep > 1 ? <Check size={14} /> : '1'}
@@ -329,7 +334,7 @@ export default function Checkout() {
 
             {/* STEP 2: Order Review */}
             <div className={`checkout-card ${activeStep === 2 ? 'active' : ''}`}>
-              <div className="checkout-card-header" onClick={() => setActiveStep(2)}>
+              <div className="checkout-card-header" onClick={() => handleStepChange(2)}>
                 <div className="checkout-card-title">
                   <div className={`step-number ${activeStep > 2 ? 'completed' : ''}`}>
                     {activeStep > 2 ? <Check size={14} /> : '2'}
@@ -384,7 +389,7 @@ export default function Checkout() {
 
             {/* STEP 3: Payment */}
             <div className={`checkout-card ${activeStep === 3 ? 'active' : ''}`}>
-              <div className="checkout-card-header" onClick={() => setActiveStep(3)}>
+              <div className="checkout-card-header" onClick={() => handleStepChange(3)}>
                 <div className="checkout-card-title">
                   <div className="step-number">3</div>
                   <span>3. Payment Method</span>
