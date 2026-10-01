@@ -40,6 +40,76 @@ export default function Account() {
     isDefault: true
   });
 
+  const [isLocating, setIsLocating] = useState(false);
+
+  const handlePincodeChange = async (e) => {
+    const val = e.target.value.replace(/\D/g, '');
+    setNewAddr({ ...newAddr, pincode: val });
+    
+    if (val.length === 6) {
+      try {
+        const res = await fetch(`https://api.postalpincode.in/pincode/${val}`);
+        const data = await res.json();
+        if (data && data[0] && data[0].Status === 'Success') {
+          const postOffice = data[0].PostOffice[0];
+          setNewAddr(prev => ({
+            ...prev,
+            pincode: val,
+            city: postOffice.District || prev.city,
+            state: postOffice.State || prev.state
+          }));
+          toast.success("Location auto-filled!");
+        }
+      } catch (err) {
+        console.error("Failed to fetch pincode details", err);
+      }
+    }
+  };
+
+  const handleUseCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error("Geolocation is not supported by your browser");
+      return;
+    }
+    
+    setIsLocating(true);
+    const loadingToast = toast.loading("Locating you...");
+    
+    navigator.geolocation.getCurrentPosition(async (position) => {
+      try {
+        const { latitude, longitude } = position.coords;
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`);
+        const data = await res.json();
+        
+        if (data && data.address) {
+          setNewAddr(prev => ({
+            ...prev,
+            pincode: data.address.postcode || prev.pincode,
+            city: data.address.city || data.address.state_district || data.address.county || prev.city,
+            state: data.address.state || prev.state,
+            street: data.address.road || data.address.suburb || data.address.neighbourhood || prev.street
+          }));
+          toast.dismiss(loadingToast);
+          toast.success("Address auto-filled from location!");
+        } else {
+          toast.dismiss(loadingToast);
+          toast.error("Could not determine address.");
+        }
+      } catch (err) {
+        console.error("Geolocation fetch error:", err);
+        toast.dismiss(loadingToast);
+        toast.error("Failed to fetch address details.");
+      } finally {
+        setIsLocating(false);
+      }
+    }, (error) => {
+      console.error(error);
+      toast.dismiss(loadingToast);
+      toast.error("Permission denied or location unavailable.");
+      setIsLocating(false);
+    });
+  };
+
   const { orders, fetchMyOrders, isLoading: ordersLoading, requestReturn } = useOrderStore();
   const [returnModalOrder, setReturnModalOrder] = useState(null);
   const [returnReason, setReturnReason] = useState("");
@@ -69,6 +139,21 @@ export default function Account() {
       fetchMyOrders();
     }
   }, [user, fetchAddresses, fetchMyOrders]);
+
+  // Lock body scroll when Address Modal is open
+  useEffect(() => {
+    if (showAddressModal) {
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    };
+  }, [showAddressModal]);
 
   const handleSaveProfile = async () => {
     setIsSaving(true);
@@ -131,24 +216,57 @@ export default function Account() {
   return (
     <div style={{ boxSizing: 'border-box', maxWidth: '100%', margin: '0 auto', padding: '1.5rem 1.25rem 4rem' }}>
       {/* Account Header */}
-      <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-lg)', padding: '1.5rem', marginBottom: '2rem', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', minWidth: 0 }}>
-          <div style={{ width: '60px', height: '60px', flexShrink: 0, borderRadius: '50%', background: 'var(--accent-gold-light)', color: 'var(--accent-gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 700, fontFamily: 'var(--font-serif)' }}>
+      <div style={{ 
+        background: 'linear-gradient(135deg, #ffffff 0%, #faf8f5 100%)', 
+        border: '1px solid rgba(212, 175, 55, 0.2)', 
+        borderRadius: '16px', 
+        padding: '2rem 1.5rem', 
+        marginBottom: '2.5rem', 
+        display: 'flex', 
+        flexWrap: 'wrap', 
+        alignItems: 'center', 
+        justifyContent: 'space-between', 
+        gap: '1.5rem',
+        boxShadow: '0 10px 30px -10px rgba(0, 0, 0, 0.05)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', minWidth: 0 }}>
+          <div style={{ 
+            width: '70px', height: '70px', flexShrink: 0, borderRadius: '50%', 
+            background: 'linear-gradient(135deg, var(--accent-gold) 0%, #b89020 100%)', 
+            color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', 
+            fontSize: '1.8rem', fontWeight: 700, fontFamily: 'var(--font-serif)',
+            boxShadow: '0 8px 20px -5px rgba(212, 175, 55, 0.4)'
+          }}>
             {user?.name?.[0]?.toUpperCase() || 'U'}
           </div>
           <div style={{ minWidth: 0 }}>
-            <h2 style={{ fontSize: '1.4rem', fontFamily: 'var(--font-serif)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.name || 'Valued Customer'}</h2>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', wordBreak: 'break-all' }}>{user?.email || 'customer@evrevia.com'}</p>
+            <h2 style={{ fontSize: '1.6rem', fontFamily: 'var(--font-serif)', fontWeight: 600, color: 'var(--text-main)', margin: '0 0 4px 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {user?.name || 'Valued Customer'}
+            </h2>
+            <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', margin: 0, letterSpacing: '0.02em', wordBreak: 'break-all' }}>
+              {user?.email || 'customer@evrevia.com'}
+            </p>
           </div>
         </div>
 
-        <button className="btn-secondary" onClick={() => { logout(); navigate('/login'); }} style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
+        <button className="btn-secondary" onClick={() => { logout(); navigate('/login'); }} style={{ 
+          padding: '10px 20px', fontSize: '0.85rem', borderRadius: '30px', 
+          border: '1px solid var(--border-color)', background: 'transparent',
+          color: 'var(--text-main)', transition: 'all 0.3s ease'
+        }}
+        onMouseOver={(e) => { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
+        onMouseOut={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'var(--border-color)'; }}
+        >
           <LogOut size={16} /> Sign Out
         </button>
       </div>
 
       {/* Tabs Navigation Header */}
-      <div className="hide-scrollbar" style={{ display: 'flex', gap: '0.5rem', borderBottom: '1px solid var(--border-color)', marginBottom: '2rem', overflowX: 'auto', maxWidth: '100%', WebkitOverflowScrolling: 'touch' }}>
+      <div className="hide-scrollbar" style={{ 
+        display: 'flex', gap: '0.25rem', borderBottom: '1px solid var(--border-subtle)', 
+        marginBottom: '2.5rem', overflowX: 'auto', maxWidth: '100%', WebkitOverflowScrolling: 'touch',
+        paddingBottom: '2px'
+      }}>
         {[
           { id: 'profile', label: 'Profile Info', icon: User },
           { id: 'orders', label: 'Order History', icon: Package },
@@ -164,21 +282,29 @@ export default function Account() {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
-                padding: '10px 18px',
+                gap: '8px',
+                padding: '12px 20px',
                 border: 'none',
-                borderBottom: isActive ? '2px solid var(--accent-gold)' : '2px solid transparent',
-                background: 'none',
-                color: isActive ? 'var(--text-main)' : 'var(--text-muted)',
-                fontWeight: isActive ? 700 : 500,
+                position: 'relative',
+                background: isActive ? '#faf8f5' : 'transparent',
+                color: isActive ? 'var(--text-main)' : 'var(--text-light)',
+                fontWeight: isActive ? 600 : 500,
                 fontSize: '0.9rem',
+                borderRadius: '8px 8px 0 0',
                 cursor: 'pointer',
                 whiteSpace: 'nowrap',
-                transition: 'all 0.2s'
+                transition: 'all 0.3s ease',
+                transform: isActive ? 'translateY(1px)' : 'none'
               }}
             >
-              <Icon size={16} color={isActive ? 'var(--accent-gold)' : 'currentColor'} />
+              <Icon size={18} color={isActive ? 'var(--accent-gold)' : 'currentColor'} style={{ transition: 'color 0.3s' }} />
               <span>{tab.label}</span>
+              {isActive && (
+                <div style={{
+                  position: 'absolute', bottom: '-3px', left: 0, right: 0, height: '2px',
+                  background: 'var(--accent-gold)', borderRadius: '2px'
+                }} />
+              )}
             </button>
           );
         })}
@@ -186,71 +312,99 @@ export default function Account() {
 
       {/* Tab Content 1: Profile */}
       {activeTab === 'profile' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', animation: 'fadeIn 0.4s ease' }}>
           
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'space-between', alignItems: 'center', marginBottom: '-1rem' }}>
-            <h3 style={{ fontSize: '1.4rem', fontFamily: 'var(--font-serif)', margin: 0 }}>Login & Security</h3>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3 style={{ fontSize: '1.5rem', fontFamily: 'var(--font-serif)', margin: 0, color: 'var(--text-main)' }}>Login & Security</h3>
             {!isEditingProfile && (
-              <button onClick={() => setIsEditingProfile(true)} style={{ background: 'none', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-full)', padding: '6px 14px', fontSize: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600 }}>
-                <Edit2 size={14} /> Edit Profile
+              <button onClick={() => setIsEditingProfile(true)} style={{ 
+                background: 'var(--bg-surface)', border: '1px solid var(--border-color)', 
+                borderRadius: '30px', padding: '8px 16px', fontSize: '0.85rem', cursor: 'pointer', 
+                display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600,
+                boxShadow: 'var(--shadow-sm)', transition: 'all 0.2s'
+              }}
+              onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = 'var(--shadow-md)'; }}
+              onMouseOut={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'var(--shadow-sm)'; }}
+              >
+                <Edit2 size={14} color="var(--accent-gold)" /> Edit Details
               </button>
             )}
           </div>
 
-          <div className="responsive-p-2rem" style={{ boxSizing: 'border-box', maxWidth: '100%', overflow: 'hidden', border: '1px solid var(--border-subtle)', borderRadius: '12px', background: '#fff' }}>
+          <div style={{ 
+            boxSizing: 'border-box', maxWidth: '100%', overflow: 'hidden', 
+            border: '1px solid rgba(0,0,0,0.05)', borderRadius: '16px', 
+            background: 'var(--bg-surface)', boxShadow: '0 10px 40px -15px rgba(0,0,0,0.05)'
+          }}>
             {!isEditingProfile ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                <div style={{ paddingBottom: '1rem', borderBottom: '1px solid var(--border-subtle)' }}>
-                  <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>Name</label>
-                  <div style={{ fontSize: '1.05rem', color: 'var(--text-main)' }}>{user?.name || 'Not provided'}</div>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <div style={{ padding: '1.5rem 2rem', borderBottom: '1px solid var(--border-subtle)' }}>
+                  <label style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600, color: 'var(--text-light)', display: 'block', marginBottom: '8px' }}>Full Name</label>
+                  <div style={{ fontSize: '1.1rem', color: 'var(--text-main)', fontWeight: 500 }}>{user?.name || 'Not provided'}</div>
                 </div>
-                <div style={{ paddingBottom: '1rem', borderBottom: '1px solid var(--border-subtle)' }}>
-                  <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>Email Address</label>
-                  <div style={{ fontSize: '1.05rem', color: 'var(--text-main)', wordBreak: 'break-all', overflowWrap: 'break-word' }}>{user?.email || 'Not provided'}</div>
+                <div style={{ padding: '1.5rem 2rem', borderBottom: '1px solid var(--border-subtle)' }}>
+                  <label style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600, color: 'var(--text-light)', display: 'block', marginBottom: '8px' }}>Email Address</label>
+                  <div style={{ fontSize: '1.1rem', color: 'var(--text-main)', fontWeight: 500, wordBreak: 'break-all' }}>{user?.email || 'Not provided'}</div>
                 </div>
-                <div>
-                  <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>Mobile Phone Number</label>
-                  <div style={{ fontSize: '1.05rem', color: 'var(--text-main)' }}>{user?.phone || 'Not provided'}</div>
+                <div style={{ padding: '1.5rem 2rem' }}>
+                  <label style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600, color: 'var(--text-light)', display: 'block', marginBottom: '8px' }}>Mobile Number</label>
+                  <div style={{ fontSize: '1.1rem', color: 'var(--text-main)', fontWeight: 500 }}>{user?.phone || 'Not provided'}</div>
                 </div>
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', padding: '2rem' }}>
                 <div>
-                  <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>Name</label>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '8px' }}>Name</label>
                   <input 
                     type="text" 
                     value={editName} 
                     onChange={e => setEditName(e.target.value)}
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '1rem', outline: 'none' }}
+                    style={{ 
+                      width: '100%', padding: '12px 16px', borderRadius: '10px', 
+                      border: '1px solid var(--border-color)', fontSize: '1rem', outline: 'none',
+                      transition: 'border-color 0.2s'
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = 'var(--accent-gold)'}
+                    onBlur={(e) => e.target.style.borderColor = 'var(--border-color)'}
                   />
                 </div>
                 <div>
-                  <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>Email Address</label>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '8px' }}>Email Address</label>
                   <input 
                     type="email" 
                     value={user?.email} 
                     disabled
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border-subtle)', fontSize: '1rem', background: '#f8fafc', color: 'var(--text-muted)' }}
+                    style={{ 
+                      width: '100%', padding: '12px 16px', borderRadius: '10px', 
+                      border: '1px solid var(--border-subtle)', fontSize: '1rem', 
+                      background: '#f8fafc', color: 'var(--text-muted)' 
+                    }}
                   />
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-light)', marginTop: '4px', display: 'block' }}>Email cannot be changed online.</span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-light)', marginTop: '6px', display: 'block' }}>Email cannot be changed online.</span>
                 </div>
                 <div>
-                  <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>Mobile Phone Number</label>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '8px' }}>Mobile Phone Number</label>
                   <input 
                     type="tel" 
                     value={editPhone} 
                     onChange={e => setEditPhone(e.target.value)}
                     placeholder="+91 9876543210"
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border-color)', fontSize: '1rem', outline: 'none' }}
+                    style={{ 
+                      width: '100%', padding: '12px 16px', borderRadius: '10px', 
+                      border: '1px solid var(--border-color)', fontSize: '1rem', outline: 'none',
+                      transition: 'border-color 0.2s'
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = 'var(--accent-gold)'}
+                    onBlur={(e) => e.target.style.borderColor = 'var(--border-color)'}
                   />
                 </div>
 
-                <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                  <button onClick={handleSaveProfile} className="btn-primary" style={{ padding: '10px 20px', flex: 1, borderRadius: '8px' }} disabled={isSaving}>
-                    {isSaving ? "Saving..." : <><Check size={16} /> Save Changes</>}
+                <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+                  <button onClick={handleSaveProfile} className="btn-primary" style={{ padding: '12px 24px', flex: 1, borderRadius: '30px', fontWeight: 600 }} disabled={isSaving}>
+                    {isSaving ? "Saving..." : "Save Changes"}
                   </button>
-                  <button onClick={handleEditCancel} className="btn-secondary" style={{ padding: '10px 20px', flex: 1, borderRadius: '8px' }}>
-                    <X size={16} /> Cancel
+                  <button onClick={handleEditCancel} className="btn-secondary" style={{ padding: '12px 24px', flex: 1, borderRadius: '30px', fontWeight: 600 }}>
+                    Cancel
                   </button>
                 </div>
               </div>
@@ -360,43 +514,45 @@ export default function Account() {
 
       {/* Tab Content 3: Addresses */}
       {activeTab === 'addresses' && (
-        <div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-            <h3 style={{ fontSize: '1.4rem', fontFamily: 'var(--font-serif)', margin: 0 }}>Saved Delivery Locations</h3>
-            <button onClick={() => { setEditAddressId(null); setNewAddr({ fullName: user?.name || '', mobile: user?.phone || '', alternatePhone: '', pincode: '', house: '', street: '', landmark: '', city: '', state: '', addressType: 'Home', isDefault: true }); setShowAddressModal(true); }} className="btn-primary" style={{ width: 'auto', padding: '8px 16px', fontSize: '0.85rem', borderRadius: '8px' }}>
+        <div style={{ animation: 'fadeIn 0.4s ease' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+            <h3 style={{ fontSize: '1.5rem', fontFamily: 'var(--font-serif)', margin: 0, color: 'var(--text-main)' }}>Saved Delivery Locations</h3>
+            <button onClick={() => { setEditAddressId(null); setNewAddr({ fullName: user?.name || '', mobile: user?.phone || '', alternatePhone: '', pincode: '', house: '', street: '', landmark: '', city: '', state: '', addressType: 'Home', isDefault: true }); setShowAddressModal(true); }} className="btn-primary" style={{ width: 'auto', padding: '10px 20px', fontSize: '0.85rem', borderRadius: '30px', boxShadow: 'var(--shadow-sm)', transition: 'all 0.2s' }} onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = 'var(--shadow-md)'; }} onMouseOut={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'var(--shadow-sm)'; }}>
               <Plus size={16} /> Add New Address
             </button>
           </div>
 
           {addresses.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '3rem', background: 'var(--bg-surface)', borderRadius: '12px', border: '1px solid var(--border-subtle)' }}>
-              <MapPin size={48} style={{ opacity: 0.2, marginBottom: '1rem', color: 'var(--text-muted)' }} />
-              <p style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.5rem' }}>No addresses saved yet</p>
-              <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Add your delivery address to checkout faster.</p>
+            <div style={{ textAlign: 'center', padding: '4rem 2rem', background: 'var(--bg-surface)', borderRadius: '16px', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 10px 40px -15px rgba(0,0,0,0.05)' }}>
+              <div style={{ width: '80px', height: '80px', background: '#faf8f5', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem', color: 'var(--accent-gold)' }}>
+                <MapPin size={36} />
+              </div>
+              <p style={{ fontSize: '1.25rem', fontFamily: 'var(--font-serif)', fontWeight: 600, color: 'var(--text-main)', margin: '0 0 0.5rem 0' }}>No addresses saved yet</p>
+              <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Add your delivery address to checkout faster and seamlessly.</p>
             </div>
           ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))', gap: '1.25rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 320px), 1fr))', gap: '1.5rem' }}>
             {addresses.map(addr => (
-              <div key={addr.id} className="address-card" style={{ background: 'var(--bg-surface)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-subtle)' }}>
-                <div className="flex-between" style={{ marginBottom: '8px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <strong style={{ fontSize: '1.05rem' }}>{addr.fullName}</strong>
-                    {addr.addressType && <span className="badge" style={{ background: '#f1f5f9', color: '#475569' }}>{addr.addressType}</span>}
+              <div key={addr.id} className="address-card" style={{ background: 'var(--bg-surface)', padding: '1.75rem', borderRadius: '16px', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 8px 30px -10px rgba(0,0,0,0.05)', transition: 'transform 0.3s, box-shadow 0.3s' }} onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 40px -10px rgba(0,0,0,0.08)'; }} onMouseOut={(e) => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 8px 30px -10px rgba(0,0,0,0.05)'; }}>
+                <div className="flex-between" style={{ marginBottom: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <strong style={{ fontSize: '1.1rem', color: 'var(--text-main)', fontFamily: 'var(--font-serif)' }}>{addr.fullName}</strong>
+                    {addr.addressType && <span className="badge" style={{ background: '#faf8f5', color: 'var(--accent-gold)', border: '1px solid rgba(212,175,55,0.2)' }}>{addr.addressType}</span>}
                   </div>
-                  {addr.isDefault && <span className="badge badge-gold" style={{ fontSize: '0.7rem', padding: '2px 8px' }}>Default</span>}
+                  {addr.isDefault && <span className="badge badge-gold" style={{ fontSize: '0.7rem', padding: '3px 10px', borderRadius: '30px' }}>Default</span>}
                 </div>
-                <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', lineHeight: 1.5, marginBottom: '1rem' }}>
+                <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: '1.5rem' }}>
                   {addr.house}<br />
                   {addr.street}{addr.landmark ? `, Near ${addr.landmark}` : ''}<br />
                   {addr.city}, {addr.state} {addr.pincode}<br />
-                  Phone: {addr.mobile} {addr.alternatePhone ? `, ${addr.alternatePhone}` : ''}
+                  <span style={{ display: 'block', marginTop: '6px', color: 'var(--text-main)' }}>Phone: {addr.mobile} {addr.alternatePhone ? `, ${addr.alternatePhone}` : ''}</span>
                 </div>
-                <div style={{ display: 'flex', gap: '0.75rem', borderTop: '1px solid var(--border-subtle)', paddingTop: '1rem' }}>
-                  <button onClick={() => handleEditAddress(addr)} style={{ background: 'none', border: 'none', color: 'var(--accent-gold)', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600, padding: 0 }}>
-                    Edit
+                <div style={{ display: 'flex', gap: '1rem', borderTop: '1px solid var(--border-subtle)', paddingTop: '1.25rem' }}>
+                  <button onClick={() => handleEditAddress(addr)} style={{ background: 'none', border: 'none', color: 'var(--accent-gold)', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600, padding: 0, transition: 'opacity 0.2s' }} onMouseOver={(e) => e.currentTarget.style.opacity = 0.7} onMouseOut={(e) => e.currentTarget.style.opacity = 1}>
+                    Edit Address
                   </button>
-                  <span style={{ color: 'var(--border-color)' }}>|</span>
-                  <button onClick={() => deleteAddress(addr.id)} style={{ background: 'none', border: 'none', color: '#D32F2F', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600, padding: 0 }}>
+                  <span style={{ color: 'var(--border-subtle)' }}>|</span>
+                  <button onClick={() => deleteAddress(addr.id)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600, padding: 0, transition: 'opacity 0.2s' }} onMouseOver={(e) => e.currentTarget.style.opacity = 0.7} onMouseOut={(e) => e.currentTarget.style.opacity = 1}>
                     Remove
                   </button>
                 </div>
@@ -409,13 +565,15 @@ export default function Account() {
 
       {/* Tab Content 4: Wishlist */}
       {activeTab === 'wishlist' && (
-        <div>
+        <div style={{ animation: 'fadeIn 0.4s ease' }}>
           {wishlistItems.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '4rem 1rem', background: 'var(--bg-surface)', borderRadius: 'var(--radius-lg)', border: '1px dashed var(--border-color)' }}>
-              <Heart size={48} style={{ opacity: 0.2, marginBottom: '1rem' }} />
-              <p style={{ fontSize: '1.2rem', fontWeight: 600, marginBottom: '0.5rem', fontFamily: 'var(--font-serif)' }}>Your wishlist is empty</p>
-              <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '2rem', maxWidth: '400px', margin: '0 auto 2rem' }}>Explore our luxury collection and tap the heart icon to save your favorite garments for later.</p>
-              <Link to="/shop" className="btn-primary" style={{ width: 'auto', display: 'inline-flex', padding: '10px 24px', borderRadius: '8px' }}>Explore Collection</Link>
+            <div style={{ textAlign: 'center', padding: '5rem 2rem', background: 'var(--bg-surface)', borderRadius: '16px', border: '1px solid rgba(0,0,0,0.05)', boxShadow: '0 10px 40px -15px rgba(0,0,0,0.05)' }}>
+              <div style={{ width: '80px', height: '80px', background: '#faf8f5', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem', color: 'var(--accent-gold)' }}>
+                <Heart size={36} />
+              </div>
+              <p style={{ fontSize: '1.4rem', fontWeight: 600, marginBottom: '0.75rem', fontFamily: 'var(--font-serif)', color: 'var(--text-main)' }}>Your wishlist is empty</p>
+              <p style={{ fontSize: '0.95rem', color: 'var(--text-muted)', marginBottom: '2.5rem', maxWidth: '420px', margin: '0 auto 2.5rem', lineHeight: 1.6 }}>Explore our luxury collection and tap the heart icon to save your favorite garments for later.</p>
+              <Link to="/shop" className="btn-primary" style={{ display: 'inline-flex', padding: '12px 28px', borderRadius: '30px', fontWeight: 600, boxShadow: 'var(--shadow-md)' }}>Explore Collection</Link>
             </div>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 220px), 1fr))', gap: '1.5rem' }}>
@@ -435,6 +593,31 @@ export default function Account() {
               <h3 style={{ fontSize: '1.2rem', fontFamily: 'var(--font-serif)' }}>{editAddressId ? 'Edit Delivery Address' : 'Add Delivery Address'}</h3>
               <button className="icon-btn" onClick={() => setShowAddressModal(false)}><X size={18} /></button>
             </div>
+
+            <button 
+              type="button" 
+              onClick={handleUseCurrentLocation}
+              disabled={isLocating}
+              style={{ 
+                width: '100%', 
+                padding: '12px', 
+                background: '#e0f2fe', 
+                color: '#0284c7', 
+                border: '1px dashed #7dd3fc', 
+                borderRadius: '8px', 
+                marginBottom: '1rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                fontWeight: 600,
+                cursor: isLocating ? 'not-allowed' : 'pointer',
+                transition: '0.2s'
+              }}
+            >
+              <MapPin size={16} />
+              {isLocating ? "Locating..." : "Use my current location"}
+            </button>
 
             <form onSubmit={handleAddAddressSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div style={{ gridColumn: 'span 2' }}>
@@ -469,7 +652,7 @@ export default function Account() {
               
               <div>
                 <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>PIN Code *</label>
-                <input type="text" required value={newAddr.pincode} onChange={(e) => setNewAddr({ ...newAddr, pincode: e.target.value })} style={{ width: '100%', padding: '10px 14px', border: '1px solid var(--border-color)', borderRadius: '8px', outline: 'none' }} />
+                <input type="text" maxLength="6" required value={newAddr.pincode} onChange={handlePincodeChange} style={{ width: '100%', padding: '10px 14px', border: '1px solid var(--border-color)', borderRadius: '8px', outline: 'none' }} />
               </div>
 
               <div>
@@ -479,7 +662,45 @@ export default function Account() {
 
               <div>
                 <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>State</label>
-                <input type="text" value={newAddr.state} onChange={(e) => setNewAddr({ ...newAddr, state: e.target.value })} style={{ width: '100%', padding: '10px 14px', border: '1px solid var(--border-color)', borderRadius: '8px', outline: 'none' }} />
+                <select value={newAddr.state} onChange={(e) => setNewAddr({ ...newAddr, state: e.target.value })} style={{ width: '100%', padding: '10px 14px', border: '1px solid var(--border-color)', borderRadius: '8px', outline: 'none', appearance: 'none', background: 'white' }}>
+                  <option value="">Select State</option>
+                  <option value="Andhra Pradesh">Andhra Pradesh</option>
+                  <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                  <option value="Assam">Assam</option>
+                  <option value="Bihar">Bihar</option>
+                  <option value="Chhattisgarh">Chhattisgarh</option>
+                  <option value="Goa">Goa</option>
+                  <option value="Gujarat">Gujarat</option>
+                  <option value="Haryana">Haryana</option>
+                  <option value="Himachal Pradesh">Himachal Pradesh</option>
+                  <option value="Jharkhand">Jharkhand</option>
+                  <option value="Karnataka">Karnataka</option>
+                  <option value="Kerala">Kerala</option>
+                  <option value="Madhya Pradesh">Madhya Pradesh</option>
+                  <option value="Maharashtra">Maharashtra</option>
+                  <option value="Manipur">Manipur</option>
+                  <option value="Meghalaya">Meghalaya</option>
+                  <option value="Mizoram">Mizoram</option>
+                  <option value="Nagaland">Nagaland</option>
+                  <option value="Odisha">Odisha</option>
+                  <option value="Punjab">Punjab</option>
+                  <option value="Rajasthan">Rajasthan</option>
+                  <option value="Sikkim">Sikkim</option>
+                  <option value="Tamil Nadu">Tamil Nadu</option>
+                  <option value="Telangana">Telangana</option>
+                  <option value="Tripura">Tripura</option>
+                  <option value="Uttar Pradesh">Uttar Pradesh</option>
+                  <option value="Uttarakhand">Uttarakhand</option>
+                  <option value="West Bengal">West Bengal</option>
+                  <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
+                  <option value="Chandigarh">Chandigarh</option>
+                  <option value="Dadra and Nagar Haveli and Daman and Diu">Dadra and Nagar Haveli and Daman and Diu</option>
+                  <option value="Delhi">Delhi</option>
+                  <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+                  <option value="Ladakh">Ladakh</option>
+                  <option value="Lakshadweep">Lakshadweep</option>
+                  <option value="Puducherry">Puducherry</option>
+                </select>
               </div>
 
               <div style={{ gridColumn: 'span 2' }}>

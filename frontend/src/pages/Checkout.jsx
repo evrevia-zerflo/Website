@@ -65,6 +65,76 @@ export default function Checkout() {
     isDefault: true
   });
 
+  const [isLocating, setIsLocating] = useState(false);
+
+  const handlePincodeChange = async (e) => {
+    const val = e.target.value.replace(/\D/g, '');
+    setNewAddr({ ...newAddr, pincode: val });
+    
+    if (val.length === 6) {
+      try {
+        const res = await fetch(`https://api.postalpincode.in/pincode/${val}`);
+        const data = await res.json();
+        if (data && data[0] && data[0].Status === 'Success') {
+          const postOffice = data[0].PostOffice[0];
+          setNewAddr(prev => ({
+            ...prev,
+            pincode: val,
+            city: postOffice.District || prev.city,
+            state: postOffice.State || prev.state
+          }));
+          toast.success("Location auto-filled!");
+        }
+      } catch (err) {
+        console.error("Failed to fetch pincode details", err);
+      }
+    }
+  };
+
+  const handleUseCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error("Geolocation is not supported by your browser");
+      return;
+    }
+    
+    setIsLocating(true);
+    const loadingToast = toast.loading("Locating you...");
+    
+    navigator.geolocation.getCurrentPosition(async (position) => {
+      try {
+        const { latitude, longitude } = position.coords;
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`);
+        const data = await res.json();
+        
+        if (data && data.address) {
+          setNewAddr(prev => ({
+            ...prev,
+            pincode: data.address.postcode || prev.pincode,
+            city: data.address.city || data.address.state_district || data.address.county || prev.city,
+            state: data.address.state || prev.state,
+            street: data.address.road || data.address.suburb || data.address.neighbourhood || prev.street
+          }));
+          toast.dismiss(loadingToast);
+          toast.success("Address auto-filled from location!");
+        } else {
+          toast.dismiss(loadingToast);
+          toast.error("Could not determine address.");
+        }
+      } catch (err) {
+        console.error("Geolocation fetch error:", err);
+        toast.dismiss(loadingToast);
+        toast.error("Failed to fetch address details.");
+      } finally {
+        setIsLocating(false);
+      }
+    }, (error) => {
+      console.error(error);
+      toast.dismiss(loadingToast);
+      toast.error("Permission denied or location unavailable.");
+      setIsLocating(false);
+    });
+  };
+
   const subtotal = getCartSubtotal();
   const discount = getDiscountAmount();
   const shipping = getShippingCost();
@@ -73,6 +143,20 @@ export default function Checkout() {
 
   const [couponInput, setCouponInput] = useState('');
   const [couponMsg, setCouponMsg] = useState('');
+
+  useEffect(() => {
+    if (showAddressModal) {
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    };
+  }, [showAddressModal]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -416,11 +500,36 @@ export default function Checkout() {
       {/* Add New Address Modal */}
       {showAddressModal && (
         <div className="modal-backdrop" onClick={() => setShowAddressModal(false)}>
-          <div className="modal-card" onClick={(e) => e.stopPropagation()} style={{ padding: '1.5rem' }}>
+          <div className="modal-card" onClick={(e) => e.stopPropagation()} style={{ padding: '1.5rem', width: '100%', maxWidth: '500px' }}>
             <div className="flex-between" style={{ marginBottom: '1rem' }}>
               <h3 style={{ fontSize: '1.1rem', fontFamily: 'var(--font-serif)' }}>Add Delivery Address</h3>
               <button className="icon-btn" onClick={() => setShowAddressModal(false)}><X size={18} /></button>
             </div>
+
+            <button 
+              type="button" 
+              onClick={handleUseCurrentLocation}
+              disabled={isLocating}
+              style={{ 
+                width: '100%', 
+                padding: '12px', 
+                background: '#e0f2fe', 
+                color: '#0284c7', 
+                border: '1px dashed #7dd3fc', 
+                borderRadius: '8px', 
+                marginBottom: '1rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                fontWeight: 600,
+                cursor: isLocating ? 'not-allowed' : 'pointer',
+                transition: '0.2s'
+              }}
+            >
+              <MapPin size={16} />
+              {isLocating ? "Locating..." : "Use my current location"}
+            </button>
 
             <form onSubmit={handleAddAddressSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
               <div style={{ gridColumn: 'span 2' }}>
@@ -455,7 +564,7 @@ export default function Checkout() {
               
               <div>
                 <label style={{ fontSize: '0.75rem', fontWeight: 600 }}>PIN Code *</label>
-                <input type="text" required value={newAddr.pincode} onChange={(e) => setNewAddr({ ...newAddr, pincode: e.target.value })} style={{ width: '100%', padding: '8px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)' }} />
+                <input type="text" maxLength="6" required value={newAddr.pincode} onChange={handlePincodeChange} style={{ width: '100%', padding: '8px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)' }} />
               </div>
 
               <div>
@@ -465,7 +574,45 @@ export default function Checkout() {
 
               <div>
                 <label style={{ fontSize: '0.75rem', fontWeight: 600 }}>State</label>
-                <input type="text" value={newAddr.state} onChange={(e) => setNewAddr({ ...newAddr, state: e.target.value })} style={{ width: '100%', padding: '8px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)' }} />
+                <select value={newAddr.state} onChange={(e) => setNewAddr({ ...newAddr, state: e.target.value })} style={{ width: '100%', padding: '8px', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-sm)', appearance: 'none', background: 'white' }}>
+                  <option value="">Select State</option>
+                  <option value="Andhra Pradesh">Andhra Pradesh</option>
+                  <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                  <option value="Assam">Assam</option>
+                  <option value="Bihar">Bihar</option>
+                  <option value="Chhattisgarh">Chhattisgarh</option>
+                  <option value="Goa">Goa</option>
+                  <option value="Gujarat">Gujarat</option>
+                  <option value="Haryana">Haryana</option>
+                  <option value="Himachal Pradesh">Himachal Pradesh</option>
+                  <option value="Jharkhand">Jharkhand</option>
+                  <option value="Karnataka">Karnataka</option>
+                  <option value="Kerala">Kerala</option>
+                  <option value="Madhya Pradesh">Madhya Pradesh</option>
+                  <option value="Maharashtra">Maharashtra</option>
+                  <option value="Manipur">Manipur</option>
+                  <option value="Meghalaya">Meghalaya</option>
+                  <option value="Mizoram">Mizoram</option>
+                  <option value="Nagaland">Nagaland</option>
+                  <option value="Odisha">Odisha</option>
+                  <option value="Punjab">Punjab</option>
+                  <option value="Rajasthan">Rajasthan</option>
+                  <option value="Sikkim">Sikkim</option>
+                  <option value="Tamil Nadu">Tamil Nadu</option>
+                  <option value="Telangana">Telangana</option>
+                  <option value="Tripura">Tripura</option>
+                  <option value="Uttar Pradesh">Uttar Pradesh</option>
+                  <option value="Uttarakhand">Uttarakhand</option>
+                  <option value="West Bengal">West Bengal</option>
+                  <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
+                  <option value="Chandigarh">Chandigarh</option>
+                  <option value="Dadra and Nagar Haveli and Daman and Diu">Dadra and Nagar Haveli and Daman and Diu</option>
+                  <option value="Delhi">Delhi</option>
+                  <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+                  <option value="Ladakh">Ladakh</option>
+                  <option value="Lakshadweep">Lakshadweep</option>
+                  <option value="Puducherry">Puducherry</option>
+                </select>
               </div>
 
               <div style={{ gridColumn: 'span 2' }}>

@@ -4,6 +4,33 @@ import Dashboard from './Dashboard';
 import { Package, Search, ChevronDown, CheckCircle, Clock, XCircle, Truck, X, User, MapPin, CreditCard, ChevronRight, Copy } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { TableRowSkeleton } from '../components/AdminSkeleton';
+import { ExternalLink } from 'lucide-react';
+
+const CopyField = ({ label, value }) => {
+  const handleCopy = () => {
+    if (!value) return;
+    navigator.clipboard.writeText(value)
+      .then(() => toast.success(`${label} copied!`))
+      .catch(() => toast.error(`Failed to copy ${label}`));
+  };
+
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 0', borderBottom: '1px solid #e2e8f0' }}>
+      <div>
+        <div style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 600, marginBottom: '2px' }}>{label}</div>
+        <div style={{ fontSize: '0.9rem', color: '#0f172a', fontWeight: 500 }}>{value || '-'}</div>
+      </div>
+      <button 
+        onClick={handleCopy}
+        style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '4px', padding: '6px 10px', color: '#334155', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', fontWeight: 600, transition: '0.2s' }}
+        onMouseOver={(e) => { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
+        onMouseOut={(e) => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
+      >
+        <Copy size={12} /> Copy
+      </button>
+    </div>
+  );
+};
 
 export default function Orders() {
   const [orders, setOrders] = useState([]);
@@ -21,9 +48,21 @@ export default function Orders() {
   const [editCourierName, setEditCourierName] = useState("");
   const [editSupplierOrderId, setEditSupplierOrderId] = useState("");
 
+  const [products, setProducts] = useState([]);
+
   useEffect(() => {
     fetchOrders();
+    fetchProducts();
   }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const res = await api.get('/admin/products');
+      setProducts(res.data || []);
+    } catch (err) {
+      console.error("Failed to load products", err);
+    }
+  };
 
   const fetchOrders = async () => {
     try {
@@ -449,16 +488,21 @@ Pincode: ${pincode || ''}`;
                     onMouseOver={(e) => { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
                     onMouseOut={(e) => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
                   >
-                    <Copy size={14} /> Copy for Meesho
+                    <Copy size={14} /> Copy All
                   </button>
                 </div>
-                <div style={{ background: '#f8fafc', border: '1px dashed #cbd5e1', borderRadius: '12px', padding: '1.25rem', fontFamily: 'monospace', fontSize: '0.85rem', color: '#334155', lineHeight: '1.6' }}>
-                  <strong>Name:</strong> {selectedOrder.address?.name}<br/>
-                  <strong>Phone:</strong> {selectedOrder.address?.phone}<br/>
-                  <strong>Address:</strong> {selectedOrder.address?.street}<br/>
-                  <strong>City:</strong> {selectedOrder.address?.city}<br/>
-                  <strong>State:</strong> {selectedOrder.address?.state}<br/>
-                  <strong>Pincode:</strong> {selectedOrder.address?.pincode}
+                <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '0 1rem' }}>
+                  <CopyField label="Pincode" value={selectedOrder.address?.pincode} />
+                  <CopyField label="City" value={selectedOrder.address?.city} />
+                  <CopyField label="State" value={selectedOrder.address?.state} />
+                  <CopyField label="House no. / Building Name" value={selectedOrder.address?.house} />
+                  <CopyField label="Road Name / Area / Colony" value={selectedOrder.address?.street} />
+                  <div style={{ borderBottom: 'none' }}>
+                    <CopyField label="Customer Name" value={selectedOrder.address?.name} />
+                  </div>
+                  <div style={{ borderBottom: 'none' }}>
+                    <CopyField label="Customer Phone" value={selectedOrder.address?.phone} />
+                  </div>
                 </div>
               </div>
 
@@ -468,23 +512,40 @@ Pincode: ${pincode || ''}`;
                   <Package size={16} color="#64748b" /> Line Items ({selectedOrder.items?.length || 0})
                 </h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {selectedOrder.items && selectedOrder.items.map((item, idx) => (
-                    <div key={idx} style={{ display: 'flex', gap: '12px', padding: '12px', border: '1px solid #e2e8f0', borderRadius: '12px', background: 'white' }}>
-                      <div style={{ width: '60px', height: '80px', borderRadius: '8px', overflow: 'hidden', background: '#f1f5f9' }}>
-                        <img src={item.image} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <p style={{ margin: '0 0 4px 0', fontSize: '0.85rem', fontWeight: 600, color: '#0f172a' }}>{item.name}</p>
-                        <p style={{ margin: '0 0 4px 0', fontSize: '0.75rem', color: '#64748b' }}>
-                          Size: {item.size || 'N/A'} {item.color ? `| Color: ${item.color}` : ''}
-                        </p>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
-                          <span style={{ fontSize: '0.8rem', color: '#475569' }}>Qty: {item.quantity}</span>
-                          <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#0f172a' }}>₹{(item.price * item.quantity).toLocaleString()}</span>
+                  {selectedOrder.items && selectedOrder.items.map((item, idx) => {
+                    const productDetails = products.find(p => p._id === item.productId || p.id === item.productId);
+                    const secretLink = productDetails?.supplierUrl;
+                    
+                    return (
+                      <div key={idx} style={{ display: 'flex', gap: '12px', padding: '12px', border: '1px solid #e2e8f0', borderRadius: '12px', background: 'white' }}>
+                        <div style={{ width: '60px', height: '80px', borderRadius: '8px', overflow: 'hidden', background: '#f1f5f9' }}>
+                          <img src={item.image} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        </div>
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                          <p style={{ margin: '0 0 4px 0', fontSize: '0.85rem', fontWeight: 600, color: '#0f172a' }}>{item.name}</p>
+                          <p style={{ margin: '0 0 4px 0', fontSize: '0.75rem', color: '#64748b' }}>
+                            Size: {item.size || 'N/A'} {item.color ? `| Color: ${item.color}` : ''}
+                          </p>
+                          
+                          {secretLink && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '8px', marginTop: '2px' }}>
+                              <a href={secretLink} target="_blank" rel="noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', color: '#0ea5e9', fontWeight: 600, textDecoration: 'none', background: '#e0f2fe', padding: '4px 8px', borderRadius: '4px', width: 'fit-content' }}>
+                                <ExternalLink size={12} /> Secret Supplier Link
+                              </a>
+                              <span style={{ fontSize: '0.7rem', color: '#94a3b8', wordBreak: 'break-all', background: '#f8fafc', padding: '4px', border: '1px solid #e2e8f0', borderRadius: '4px' }}>
+                                {secretLink}
+                              </span>
+                            </div>
+                          )}
+                          
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
+                            <span style={{ fontSize: '0.8rem', color: '#475569' }}>Qty: {item.quantity}</span>
+                            <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#0f172a' }}>₹{(item.price * item.quantity).toLocaleString()}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 

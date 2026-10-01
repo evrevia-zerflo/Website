@@ -353,7 +353,7 @@ async def delete_address(address_id: str, current_user: dict = Depends(get_curre
     return user.addresses
 
 @router.put("/profile/addresses/{address_id}")
-async def update_address(address_id: str, address: Address, current_user: dict = Depends(get_current_user)):
+async def update_address(address_id: str, address: UserAddress, current_user: dict = Depends(get_current_user)):
     user = await User.get(current_user["sub"])
     if not user:
         raise HTTPException(status_code=404, detail="User not found")

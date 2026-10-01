@@ -1187,7 +1187,8 @@ a {
   border-radius: var(--radius-lg);
   width: 100%;
   max-width: 500px;
-  overflow: hidden;
+  max-height: 90vh;
+  overflow-y: auto;
   box-shadow: var(--shadow-lg);
   animation: modalUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
