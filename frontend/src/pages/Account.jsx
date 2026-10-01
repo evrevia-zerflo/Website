@@ -287,7 +287,7 @@ export default function Account() {
 
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem' }}>
                   {/* Items List */}
-                  <div style={{ flex: '1 1 400px', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                  <div style={{ flex: '1 1 280px', display: 'flex', flexDirection: 'column', gap: '1.5rem', minWidth: 0 }}>
                     {order.items.map(item => (
                       <div key={item.productId} style={{ display: 'flex', gap: '1rem' }}>
                         <div style={{ width: '90px', height: '120px', background: '#f1f5f9', borderRadius: '8px', overflow: 'hidden', flexShrink: 0 }}>
@@ -299,8 +299,8 @@ export default function Account() {
                             </div>
                           )}
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                          <Link to={`/product/${item.productId}`} style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-main)', textDecoration: 'none', marginBottom: '4px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                          <Link to={`/product/${item.productId}`} style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-main)', textDecoration: 'none', marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                             {item.name}
                           </Link>
                           <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '4px' }}>Qty: {item.quantity} {item.size && `| Size: ${item.size}`} {item.color && `| Color: ${item.color}`}</div>

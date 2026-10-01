@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Compass, Search, Heart, User, ShoppingBag } from 'lucide-react';
+import { Home, Compass, Search, Grid, User, ShoppingBag } from 'lucide-react';
 import useCartStore from '../store/cartStore';
 import useWishlistStore from '../store/wishlistStore';
 
@@ -33,10 +33,9 @@ export default function MobileBottomNav({ onOpenSearch }) {
         <span>Search</span>
       </button>
 
-      <Link to="/account?tab=wishlist" className={`bottom-nav-item ${location.search.includes('wishlist') ? 'active' : ''}`}>
-        <Heart size={20} />
-        {wishlistCount > 0 && <span className="badge-count" style={{ top: '2px', right: '14px', width: '15px', height: '15px', fontSize: '0.65rem' }}>{wishlistCount}</span>}
-        <span>Saved</span>
+      <Link to="/categories" className={`bottom-nav-item ${location.pathname === '/categories' ? 'active' : ''}`}>
+        <Grid size={20} />
+        <span>Catalog</span>
       </Link>
 
       <button className="bottom-nav-item" onClick={() => toggleCartDrawer(true)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
