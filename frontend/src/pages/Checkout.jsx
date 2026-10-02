@@ -26,6 +26,114 @@ import useAddressStore from '../store/addressStore';
 import useAuthStore from '../store/authStore';
 import api from '../api/client';
 
+const PaymentModal = ({ order, qrCodeData, onClose, onSuccess, onTimeout }) => {
+  const TOTAL_TIME = 300; // 5 minutes in seconds
+  const [timeLeft, setTimeLeft] = useState(TOTAL_TIME);
+
+  useEffect(() => {
+    if (timeLeft <= 0) {
+      onTimeout();
+      return;
+    }
+    const timer = setInterval(() => {
+      setTimeLeft(prev => prev - 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [timeLeft, onTimeout]);
+
+  const formatTime = (seconds) => {
+    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const s = (seconds % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  };
+
+  const handleSimulatePayment = () => {
+    onSuccess();
+  };
+
+  const handleUpiDeepLink = () => {
+    if (!order?.upiUri) return;
+    
+    // Attempt to launch the intent
+    window.location.href = order.upiUri;
+    
+    // Fallback detection logic
+    const start = Date.now();
+    setTimeout(() => {
+      // If the app is still visible and focus hasn't been lost for long, it likely failed to open an external app
+      if (document.visibilityState === 'visible' && Date.now() - start < 2000) {
+        toast.error('No UPI app found on your device. Please scan the QR code instead.', {
+          duration: 4000,
+          style: { background: 'var(--bg-secondary)', color: 'var(--text-main)', border: '1px solid var(--accent-red)' }
+        });
+      }
+    }, 1500);
+  };
+
+  const progressPercent = (timeLeft / TOTAL_TIME) * 100;
+  const isDanger = timeLeft < 60;
+
+  return (
+    <div className="modal-backdrop payment-modal-backdrop" style={{ zIndex: 9999, background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(8px)' }}>
+      <div className="modal-card payment-modal-card" style={{ padding: '1.5rem', maxWidth: '380px', textAlign: 'center', background: 'var(--bg-primary)', border: '1px solid var(--accent-gold-light)', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)', overflow: 'hidden' }}>
+        
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '0.5rem' }}>
+          <ShieldCheck size={24} color="var(--accent-gold)" />
+          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', margin: 0, color: 'var(--text-main)' }}>Secure Payment</h2>
+        </div>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.5rem', marginTop: '0.5rem' }}>Amount to pay: <strong style={{ fontSize: '1.1rem', color: 'var(--text-main)' }}>₹{order?.total?.toLocaleString('en-IN')}</strong></p>
+        
+        {/* Direct App Link */}
+        <button className="btn-primary" onClick={handleUpiDeepLink} style={{ width: '100%', padding: '12px', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '1.5rem', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
+          <CreditCard size={20} />
+          Pay directly with UPI App
+        </button>
+
+        <div style={{ display: 'flex', alignItems: 'center', margin: '0 0 1.5rem 0', color: 'var(--text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+          <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }}></div>
+          <span style={{ padding: '0 10px' }}>OR SCAN QR</span>
+          <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }}></div>
+        </div>
+        
+        <div style={{ display: 'flex', justifyContent: 'center', margin: '0.5rem 0 1.5rem 0' }}>
+          <div className="qr-scanner-container" style={{ padding: '0.75rem', borderRadius: '16px' }}>
+            {qrCodeData ? (
+              <img src={`data:image/png;base64,${qrCodeData}`} alt="UPI QR Code" style={{ width: '160px', height: '160px', display: 'block', position: 'relative', zIndex: 5, borderRadius: '8px' }} />
+            ) : (
+              <div style={{ width: '160px', height: '160px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
+                <Loader2 size={24} className="animate-spin" style={{ marginBottom: '0.5rem', color: 'var(--accent-gold)' }} />
+                <span style={{ fontSize: '0.8rem' }}>Generating QR...</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Timer */}
+        <div style={{ marginBottom: '1.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Time Remaining</span>
+            <div style={{ fontSize: '0.9rem', fontWeight: 700, color: isDanger ? 'var(--accent-red)' : 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <Clock size={14} /> {formatTime(timeLeft)}
+            </div>
+          </div>
+          <div className="timer-progress-bg" style={{ marginTop: '0', height: '4px' }}>
+            <div className={`timer-progress-fill ${isDanger ? 'danger' : ''}`} style={{ width: `${progressPercent}%` }}></div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
+          <button className="btn-secondary" onClick={handleSimulatePayment} style={{ width: '100%', padding: '10px', fontSize: '0.9rem', background: 'var(--bg-surface)' }}>
+            I have completed the payment
+          </button>
+          <button onClick={onClose} style={{ width: '100%', border: 'none', background: 'none', color: 'var(--text-muted)', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer', textDecoration: 'underline', padding: '0.5rem' }}>
+            Cancel Order & Return
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function Checkout() {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuthStore();
@@ -50,6 +158,9 @@ export default function Checkout() {
   const [showCouponModal, setShowCouponModal] = useState(false);
   const [showQrModal, setShowQrModal] = useState(false);
   const [paymentProcessing, setPaymentProcessing] = useState(false);
+  const [currentOrder, setCurrentOrder] = useState(null);
+  const [createdOrderId, setCreatedOrderId] = useState(null);
+  const [qrCodeData, setQrCodeData] = useState(null);
 
   // New Address Form State
   const [newAddr, setNewAddr] = useState({
@@ -146,7 +257,7 @@ export default function Checkout() {
   const [couponMsg, setCouponMsg] = useState('');
 
   useEffect(() => {
-    if (showAddressModal) {
+    if (showAddressModal || showQrModal) {
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflow = 'hidden';
     } else {
@@ -157,7 +268,7 @@ export default function Checkout() {
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
     };
-  }, [showAddressModal]);
+  }, [showAddressModal, showQrModal]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -256,12 +367,16 @@ export default function Checkout() {
         shipping: shipping || 0
       };
       
-      const res = await api.post('/orders', orderData);
-      const orderId = res.data.id || res.data._id;
+      const orderIdObj = res.data.id || res.data._id;
+      const orderIdStr = typeof orderIdObj === 'object' ? (orderIdObj.$oid || orderIdObj.toString()) : orderIdObj;
+      
+      const getRes = await api.get(`/orders/${orderIdStr}`);
+      setCurrentOrder(getRes.data);
+      setCreatedOrderId(orderIdStr);
+      setQrCodeData(getRes.data.qrBase64);
 
-      clearCart();
       setPaymentProcessing(false);
-      navigate(`/payment/${orderId}`);
+      setShowQrModal(true);
     } catch (err) {
       console.error("Order error", err?.response?.data || err);
       toast.error(err?.response?.data?.detail || 'Failed to create order. Please try again.');
@@ -682,7 +797,34 @@ export default function Checkout() {
         </div>
       )}
 
-      {/* Removed Mock QR Modal - Flow redirects to Payment.jsx Gateway now */}
+      {/* QR Payment Modal */}
+      {showQrModal && currentOrder && (
+        <PaymentModal 
+          order={currentOrder} 
+          qrCodeData={qrCodeData} 
+          onClose={async () => {
+            setShowQrModal(false);
+            toast.error('Payment cancelled.');
+            try {
+              if (createdOrderId) await api.put(`/orders/${createdOrderId}/cancel`);
+            } catch (err) { console.error("Cancel err", err); }
+          }}
+          onTimeout={async () => {
+            setShowQrModal(false);
+            toast.error('Payment time expired. Order cancelled.');
+            try {
+              if (createdOrderId) await api.put(`/orders/${createdOrderId}/cancel`);
+            } catch (err) { console.error("Cancel err", err); }
+          }}
+          onSuccess={() => {
+            setShowQrModal(false);
+            clearCart();
+            toast.success('Payment confirmed! Order placed successfully.');
+            // In a real app we would navigate to a success page here.
+            navigate('/account');
+          }}
+        />
+      )}
 
     </div>
   );

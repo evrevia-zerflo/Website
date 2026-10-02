@@ -15,7 +15,6 @@ const Shop = React.lazy(() => import('./pages/Shop'));
 const CategoriesPage = React.lazy(() => import('./pages/CategoriesPage'));
 const ProductDetail = React.lazy(() => import('./pages/ProductDetail'));
 const Checkout = React.lazy(() => import('./pages/Checkout'));
-const Payment = React.lazy(() => import('./pages/Payment'));
 const OrderTracking = React.lazy(() => import('./pages/OrderTracking'));
 const Account = React.lazy(() => import('./pages/Account'));
 const Login = React.lazy(() => import('./pages/Login'));
@@ -71,7 +70,6 @@ function AppContent() {
             <Route path="/shop" element={<Shop />} />
             <Route path="/product/:id" element={<ProductDetail />} />
             <Route path="/checkout" element={<Checkout />} />
-            <Route path="/payment/:orderId" element={<Payment />} />
             <Route path="/order-tracking/:orderId" element={<OrderTracking />} />
             <Route path="/account" element={<Account />} />
             <Route path="/login" element={<Login />} />

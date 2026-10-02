@@ -143,3 +143,23 @@ async def request_order_return(order_id: str, payload: ReturnRequest, current_us
         return order
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.put("/{order_id}/cancel")
+async def cancel_order(order_id: str, current_user: dict = Depends(get_current_user)):
+    user_id = current_user["sub"]
+    try:
+        order = await Order.get(ObjectId(order_id))
+        if not order:
+            raise HTTPException(status_code=404, detail="Order not found")
+        if order.userId != user_id:
+            raise HTTPException(status_code=403, detail="Not authorized")
+            
+        if order.orderStatus not in ["NEW", "PENDING_PAYMENT"]: 
+            raise HTTPException(status_code=400, detail="Only new or pending orders can be cancelled")
+            
+        order.orderStatus = "CANCELLED"
+        order.updatedAt = datetime.utcnow()
+        await order.save()
+        return {"status": "success", "message": "Order cancelled"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
