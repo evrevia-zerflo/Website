@@ -131,8 +131,8 @@ const useCartStore = create(
 
       getShippingCost: () => {
         const subtotal = get().getCartSubtotal();
-        if (subtotal === 0 || subtotal >= 1499) return 0; // Free shipping over ₹1,499
-        return 99; // Standard shipping fee ₹99
+        if (subtotal === 0 || subtotal >= 1499 || subtotal === 1) return 0; // Free shipping over ₹1,499 or for ₹1 test product
+        return 20; // Standard shipping fee ₹20
       },
 
       getCartTotal: () => {

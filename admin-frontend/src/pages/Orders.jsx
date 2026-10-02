@@ -350,7 +350,7 @@ Pincode: ${pincode || ''}`;
           <div style={{ position: 'absolute', inset: 0 }} onClick={() => setSelectedOrder(null)}></div>
           
           <div style={{
-            position: 'relative', width: '100%', maxWidth: '500px', background: 'white', height: '100vh', display: 'flex', flexDirection: 'column', boxShadow: '-10px 0 25px rgba(0,0,0,0.1)', animation: 'slideInRight 0.3s ease-out'
+            position: 'relative', width: '100%', maxWidth: '500px', background: 'white', height: '100%', display: 'flex', flexDirection: 'column', boxShadow: '-10px 0 25px rgba(0,0,0,0.1)', animation: 'slideInRight 0.3s ease-out'
           }}>
             {/* Header */}
             <div style={{ padding: '1.5rem', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

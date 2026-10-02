@@ -54,7 +54,7 @@ export default function Legal() {
             <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.6rem', marginBottom: '1rem' }}>Shipping & Delivery Policy</h2>
             <p>At EVRÉVIA, every garment is inspected for quality before dispatch. We ship across India using premium express courier partners.</p>
             <ul style={{ paddingLeft: '1.25rem', marginTop: '1rem' }}>
-              <li><strong>Free Delivery:</strong> Orders above ₹1,499 qualify for FREE Express Shipping. Standard delivery fee is ₹99.</li>
+              <li><strong>Free Delivery:</strong> Orders above ₹1,499 qualify for FREE Express Shipping. Standard delivery fee is ₹20.</li>
               <li><strong>Delivery Timeline:</strong> Metro cities (2–3 business days), rest of India (3–5 business days).</li>
               <li><strong>Order Tracking:</strong> A live tracking link will be sent via SMS and Email as soon as your order leaves our warehouse.</li>
             </ul>
