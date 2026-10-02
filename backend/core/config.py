@@ -15,4 +15,8 @@ class Settings(BaseModel):
     CLOUDINARY_API_KEY: Optional[str] = os.getenv("CLOUDINARY_API_KEY", None)
     CLOUDINARY_API_SECRET: Optional[str] = os.getenv("CLOUDINARY_API_SECRET", None)
     
+    # UPI Configuration
+    UPI_PAYEE_ID: str = os.getenv("UPI_PAYEE_ID", "merchant@upi")
+    UPI_PAYEE_NAME: str = os.getenv("UPI_PAYEE_NAME", "EVREVIA")
+    
 settings = Settings()

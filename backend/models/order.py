@@ -33,6 +33,8 @@ class Order(Document):
     total: float
     paymentStatus: str = "PENDING_PAYMENT" # PENDING_PAYMENT, PAID, FAILED, REVIEW
     orderStatus: str = "NEW" # NEW, PROCESSING, SHIPPED, DELIVERED, CANCELLED
+    paymentReference: Optional[str] = None
+    upiUri: Optional[str] = None
     upiReference: Optional[str] = None
     trackingId: Optional[str] = None
     courierName: Optional[str] = None

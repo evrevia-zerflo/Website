@@ -1,1 +1,2 @@
 cloudinary>=1.41.0
+qrcode[pil]>=7.4.2

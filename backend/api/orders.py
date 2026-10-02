@@ -7,6 +7,11 @@ from backend.models.product import Product
 from backend.core.config import settings
 from backend.api.auth import get_current_user
 from bson import ObjectId
+import qrcode
+import io
+import base64
+import urllib.parse
+from uuid import uuid4
 
 router = APIRouter()
 
@@ -19,37 +24,45 @@ class OrderCreateRequest(BaseModel):
 
 @router.post("/")
 async def create_order(request: OrderCreateRequest):
-    total = request.subtotal + request.shipping
-    
-    if not settings.MONGODB_URI:
-        # Mock order creation
-        return {
-            "id": "mock_order_123",
-            "total": total,
-            "status": "PENDING_PAYMENT",
-            "message": "Mock order created successfully"
-        }
-        
+    # Securely calculate subtotal from DB
+    real_subtotal = 0.0
     from bson.errors import InvalidId
-    # Deduct stock for each item
     for item in request.items:
         try:
             product = await Product.get(item.productId)
-            if product and product.stock >= item.quantity:
-                product.stock -= item.quantity
-                await product.save()
-            elif product:
-                raise HTTPException(status_code=400, detail=f"Not enough stock for {product.name}")
+            if product:
+                if product.stock >= item.quantity:
+                    product.stock -= item.quantity
+                    await product.save()
+                else:
+                    raise HTTPException(status_code=400, detail=f"Not enough stock for {product.name}")
+                real_subtotal += (product.price * item.quantity)
         except InvalidId:
-            pass # Mock product or invalid ID, skip stock deduction
+            pass # Skip mock/invalid ID
+
+    # Calculate real total
+    real_total = real_subtotal + request.shipping
+
+    # Generate unique payment reference
+    payment_ref = f"EVR-{str(uuid4())[:8].upper()}"
+
+    # Build UPI URI
+    # Format: upi://pay?pa={UPI_ID}&pn={NAME}&am={TOTAL}&cu=INR&tr={REF}&tn=Evrevia+Order
+    pa = urllib.parse.quote_plus(settings.UPI_PAYEE_ID)
+    pn = urllib.parse.quote_plus(settings.UPI_PAYEE_NAME)
+    am = f"{real_total:.2f}"
+    
+    upi_uri = f"upi://pay?pa={pa}&pn={pn}&am={am}&cu=INR&tr={payment_ref}&tn=Evrevia+Order"
 
     order = Order(
         userId=request.userId,
         items=request.items,
         address=request.address,
-        subtotal=request.subtotal,
+        subtotal=real_subtotal,
         shipping=request.shipping,
-        total=total
+        total=real_total,
+        paymentReference=payment_ref,
+        upiUri=upi_uri
     )
     
     await order.insert()
@@ -75,8 +88,33 @@ async def get_order_details(order_id: str, current_user: dict = Depends(get_curr
             raise HTTPException(status_code=404, detail="Order not found")
         if order.userId != user_id:
             raise HTTPException(status_code=403, detail="Not authorized to view this order")
-        return order
-    except Exception:
+            
+        order_dict = order.dict()
+        
+        # If pending payment, generate QR code base64 on the fly
+        if order.paymentStatus == "PENDING_PAYMENT":
+            # Generate upiUri if missing for backward compatibility
+            if not order.upiUri:
+                pa = urllib.parse.quote_plus(settings.UPI_PAYEE_ID)
+                pn = urllib.parse.quote_plus(settings.UPI_PAYEE_NAME)
+                am = f"{order.total:.2f}"
+                ref = order.paymentReference or f"EVR-{str(order.id)[:8].upper()}"
+                order.upiUri = f"upi://pay?pa={pa}&pn={pn}&am={am}&cu=INR&tr={ref}&tn=Evrevia+Order"
+                order.paymentReference = ref
+                await order.save()
+                
+            qr = qrcode.QRCode(version=1, box_size=8, border=2)
+            qr.add_data(order.upiUri)
+            qr.make(fit=True)
+            img = qr.make_image(fill_color="black", back_color="white")
+            buffered = io.BytesIO()
+            img.save(buffered, format="PNG")
+            qr_base64 = base64.b64encode(buffered.getvalue()).decode('utf-8')
+            order_dict["qrBase64"] = qr_base64
+            
+        return order_dict
+    except Exception as e:
+        print(f"Error fetching order: {e}")
         raise HTTPException(status_code=404, detail="Order not found")
 
 class ReturnRequest(BaseModel):

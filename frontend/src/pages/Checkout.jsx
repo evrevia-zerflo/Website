@@ -15,7 +15,8 @@ import {
   Clock, 
   CheckCircle2,
   X,
-  Edit2
+  Edit2,
+  Loader2
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import CheckoutHeader from '../components/CheckoutHeader';
@@ -219,50 +220,53 @@ export default function Checkout() {
   };
 
   const handlePlaceOrderAndPay = async () => {
+    if (!selectedAddressId) {
+      toast.error('Please select an address first.');
+      return;
+    }
+
     setPaymentProcessing(true);
-    setShowQrModal(true);
 
-    // Simulate backend payment verification callback after 3.5 seconds
-    setTimeout(async () => {
-      try {
-        const orderData = {
-          userId: user?.id || 'guest-' + Date.now(),
-          items: items.map(i => ({ 
-            productId: i.productId, 
-            name: i.name,
-            price: i.price, 
-            quantity: i.quantity, 
-            size: i.size, 
-            color: i.color,
-            image: i.image
-          })),
-          address: {
-            name: selectedAddress.fullName || selectedAddress.name || 'Customer',
-            phone: selectedAddress.mobile || selectedAddress.phone || '0000000000',
-            alternatePhone: selectedAddress.alternatePhone,
-            house: selectedAddress.house,
-            street: selectedAddress.street,
-            landmark: selectedAddress.landmark,
-            city: selectedAddress.city,
-            state: selectedAddress.state,
-            pincode: selectedAddress.pincode,
-            addressType: selectedAddress.addressType || 'Home'
-          },
-          subtotal: subtotal,
-          shipping: shipping
-        };
-        const res = await api.post('/orders', orderData).catch(() => ({ data: { id: 'EV-' + Math.floor(1000 + Math.random() * 9000) } }));
-        const orderId = res.data.id || res.data._id || 'EV-1042';
+    try {
+      const addressToUse = selectedAddress || {};
+      const orderData = {
+        userId: user?.id || user?._id || 'guest-' + Date.now(),
+        items: items.map(i => ({ 
+          productId: i.productId || i.id || 'unknown', 
+          name: i.name || 'Item',
+          price: i.price || 0, 
+          quantity: i.quantity || 1, 
+          size: i.size || 'M', 
+          color: i.color || 'Default',
+          image: i.image || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500&q=80'
+        })),
+        address: {
+          name: addressToUse.fullName || addressToUse.name || 'Customer',
+          phone: addressToUse.mobile || addressToUse.phone || '0000000000',
+          alternatePhone: addressToUse.alternatePhone || '',
+          house: addressToUse.house || 'N/A',
+          street: addressToUse.street || 'N/A',
+          landmark: addressToUse.landmark || '',
+          city: addressToUse.city || 'Unknown',
+          state: addressToUse.state || 'Unknown',
+          pincode: addressToUse.pincode || '000000',
+          addressType: addressToUse.addressType || 'Home'
+        },
+        subtotal: subtotal || 0,
+        shipping: shipping || 0
+      };
+      
+      const res = await api.post('/orders', orderData);
+      const orderId = res.data.id || res.data._id;
 
-        clearCart();
-        setPaymentProcessing(false);
-        setShowQrModal(false);
-        navigate(`/payment/${orderId}`);
-      } catch (err) {
-        console.error("Order error", err);
-        setPaymentProcessing(false);
-      }
-    }, 3500);
+      clearCart();
+      setPaymentProcessing(false);
+      navigate(`/payment/${orderId}`);
+    } catch (err) {
+      console.error("Order error", err?.response?.data || err);
+      toast.error(err?.response?.data?.detail || 'Failed to create order. Please try again.');
+      setPaymentProcessing(false);
+    }
   };
 
   return (
@@ -423,9 +427,13 @@ export default function Checkout() {
                     </button>
                   </div>
 
-                  <button className="btn-primary" onClick={handlePlaceOrderAndPay} style={{ width: '100%', padding: '1rem', fontSize: '1rem' }}>
-                    <ShieldCheck size={20} />
-                    <span>Pay ₹{total.toLocaleString('en-IN')} Securely</span>
+                  <button className="btn-primary" onClick={handlePlaceOrderAndPay} disabled={paymentProcessing} style={{ width: '100%', padding: '1rem', fontSize: '1rem', opacity: paymentProcessing ? 0.7 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                    {paymentProcessing ? (
+                      <Loader2 size={20} className="animate-spin" />
+                    ) : (
+                      <ShieldCheck size={20} />
+                    )}
+                    <span>{paymentProcessing ? 'Generating Exact Amount QR...' : `Pay ₹${total.toLocaleString('en-IN')} Securely`}</span>
                   </button>
                 </div>
               )}
@@ -674,43 +682,7 @@ export default function Checkout() {
         </div>
       )}
 
-      {/* Dynamic UPI Scan to Pay QR Code Modal */}
-      {showQrModal && (
-        <div className="modal-backdrop">
-          <div className="modal-card" style={{ padding: '2rem', textAlign: 'center', maxWidth: '420px' }}>
-            <div style={{ display: 'inline-flex', padding: '8px 16px', background: 'var(--accent-gold-light)', color: 'var(--accent-gold)', borderRadius: 'var(--radius-full)', fontSize: '0.8rem', fontWeight: 700, marginBottom: '1rem' }}>
-              <Clock size={14} style={{ marginRight: '6px' }} /> Verification in progress
-            </div>
-
-            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', marginBottom: '0.5rem' }}>Scan to Pay ₹{total.toLocaleString('en-IN')}</h3>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1.5rem' }}>Order #EV-1042 • EVRÉVIA Store</p>
-
-            <div style={{ background: '#FFF', padding: '1rem', borderRadius: 'var(--radius-md)', display: 'inline-block', border: '1px solid var(--border-color)', marginBottom: '1.5rem', boxShadow: 'var(--shadow-sm)' }}>
-              {/* Dynamic QR SVG */}
-              <svg width="180" height="180" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="100" height="100" fill="white"/>
-                <path d="M10 10H40V40H10V10ZM15 15V35H35V15H15Z" fill="#1A1817"/>
-                <path d="M20 20H30V30H20V20Z" fill="#B8975A"/>
-                <path d="M60 10H90V40H60V10ZM65 15V35H85V15H65Z" fill="#1A1817"/>
-                <path d="M70 20H80V30H70V20Z" fill="#B8975A"/>
-                <path d="M10 60H40V90H10V60ZM15 65V85H35V65H15Z" fill="#1A1817"/>
-                <path d="M20 70H30V80H20V70Z" fill="#B8975A"/>
-                <path d="M50 50H60V60H50V50Z" fill="#1A1817"/>
-                <path d="M70 50H90V60H70V50Z" fill="#1A1817"/>
-                <path d="M50 70H70V90H50V70Z" fill="#1A1817"/>
-                <path d="M80 70H90V90H80V70Z" fill="#B8975A"/>
-              </svg>
-            </div>
-
-            <p style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '4px' }}>
-              Waiting for payment confirmation...
-            </p>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-              Open GPay, PhonePe or Paytm to authorize transaction.
-            </p>
-          </div>
-        </div>
-      )}
+      {/* Removed Mock QR Modal - Flow redirects to Payment.jsx Gateway now */}
 
     </div>
   );
